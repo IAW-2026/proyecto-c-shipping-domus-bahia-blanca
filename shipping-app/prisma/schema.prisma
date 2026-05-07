@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Turno {
+  id                       String   @id @default(uuid())
+  propiedadId              String
+  compradorId              String
+  vendedorId               String
+  agenteId                 String
+
+  fechaHoraSolicitada      DateTime
+  fechaHoraConfirmada      DateTime?
+
+  estado                   EstadoTurno
+
+  observaciones            String?
+
+  respuestaAgenteEn        DateTime?
+  respuestaVendedorEn      DateTime?
+
+  creadoEn                 DateTime @default(now())
+
+  agente                   AgenteInmobiliario @relation(fields: [agenteId], references: [id])
+
+  historial                HistorialTurno[]
+}
+
+model AgenteInmobiliario {
+  id               String   @id @default(uuid())
+
+  clerkUserId      String   @unique
+
+  nombreCompleto   String
+  email            String   @unique
+  telefono         String?
+
+  inmobiliariaId   String
+
+  activo           Boolean  @default(true)
+
+  turnos           Turno[]
+}
+
+model HistorialTurno {
+  id             String   @id @default(uuid())
+
+  turnoId        String
+
+  accion         AccionTurno
+
+  detalle        String?
+
+  realizadoPor   String
+
+  creadoEn       DateTime @default(now())
+
+  turno          Turno @relation(fields: [turnoId], references: [id])
+}
+enum EstadoTurno {
+  PENDIENTE_AGENTE
+  RECHAZADO_AGENTE
+  PRE_ACEPTADO
+  RECHAZADO_VENDEDOR
+  CONFIRMADO
+  CANCELADO
+  COMPLETADO
+}
+enum AccionTurno {
+  CREADO
+  AGENTE_ACEPTA
+  AGENTE_RECHAZA
+  VENDEDOR_ACEPTA
+  VENDEDOR_RECHAZA
+  CANCELADO
+}
