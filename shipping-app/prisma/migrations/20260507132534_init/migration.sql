@@ -1,8 +1,5 @@
 -- CreateEnum
-CREATE TYPE "EstadoTurno" AS ENUM ('PENDIENTE_AGENTE', 'RECHAZADO_AGENTE', 'PRE_ACEPTADO', 'RECHAZADO_VENDEDOR', 'CONFIRMADO', 'CANCELADO', 'COMPLETADO');
-
--- CreateEnum
-CREATE TYPE "AccionTurno" AS ENUM ('CREADO', 'AGENTE_ACEPTA', 'AGENTE_RECHAZA', 'VENDEDOR_ACEPTA', 'VENDEDOR_RECHAZA', 'CANCELADO');
+CREATE TYPE "EstadoTurno" AS ENUM ('PENDIENTE_AGENTE', 'PRE_ACEPTADO', 'RECHAZADO_VENDEDOR', 'CONFIRMADO', 'CANCELADO', 'COMPLETADO');
 
 -- CreateTable
 CREATE TABLE "Turno" (
@@ -39,13 +36,14 @@ CREATE TABLE "AgenteInmobiliario" (
 CREATE TABLE "HistorialTurno" (
     "id" TEXT NOT NULL,
     "turnoId" TEXT NOT NULL,
-    "accion" "AccionTurno" NOT NULL,
+    "estado" "EstadoTurno" NOT NULL,
     "detalle" TEXT,
     "realizadoPor" TEXT NOT NULL,
     "creadoEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "HistorialTurno_pkey" PRIMARY KEY ("id")
 );
+
 
 -- CreateIndex
 CREATE UNIQUE INDEX "AgenteInmobiliario_clerkUserId_key" ON "AgenteInmobiliario"("clerkUserId");
