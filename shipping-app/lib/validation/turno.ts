@@ -21,6 +21,8 @@ export const turnoVendedorResponseSchema = z.object({
   fechaHoraConfirmada: z.coerce.date(),
 })
 
-export const turnoUpdateSchema = turnoCreateSchema.omit({
-  observaciones: true,
-}).partial()
+
+export const turnoUpdateSchema = z.object({
+  fechaHoraSolicitada: z.coerce.date().optional(),
+  observaciones: z.string().optional(),
+})

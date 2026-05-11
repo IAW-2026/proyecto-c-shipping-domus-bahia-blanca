@@ -26,7 +26,7 @@ CREATE TABLE "AgenteInmobiliario" (
     "nombreCompleto" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "telefono" TEXT,
-    "inmobiliariaId" TEXT NOT NULL,
+    "vendedorId" TEXT NOT NULL,
     "activo" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "AgenteInmobiliario_pkey" PRIMARY KEY ("id")
