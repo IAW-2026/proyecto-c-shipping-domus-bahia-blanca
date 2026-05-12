@@ -45,7 +45,7 @@ model AgenteInmobiliario {
   email            String   @unique
   telefono         String
 
-  vendedorId   String //vendedorID
+  vendedorId       String //vendedorID
 
   activo           Boolean  @default(true)
 
