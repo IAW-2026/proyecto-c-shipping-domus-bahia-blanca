@@ -45,7 +45,7 @@ model AgenteInmobiliario {
   email            String   @unique
   telefono         String
 
-  inmobiliariaId   String
+  vendedorId       String //vendedorID
 
   activo           Boolean  @default(true)
 
@@ -57,7 +57,7 @@ model HistorialTurno {
 
   turnoId        String
 
-  accion         AccionTurno
+  estado         EstadoTurno
 
   detalle        String?
 
@@ -70,18 +70,10 @@ model HistorialTurno {
 
 enum EstadoTurno {
   PENDIENTE_AGENTE
-  RECHAZADO_AGENTE
   PRE_ACEPTADO
   RECHAZADO_VENDEDOR
   CONFIRMADO
   CANCELADO
   COMPLETADO
 }
-enum AccionTurno {
-  CREADO
-  AGENTE_ACEPTA
-  AGENTE_RECHAZA
-  VENDEDOR_ACEPTA
-  VENDEDOR_RECHAZA
-  CANCELADO
-}
+
