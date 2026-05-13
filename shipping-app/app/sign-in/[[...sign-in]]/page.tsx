@@ -1,4 +1,3 @@
-import Image from "next/image";
 import MosaicoSignIn from "@/app/components/mosaicoSignIn";
 import SideBarClerk from "@/app/components/sideBarClerk";
 

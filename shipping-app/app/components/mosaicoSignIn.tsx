@@ -9,12 +9,13 @@ export default function mosaicoSignIn() {
           <div>
 
           <Image
-           src="/fondo.webp"
-           alt="Casa moderna en tonos cálidos"
-           width={1280}
-           height={1600}
-           className="absolute inset-0 h-full w-full object-cover"
-           loading="eager"
+            src="/fondo.webp"
+            alt="Casa moderna en tonos cálidos"
+            width={1280}
+            height={1600}
+            className="absolute inset-0 h-full w-full object-cover"
+            priority
+            sizes="(min-width: 1024px) 50vw, 0px"
           />
           <div className="relative z-10 p-[clamp(16px,3vw,48px)] text-white">
             <h2 className="hero-title mt-5 text-[clamp(28px,3.2vw,48px)] max-w-lg animate-[text-rise_700ms_ease-out_both] [animation-delay:120ms]">
