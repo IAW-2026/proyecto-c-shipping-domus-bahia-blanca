@@ -12,7 +12,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ClerkProvider>
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
+          <header className="absolute right-0 top-0 z-20 flex items-center gap-4 p-4">
             <Show when="signed-out">
             </Show>
             <Show when="signed-in">
