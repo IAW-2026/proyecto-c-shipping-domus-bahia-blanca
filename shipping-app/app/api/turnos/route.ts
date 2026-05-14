@@ -14,7 +14,7 @@ const estadoValues = [
 
 export async function GET(request: Request) {
   try {
-    const { userId } = auth()
+		const { userId } = await auth()
     if (!userId) {
       return NextResponse.redirect(new URL('/sign-in', request.url))
     }

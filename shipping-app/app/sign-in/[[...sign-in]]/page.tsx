@@ -1,9 +1,19 @@
-import { SignIn } from '@clerk/nextjs'
+import MosaicoSignIn from "@/app/components/mosaicoSignIn";
+import SideBarClerk from "@/app/components/sideBarClerk";
 
 export default function SignInPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <SignIn />
+    <div className="min-h-screen bg-[#f8f4ef] text-stone-900">
+      <div className="relative overflow-hidden bg-surface">
+        <div className="grid min-h-screen lg:grid-cols-[1fr_minmax(0,520px)]">
+          <div className="hidden lg:block">
+            <MosaicoSignIn />
+          </div>
+          <div className="relative z-10">
+            <SideBarClerk />
+          </div>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
