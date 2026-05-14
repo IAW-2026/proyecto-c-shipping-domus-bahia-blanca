@@ -33,7 +33,6 @@ model Turno {
 
   agente AgenteInmobiliario? @relation(fields: [agenteId], references: [id])
 
-  historial                HistorialTurno[]
 }
 
 model AgenteInmobiliario {
@@ -51,7 +50,7 @@ model AgenteInmobiliario {
 
   turnos           Turno[]
 }
-
+/*
 model HistorialTurno {
   id             String   @id @default(uuid())
 
@@ -67,7 +66,7 @@ model HistorialTurno {
 
   turno          Turno @relation(fields: [turnoId], references: [id])
 }
-
+*/
 enum EstadoTurno {
   PENDIENTE_AGENTE
   PRE_ACEPTADO
