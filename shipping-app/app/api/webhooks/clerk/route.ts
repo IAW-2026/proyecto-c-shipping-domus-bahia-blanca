@@ -24,30 +24,20 @@ export async function POST(req: NextRequest) {
 
     if (!webhookSecret) {
       console.error('CLERK_WEBHOOK_SECRET no configurado.')
-
-      return NextResponse.json(
-        { error: 'Misconfigured server' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Misconfigured server' }, { status: 500 })
     }
 
     const headerPayload = await headers()
-
     const svixId = headerPayload.get('svix-id')
     const svixTimestamp = headerPayload.get('svix-timestamp')
     const svixSignature = headerPayload.get('svix-signature')
 
     if (!svixId || !svixTimestamp || !svixSignature) {
-      return NextResponse.json(
-        { error: 'Missing svix headers' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing svix headers' }, { status: 400 })
     }
 
     const payload = await req.text()
-
     const wh = new Webhook(webhookSecret)
-
     let event: ClerkWebhookEvent
 
     try {
@@ -58,68 +48,27 @@ export async function POST(req: NextRequest) {
       }) as ClerkWebhookEvent
     } catch (error) {
       console.error('Webhook signature verification failed:', error)
-
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
 
-    // Ignoro eventos que no necesito
-    if (
-      event.type !== 'user.created' &&
-      event.type !== 'user.updated'
-    ) {
+    if (event.type !== 'user.created' && event.type !== 'user.updated') {
       return NextResponse.json({ received: true })
     }
 
-    const {
-      id,
-      first_name,
-      last_name,
-      email_addresses,
-      primary_email_address_id,
-    } = event.data
+    const { id, first_name, last_name, email_addresses, primary_email_address_id } = event.data
 
     const primaryEmail =
-      email_addresses.find(
-        (email) => email.id === primary_email_address_id
-      )?.email_address ??
+      email_addresses.find((email) => email.id === primary_email_address_id)?.email_address ??
       email_addresses[0]?.email_address
 
     if (!primaryEmail) {
       console.warn(`Usuario ${id} sin email primario.`)
-
       return NextResponse.json({ received: true })
     }
 
-    const nombreCompleto =
-      [first_name, last_name]
-        .filter(Boolean)
-        .join(' ') || 'Sin nombre'
+    const nombreCompleto = [first_name, last_name].filter(Boolean).join(' ') || 'Sin nombre'
 
-    // Siempre sincronizo el usuario con Prisma
-    await prisma.agenteInmobiliario.upsert({
-      where: {
-        clerkUserId: id,
-      },
-      update: {
-        email: primaryEmail,
-        nombreCompleto,
-      },
-      create: {
-        clerkUserId: id,
-        nombreCompleto,
-        nombreInmobiliaria: '',
-        email: primaryEmail,
-        telefono: '',
-        vendedorId: '',
-        estado: 'COMPLETAR',
-      },
-    })
-
-    // Fuerza el rol a "agente"
-    if (event.type === 'user.created' || event.type === 'user.updated') {
+    if (event.type === 'user.created') {
       const client = await clerkClient()
 
       await client.users.updateUserMetadata(id, {
@@ -127,19 +76,37 @@ export async function POST(req: NextRequest) {
           roles: ['agente'],
         },
       })
+
+      await prisma.agenteInmobiliario.create({
+        data: {
+          clerkUserId: id,
+          nombreCompleto,
+          nombreInmobiliaria: '',
+          email: primaryEmail,
+          telefono: '',
+          vendedorId: '',
+          estado: 'COMPLETAR',
+        },
+      })
+
+      console.log(`✅ Agente creado: ${nombreCompleto} (${id})`)
     }
 
-    console.log(
-      `✅ Usuario sincronizado correctamente: ${nombreCompleto} (${id})`
-    )
+    if (event.type === 'user.updated') {
+      await prisma.agenteInmobiliario.update({
+        where: { clerkUserId: id },
+        data: {
+          email: primaryEmail,
+          nombreCompleto,
+        },
+      })
+
+      console.log(`✅ Agente actualizado: ${nombreCompleto} (${id})`)
+    }
 
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error('WEBHOOK ERROR:', error)
-
-    return NextResponse.json(
-      { error: 'Internal webhook error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal webhook error' }, { status: 500 })
   }
 }
