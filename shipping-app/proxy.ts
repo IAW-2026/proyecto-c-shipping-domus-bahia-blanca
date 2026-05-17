@@ -27,8 +27,8 @@ export default clerkMiddleware(async (auth, req) => {
   // Autenticado pero no es agente inmobiliario
   //TO-DO: Redirigir de manera correcta a otra pagina o mostrar advertencia.
   const metadata = sessionClaims?.publicMetadata as {
-  roles?: string[]
-}
+    roles?: string[]
+  }
 
   if (
     isStatusRoute(req) ||
@@ -42,13 +42,6 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next()
   }
 
-  const roles = metadata?.roles ?? []
-
-  if (!roles.includes('agente')) {
-    console.log(roles)
-    return NextResponse.redirect(new URL('/unauthorized', req.url))
-  }
-
   try {
     const statusUrl = new URL('/api/agentes/estado', req.url)
     const statusResponse = await fetch(statusUrl, {
@@ -58,7 +51,6 @@ export default clerkMiddleware(async (auth, req) => {
     })
 
     if (statusResponse.ok) {
-      console.log(roles)
       const data = (await statusResponse.json()) as { estado?: string }
       if (data.estado === 'RECHAZADO') {
         return NextResponse.redirect(new URL('/cuenta-rechazada', req.url))
@@ -72,6 +64,12 @@ export default clerkMiddleware(async (auth, req) => {
     }
   } catch (error) {
     console.error(error)
+  }
+
+  const roles = metadata?.roles ?? []
+
+  if (!roles.includes('agente')) {
+    return NextResponse.redirect(new URL('/unauthorized', req.url))
   }
 
   return NextResponse.next()
