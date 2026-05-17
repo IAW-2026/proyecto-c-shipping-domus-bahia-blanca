@@ -75,7 +75,6 @@ export async function POST(request: Request) {
 				clerkUserId: event.data.id,
 				nombreCompleto,
 				nombreInmobiliaria: null,
-				inmobiliariaId: null,
 				email,
 				telefono: '',
 				vendedorId: '',
