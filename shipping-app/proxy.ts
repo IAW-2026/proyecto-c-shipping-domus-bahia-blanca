@@ -26,9 +26,9 @@ export default clerkMiddleware(async (auth, req) => {
   // Provisorio:
   // Autenticado pero no es agente inmobiliario
   //TO-DO: Redirigir de manera correcta a otra pagina o mostrar advertencia.
-  const metadata = sessionClaims?.metadata as {
-    roles?: string[]
-  }
+  const metadata = sessionClaims?.publicMetadata as {
+  roles?: string[]
+}
 
   if (
     isStatusRoute(req) ||
