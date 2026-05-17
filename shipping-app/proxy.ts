@@ -13,6 +13,7 @@ const isInmobiliariasRoute = createRouteMatcher(['/api/inmobiliarias(.*)'])
 const isReviewRoute = createRouteMatcher(['/cuenta-en-revision(.*)'])
 const isRejectedRoute = createRouteMatcher(['/cuenta-rechazada(.*)'])
 const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
+const isUnauthorizedRoute = createRouteMatcher(['/unauthorized(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
   if (isPublicRoute(req)) return NextResponse.next()
@@ -35,7 +36,8 @@ export default clerkMiddleware(async (auth, req) => {
     isInmobiliariasRoute(req) ||
     isReviewRoute(req) ||
     isRejectedRoute(req) ||
-    isOnboardingRoute(req)
+    isOnboardingRoute(req) ||
+    isUnauthorizedRoute(req)
   ) {
     return NextResponse.next()
   }

@@ -1,6 +1,7 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { clerkClient } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 
 //Formato de como me tiene que mandar la info clerk
@@ -81,6 +82,15 @@ export async function POST(request: Request) {
 				estado: 'COMPLETAR',
 			},
 		})
+
+		if (event.type === 'user.created') {
+			const client = await clerkClient()
+			await client.users.updateUserMetadata(event.data.id, {
+				publicMetadata: {
+					roles: ['agente'],
+				},
+			})
+		}
 	}
 
 	return NextResponse.json({ ok: true })
