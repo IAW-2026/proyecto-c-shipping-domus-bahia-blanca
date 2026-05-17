@@ -6,10 +6,10 @@
 
 */
 -- DropForeignKey
-ALTER TABLE "HistorialTurno" DROP CONSTRAINT "HistorialTurno_turnoId_fkey";
+ALTER TABLE IF EXISTS "HistorialTurno" DROP CONSTRAINT IF EXISTS "HistorialTurno_turnoId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Turno" DROP CONSTRAINT "Turno_agenteId_fkey";
+ALTER TABLE "Turno" DROP CONSTRAINT IF EXISTS "Turno_agenteId_fkey";
 
 -- AlterTable
 ALTER TABLE "AgenteInmobiliario" ALTER COLUMN "telefono" SET NOT NULL;
@@ -18,7 +18,7 @@ ALTER TABLE "AgenteInmobiliario" ALTER COLUMN "telefono" SET NOT NULL;
 ALTER TABLE "Turno" ALTER COLUMN "agenteId" DROP NOT NULL;
 
 -- DropTable
-DROP TABLE "HistorialTurno";
+DROP TABLE IF EXISTS "HistorialTurno";
 
 -- AddForeignKey
 ALTER TABLE "Turno" ADD CONSTRAINT "Turno_agenteId_fkey" FOREIGN KEY ("agenteId") REFERENCES "AgenteInmobiliario"("id") ON DELETE SET NULL ON UPDATE CASCADE;

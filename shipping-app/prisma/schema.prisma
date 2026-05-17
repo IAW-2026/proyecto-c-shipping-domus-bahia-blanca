@@ -41,12 +41,16 @@ model AgenteInmobiliario {
   clerkUserId      String   @unique
   
   nombreCompleto   String
+
+  nombreInmobiliaria String?
+  
   email            String   @unique
+  
   telefono         String
 
   vendedorId       String //vendedorID
 
-  activo           Boolean  @default(true)
+  estado           EstadoAgente @default(COMPLETAR)
 
   turnos           Turno[]
 }
@@ -74,5 +78,12 @@ enum EstadoTurno {
   CONFIRMADO
   CANCELADO
   COMPLETADO
+}
+
+enum EstadoAgente {
+  COMPLETAR
+  PENDIENTE
+  ACEPTADO
+  RECHAZADO
 }
 
