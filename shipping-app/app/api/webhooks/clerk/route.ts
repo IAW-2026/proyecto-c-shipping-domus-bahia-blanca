@@ -118,21 +118,13 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Asegura que roles incluya "agente" sin pisar otros roles
+    // Fuerza el rol a "agente"
     if (event.type === 'user.created' || event.type === 'user.updated') {
       const client = await clerkClient()
-      const user = await client.users.getUser(id)
-      const currentRoles = Array.isArray(user.publicMetadata?.roles)
-        ? (user.publicMetadata.roles as string[])
-        : []
-      const nextRoles = currentRoles.includes('agente')
-        ? currentRoles
-        : [...currentRoles, 'agente']
 
       await client.users.updateUserMetadata(id, {
         publicMetadata: {
-          ...user.publicMetadata,
-          roles: nextRoles,
+          roles: ['agente'],
         },
       })
     }
