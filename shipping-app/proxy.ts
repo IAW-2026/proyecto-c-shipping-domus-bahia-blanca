@@ -45,6 +45,7 @@ export default clerkMiddleware(async (auth, req) => {
   const roles = metadata?.roles ?? []
 
   if (!roles.includes('agente')) {
+    console.log(roles)
     return NextResponse.redirect(new URL('/unauthorized', req.url))
   }
 
@@ -57,6 +58,7 @@ export default clerkMiddleware(async (auth, req) => {
     })
 
     if (statusResponse.ok) {
+      console.log(roles)
       const data = (await statusResponse.json()) as { estado?: string }
       if (data.estado === 'RECHAZADO') {
         return NextResponse.redirect(new URL('/cuenta-rechazada', req.url))
