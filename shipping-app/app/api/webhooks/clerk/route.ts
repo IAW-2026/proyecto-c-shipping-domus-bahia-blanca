@@ -1,68 +1,75 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { clerkClient } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 
-
 type ClerkWebhookEvent = {
-  type: string
+  type: 'user.created' | 'user.updated'
   data: {
     id: string
-    email_addresses?: { email_address: string }[]
-    first_name?: string
-    last_name?: string
+    first_name?: string | null
+    last_name?: string | null
+    email_addresses: Array<{ email_address: string; id: string }>
+    primary_email_address_id?: string
+    public_metadata?: {
+      roles?: string[]
+    }
   }
 }
 
-function getNombreCompleto(data: ClerkWebhookEvent['data']) {
-  const first = data.first_name ?? ''
-  const last = data.last_name ?? ''
-  const full = `${first} ${last}`.trim()
-  return full.length > 0 ? full : 'Sin nombre'
-}
-
-export async function POST(request: Request) {
-  const secret = process.env.CLERK_WEBHOOK_SECRET
-  if (!secret) {
-    return NextResponse.json({ error: 'Missing CLERK_WEBHOOK_SECRET' }, { status: 500 })
+export async function POST(req: NextRequest) {
+  const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    console.error('CLERK_WEBHOOK_SECRET no configurado.')
+    return NextResponse.json({ error: 'Misconfigured server' }, { status: 500 })
   }
 
-  const payload = await request.text()
-  const headerList = await headers()
-  const svixId = headerList.get('svix-id')
-  const svixTimestamp = headerList.get('svix-timestamp')
-  const svixSignature = headerList.get('svix-signature')
+  const headerPayload = await headers()
+  const svix_id = headerPayload.get('svix-id')
+  const svix_timestamp = headerPayload.get('svix-timestamp')
+  const svix_signature = headerPayload.get('svix-signature')
 
-  if (!svixId || !svixTimestamp || !svixSignature) {
-    return NextResponse.json({ error: 'Missing webhook headers' }, { status: 400 })
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    return NextResponse.json({ error: 'Missing svix headers' }, { status: 400 })
   }
 
+  const payload = await req.text()
+  const wh = new Webhook(webhookSecret)
   let event: ClerkWebhookEvent
 
   try {
-    const webhook = new Webhook(secret)
-    event = webhook.verify(payload, {
-      'svix-id': svixId,
-      'svix-timestamp': svixTimestamp,
-      'svix-signature': svixSignature,
+    event = wh.verify(payload, {
+      'svix-id': svix_id,
+      'svix-timestamp': svix_timestamp,
+      'svix-signature': svix_signature,
     }) as ClerkWebhookEvent
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  const email = event.data.email_addresses?.[0]?.email_address
-  if (!email) {
-    return NextResponse.json({ error: 'Missing email' }, { status: 400 })
+  if (event.type !== 'user.created' && event.type !== 'user.updated') {
+    return NextResponse.json({ received: true })
   }
 
-  const nombreCompleto = getNombreCompleto(event.data)
+  const { id, first_name, last_name, email_addresses, primary_email_address_id } = event.data
+
+  const primaryEmail =
+    email_addresses.find((e) => e.id === primary_email_address_id)?.email_address ??
+    email_addresses[0]?.email_address
+
+  if (!primaryEmail) {
+    console.warn(`Usuario ${id} sin email primario — omitido.`)
+    return NextResponse.json({ received: true })
+  }
+
+  const nombreCompleto = [first_name, last_name].filter(Boolean).join(' ') || 'Sin nombre'
 
   if (event.type === 'user.created') {
     const client = await clerkClient()
 
-    await client.users.updateUserMetadata(event.data.id, {
+    await client.users.updateUserMetadata(id, {
       publicMetadata: {
         roles: ['agente'],
       },
@@ -70,23 +77,30 @@ export async function POST(request: Request) {
 
     await prisma.agenteInmobiliario.create({
       data: {
-        clerkUserId: event.data.id,
+        clerkUserId: id,
         nombreCompleto,
         nombreInmobiliaria: '',
-        email,
+        email: primaryEmail,
         telefono: '',
         vendedorId: '',
         estado: 'COMPLETAR',
       },
     })
+
+    console.log(`✅ Agente creado: ${nombreCompleto} (${id})`)
   }
 
   if (event.type === 'user.updated') {
     await prisma.agenteInmobiliario.update({
-      where: { clerkUserId: event.data.id },
-      data: { email, nombreCompleto },
+      where: { clerkUserId: id },
+      data: {
+        email: primaryEmail,
+        nombreCompleto,
+      },
     })
+
+    console.log(`✅ Agente actualizado: ${nombreCompleto} (${id})`)
   }
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ received: true })
 }
