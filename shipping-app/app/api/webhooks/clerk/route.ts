@@ -121,12 +121,12 @@ export async function POST(req: NextRequest) {
     // Solo asigno metadata al crearse
     if (event.type === 'user.created') {
       const client = await clerkClient()
-
+/*
       await client.users.updateUserMetadata(id, {
         publicMetadata: {
           roles: ['agente'],
         },
-      })
+      }) */
     }
 
     console.log(

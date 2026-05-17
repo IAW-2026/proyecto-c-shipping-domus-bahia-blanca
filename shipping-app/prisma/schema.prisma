@@ -46,9 +46,9 @@ model AgenteInmobiliario {
   
   email            String   @unique
   
-  telefono         String
+  telefono         String?
 
-  vendedorId       String //vendedorID
+  vendedorId       String? //vendedorID
 
   estado           EstadoAgente @default(COMPLETAR)
 
