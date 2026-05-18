@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   try {
 		const { userId } = await auth()
     if (!userId) {
-      return NextResponse.redirect(new URL('/sign-in', request.url))
+      return NextResponse.redirect(new URL('/', request.url))
     }
 
     const agente = await prisma.agenteInmobiliario.findUnique({
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     })
 
     if (!agente) {
-      return NextResponse.redirect(new URL('/sign-in', request.url))
+      return NextResponse.redirect(new URL('/', request.url))
     }
 
     const { searchParams } = new URL(request.url)
