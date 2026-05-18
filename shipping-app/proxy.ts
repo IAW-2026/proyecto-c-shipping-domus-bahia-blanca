@@ -16,12 +16,17 @@ const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
 const isUnauthorizedRoute = createRouteMatcher(['/unauthorized(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isPublicRoute(req)) return NextResponse.next()
+  const isRootPath = req.nextUrl.pathname === '/'
+
+  if (isPublicRoute(req) && !isRootPath) return NextResponse.next()
 
   const { userId, sessionClaims } = await auth()
 
   // No autenticado
-  if (!userId) return NextResponse.redirect(new URL('/', req.url))
+  if (!userId) {
+    if (isRootPath) return NextResponse.next()
+    return NextResponse.redirect(new URL('/', req.url))
+  }
 
   // Provisorio:
   // Autenticado pero no es agente inmobiliario
@@ -60,6 +65,9 @@ export default clerkMiddleware(async (auth, req) => {
       }
       if (data.estado === 'COMPLETAR') {
         return NextResponse.redirect(new URL('/onboarding', req.url))
+      }
+       if (data.estado === 'ACEPTADO') {
+        return NextResponse.redirect(new URL('/dashboard', req.url))
       }
     }
   } catch (error) {
