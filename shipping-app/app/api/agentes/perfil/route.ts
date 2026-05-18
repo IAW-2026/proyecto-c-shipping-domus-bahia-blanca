@@ -58,9 +58,13 @@ export async function POST(request: Request) {
       },
     })
 
+    const rolesActuales = (user.publicMetadata?.roles as string[]) ?? []
+    const roles = Array.from(new Set([...rolesActuales, 'agente']))
+
     await client.users.updateUserMetadata(userId, {
       publicMetadata: {
-        roles: ['agente'],
+        ...user.publicMetadata,
+        roles,
         Inmobiliaria: selected.nombre,
       },
     })

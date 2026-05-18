@@ -76,28 +76,7 @@ export async function POST(req: NextRequest) {
     const nombreCompleto =
       [first_name, last_name].filter(Boolean).join(' ') || 'Sin nombre'
 
-    // 1) METADATA PRIMERO — merge, no replace
-    if (event.type === 'user.created') {
-      const client = await clerkClient()
-
-      const user = await client.users.getUser(id)
-      const rolesActuales = (user.publicMetadata?.roles as string[]) ?? []
-      const roles = Array.from(new Set([...rolesActuales, 'agente']))
-
-      await client.users.updateUserMetadata(id, {
-        publicMetadata: { ...user.publicMetadata, roles },
-      })
-      console.log(`✅ Rol 'agente' mergeado para ${id} — roles: ${JSON.stringify(roles)}`)
-
-      // Verificar que quedó. Si no, 500 para que Clerk reintente.
-      const final = await client.users.getUser(id)
-      const finalRoles = (final.publicMetadata?.roles as string[]) ?? []
-      if (!finalRoles.includes('agente')) {
-        return NextResponse.json({ error: 'roles incompletos' }, { status: 500 })
-      }
-    }
-
-    // 2) Prisma en su propio try/catch — si falla, la metadata ya quedó escrita
+    // Prisma en su propio try/catch
     try {
       await prisma.agenteInmobiliario.upsert({
         where: { clerkUserId: id },

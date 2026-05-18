@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
 const isPublicRoute = createRouteMatcher([
-  '/sign-in(.*)',
+  '/',
   '/api/webhooks/clerk(.*)',
   '/api/agentes/confirmar(.*)',
   '/api/agentes/pendientes(.*)',
@@ -21,7 +21,7 @@ export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth()
 
   // No autenticado
-  if (!userId) return NextResponse.redirect(new URL('/sign-in', req.url))
+  if (!userId) return NextResponse.redirect(new URL('/', req.url))
 
   // Provisorio:
   // Autenticado pero no es agente inmobiliario
@@ -64,12 +64,6 @@ export default clerkMiddleware(async (auth, req) => {
     }
   } catch (error) {
     console.error(error)
-  }
-
-  const roles = metadata?.roles ?? []
-
-  if (!roles.includes('agente')) {
-    return NextResponse.redirect(new URL('/unauthorized', req.url))
   }
 
   return NextResponse.next()
