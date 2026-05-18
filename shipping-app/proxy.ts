@@ -7,13 +7,16 @@ const isPublicRoute = createRouteMatcher([
   '/api/agentes/confirmar(.*)',
   '/api/agentes/pendientes(.*)',
 ])
-const isStatusRoute = createRouteMatcher(['/api/agentes/estado(.*)'])
-const isProfileRoute = createRouteMatcher(['/api/agentes/perfil(.*)'])
-const isInmobiliariasRoute = createRouteMatcher(['/api/inmobiliarias(.*)'])
-const isReviewRoute = createRouteMatcher(['/cuenta-en-revision(.*)'])
-const isRejectedRoute = createRouteMatcher(['/cuenta-rechazada(.*)'])
-const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
-const isUnauthorizedRoute = createRouteMatcher(['/unauthorized(.*)'])
+
+const isUnprotectedRoute = createRouteMatcher([
+  '/api/agentes/estado(.*)',
+  '/api/agentes/perfil(.*)',
+  '/api/inmobiliarias(.*)',
+  '/cuenta-en-revision(.*)',
+  '/cuenta-rechazada(.*)',
+  '/onboarding(.*)',
+  '/unauthorized(.*)',
+])
 
 export default clerkMiddleware(async (auth, req) => {
   const isRootPath = req.nextUrl.pathname === '/'
@@ -28,25 +31,17 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
-  // Provisorio:
-  // Autenticado pero no es agente inmobiliario
-  //TO-DO: Redirigir de manera correcta a otra pagina o mostrar advertencia.
-  const metadata = sessionClaims?.publicMetadata as {
-    roles?: string[]
+  // Rutas que no necesitan verificación de rol ni estado
+  if (isUnprotectedRoute(req)) return NextResponse.next()
+
+  // Verificar rol agente
+  const roles = (sessionClaims?.metadata as { roles?: string[] })?.roles ?? []
+
+  if (!roles.includes('agente')) {
+    return NextResponse.redirect(new URL('/onboarding', req.url))
   }
 
-  if (
-    isStatusRoute(req) ||
-    isProfileRoute(req) ||
-    isInmobiliariasRoute(req) ||
-    isReviewRoute(req) ||
-    isRejectedRoute(req) ||
-    isOnboardingRoute(req) ||
-    isUnauthorizedRoute(req)
-  ) {
-    return NextResponse.next()
-  }
-
+  // Verificar estado del agente
   try {
     const statusUrl = new URL('/api/agentes/estado', req.url)
     const statusResponse = await fetch(statusUrl, {
@@ -57,6 +52,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     if (statusResponse.ok) {
       const data = (await statusResponse.json()) as { estado?: string }
+
       if (data.estado === 'RECHAZADO') {
         return NextResponse.redirect(new URL('/cuenta-rechazada', req.url))
       }
@@ -66,7 +62,7 @@ export default clerkMiddleware(async (auth, req) => {
       if (data.estado === 'COMPLETAR') {
         return NextResponse.redirect(new URL('/onboarding', req.url))
       }
-       if (data.estado === 'ACEPTADO') {
+      if (data.estado === 'ACEPTADO') {
         return NextResponse.redirect(new URL('/dashboard', req.url))
       }
     }
