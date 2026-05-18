@@ -58,7 +58,7 @@ export default clerkMiddleware(async (auth, req) => {
       if (data.estado === 'PENDIENTE') {
         return NextResponse.redirect(new URL('/cuenta-en-revision', req.url))
       }
-      if (data.estado !== 'ACEPTADO') {
+      if (data.estado !== 'COMPLETAR') {
         return NextResponse.redirect(new URL('/onboarding', req.url))
       }
     }
