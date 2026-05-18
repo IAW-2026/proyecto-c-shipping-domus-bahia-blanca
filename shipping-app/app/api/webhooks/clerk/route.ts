@@ -78,19 +78,34 @@ export async function POST(req: NextRequest) {
 
     // Prisma en su propio try/catch
     try {
-      await prisma.agenteInmobiliario.upsert({
-        where: { clerkUserId: id },
-        update: { email: primaryEmail, nombreCompleto },
-        create: {
-          clerkUserId: id,
-          nombreCompleto,
-          nombreInmobiliaria: '',
-          email: primaryEmail,
-          telefono: '',
-          vendedorId: '',
-          estado: 'COMPLETAR',
-        },
+      const existentePorEmail = await prisma.agenteInmobiliario.findUnique({
+        where: { email: primaryEmail },
+        select: { clerkUserId: true },
       })
+
+      //Si ya existe un agente con el mismo email, se actualiza ese registro y se vincula al clerkUserId nuevo,
+      //si no, se hace el upsert normal.
+      //Esto evita el P2002 por email duplicado.
+      if (existentePorEmail && existentePorEmail.clerkUserId !== id) {
+        await prisma.agenteInmobiliario.update({
+          where: { email: primaryEmail },
+          data: { clerkUserId: id, nombreCompleto },
+        })
+      } else {
+        await prisma.agenteInmobiliario.upsert({
+          where: { clerkUserId: id },
+          update: { email: primaryEmail, nombreCompleto },
+          create: {
+            clerkUserId: id,
+            nombreCompleto,
+            nombreInmobiliaria: '',
+            email: primaryEmail,
+            telefono: '',
+            vendedorId: '',
+            estado: 'COMPLETAR',
+          },
+        })
+      }
       console.log(`✅ Usuario sincronizado: ${nombreCompleto} (${id})`)
     } catch (err) {
       console.error(`❌ Falló upsert Prisma para ${id}:`, err)
