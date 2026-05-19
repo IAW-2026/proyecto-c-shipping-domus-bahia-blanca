@@ -26,6 +26,8 @@ model Turno {
 
   observaciones            String?
 
+  estadoComprador EstadoTurnoComprador @default(PENDIENTE)
+  
   respuestaAgenteEn        DateTime?
   respuestaVendedorEn      DateTime?
 
@@ -71,6 +73,13 @@ model HistorialTurno {
   turno          Turno @relation(fields: [turnoId], references: [id])
 }
 */
+enum EstadoTurnoComprador {
+  PENDIENTE
+  CONFIRMADO
+  CANCELADO
+  COMPLETADO
+}
+
 enum EstadoTurno {
   PENDIENTE_AGENTE
   PRE_ACEPTADO
