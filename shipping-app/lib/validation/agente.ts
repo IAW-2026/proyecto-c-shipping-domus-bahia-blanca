@@ -11,7 +11,7 @@ export const agenteCreateSchema = z.object({
 export const agenteUpdateSchema = agenteCreateSchema.partial().omit({ clerkUserId: true })
 
 export const agentePerfilSchema = z.object({
-  nombreCompleto: z.string().min(1),
+  nombreCompleto: z.string().min(1).optional(),
   telefono: z.string().min(1),
   vendedorId: z.string().min(1),
 })

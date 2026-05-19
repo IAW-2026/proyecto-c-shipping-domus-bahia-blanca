@@ -37,10 +37,16 @@ export async function POST(request: Request) {
       )
     }
 
+    const nombreCompleto =
+      data.nombreCompleto?.trim() ||
+      user.fullName ||
+      [user.firstName, user.lastName].filter(Boolean).join(' ') ||
+      'Sin nombre'
+
     const agente = await prisma.agenteInmobiliario.upsert({
       where: { clerkUserId: userId },
       update: {
-        nombreCompleto: data.nombreCompleto,
+        nombreCompleto,
         nombreInmobiliaria: selected.nombre,
         email,
         telefono: data.telefono,
@@ -49,7 +55,7 @@ export async function POST(request: Request) {
       },
       create: {
         clerkUserId: userId,
-        nombreCompleto: data.nombreCompleto,
+        nombreCompleto,
         nombreInmobiliaria: selected.nombre,
         email,
         telefono: data.telefono,
@@ -64,8 +70,7 @@ export async function POST(request: Request) {
     await client.users.updateUserMetadata(userId, {
       publicMetadata: {
         ...user.publicMetadata,
-        roles,
-        Inmobiliaria: selected.nombre,
+        roles
       },
     })
 

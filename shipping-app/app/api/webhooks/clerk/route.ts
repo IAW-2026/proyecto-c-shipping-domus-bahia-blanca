@@ -1,8 +1,6 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { type NextRequest, NextResponse } from 'next/server'
-import { clerkClient } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
 
 type ClerkWebhookEvent = {
   type: 'user.created' | 'user.updated'
@@ -54,62 +52,6 @@ export async function POST(req: NextRequest) {
 
     if (event.type !== 'user.created' && event.type !== 'user.updated') {
       return NextResponse.json({ received: true })
-    }
-
-    const {
-      id,
-      first_name,
-      last_name,
-      email_addresses,
-      primary_email_address_id,
-    } = event.data
-
-    const primaryEmail =
-      email_addresses.find((email) => email.id === primary_email_address_id)
-        ?.email_address ?? email_addresses[0]?.email_address
-
-    if (!primaryEmail) {
-      console.warn(`Usuario ${id} sin email primario.`)
-      return NextResponse.json({ received: true })
-    }
-
-    const nombreCompleto =
-      [first_name, last_name].filter(Boolean).join(' ') || 'Sin nombre'
-
-    // Prisma en su propio try/catch
-    try {
-      const existentePorEmail = await prisma.agenteInmobiliario.findUnique({
-        where: { email: primaryEmail },
-        select: { clerkUserId: true },
-      })
-
-      //Si ya existe un agente con el mismo email, se actualiza ese registro y se vincula al clerkUserId nuevo,
-      //si no, se hace el upsert normal.
-      //Esto evita el P2002 por email duplicado.
-      if (existentePorEmail && existentePorEmail.clerkUserId !== id) {
-        await prisma.agenteInmobiliario.update({
-          where: { email: primaryEmail },
-          data: { clerkUserId: id, nombreCompleto },
-        })
-      } else {
-        await prisma.agenteInmobiliario.upsert({
-          where: { clerkUserId: id },
-          update: { email: primaryEmail, nombreCompleto },
-          create: {
-            clerkUserId: id,
-            nombreCompleto,
-            nombreInmobiliaria: '',
-            email: primaryEmail,
-            telefono: '',
-            vendedorId: '',
-            estado: 'COMPLETAR',
-          },
-        })
-      }
-      console.log(`✅ Usuario sincronizado: ${nombreCompleto} (${id})`)
-    } catch (err) {
-      console.error(`❌ Falló upsert Prisma para ${id}:`, err)
-      return NextResponse.json({ received: true, prismaError: true })
     }
 
     return NextResponse.json({ received: true })

@@ -19,7 +19,7 @@ model Turno {
   vendedorId               String
   agenteId                 String?
 
-  fechaHoraSolicitada      DateTime
+  fechaHoraSolicitada      DateTime?
   fechaHoraConfirmada      DateTime?
 
   estado                   EstadoTurno
