@@ -24,5 +24,5 @@ export async function GET(request: Request) {
     orderBy: { nombreCompleto: 'asc' },
   })
 
-  return NextResponse.json({ agentes })
+  return NextResponse.json( agentes )
 }

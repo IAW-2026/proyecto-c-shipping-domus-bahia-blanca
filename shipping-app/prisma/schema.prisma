@@ -52,7 +52,7 @@ model AgenteInmobiliario {
 
   vendedorId       String? //vendedorID
 
-  estado           EstadoAgente @default(COMPLETAR)
+  estado           EstadoAgente @default(PENDIENTE)
 
   turnos           Turno[]
 }
@@ -90,7 +90,6 @@ enum EstadoTurno {
 }
 
 enum EstadoAgente {
-  COMPLETAR
   PENDIENTE
   ACEPTADO
   RECHAZADO
