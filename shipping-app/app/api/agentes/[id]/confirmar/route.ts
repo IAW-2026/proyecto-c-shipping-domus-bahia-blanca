@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   const apiKey = process.env.SELLER_CALLBACK_KEY
   const authHeader = request.headers.get('authorization')
@@ -13,7 +13,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const { id } = await params
+  const { id } = await context.params
 
   const agente = await prisma.agenteInmobiliario.findUnique({
     where: { id },
