@@ -14,12 +14,21 @@ datasource db {
 
 model Turno {
   id                       String   @id @default(uuid())
+  
   propiedadId              String
+
+  nombrePropiedad          String? //No me dejaba migrarlo si no lo ponia con ?
+  
   compradorId              String
+
+  nombreComprador          String? //No me dejaba migrarlo si no lo ponia con ?
+
   vendedorId               String
+  
   agenteId                 String?
 
   fechaHoraSolicitada      DateTime?
+
   fechaHoraConfirmada      DateTime?
 
   estado                   EstadoTurno
@@ -35,6 +44,7 @@ model Turno {
 
   agente AgenteInmobiliario? @relation(fields: [agenteId], references: [id])
 
+  historial HistorialTurno[]
 }
 
 model AgenteInmobiliario {
@@ -55,24 +65,21 @@ model AgenteInmobiliario {
   estado           EstadoAgente @default(PENDIENTE)
 
   turnos           Turno[]
+  
+  
 }
-/*
+
 model HistorialTurno {
-  id             String   @id @default(uuid())
+  id           String      @id @default(uuid())
+  turnoId      String
+  estado       EstadoTurno
+  detalle      String?
+  realizadoPor String
+  creadoEn     DateTime    @default(now())
 
-  turnoId        String
-
-  estado         EstadoTurno
-
-  detalle        String?
-
-  realizadoPor   String
-
-  creadoEn       DateTime @default(now())
-
-  turno          Turno @relation(fields: [turnoId], references: [id])
+  turno        Turno              @relation(fields: [turnoId], references: [id])
 }
-*/
+
 enum EstadoTurnoComprador {
   PENDIENTE
   CONFIRMADO

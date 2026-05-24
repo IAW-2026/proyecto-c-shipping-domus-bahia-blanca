@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   const apiKey = process.env.SELLER_CALLBACK_KEY
   const authHeader = request.headers.get('authorization')
@@ -13,8 +13,10 @@ export async function PATCH(
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
+  const { id } = await context.params
+
   const agente = await prisma.agenteInmobiliario.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { id: true },
   })
 
@@ -23,7 +25,7 @@ export async function PATCH(
   }
 
   await prisma.agenteInmobiliario.update({
-    where: { id: params.id },
+    where: { id },
     data: { estado: 'RECHAZADO' },
   })
 

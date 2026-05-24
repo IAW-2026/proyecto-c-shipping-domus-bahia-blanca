@@ -1,16 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-
-
-
-
 export async function GET(
-  request: Request,
-  { params }: { params: { compradorId: string } }
+  _request: NextRequest,                                 //Existe pero no lo uso para mantener una estructura en las APIS
+  context: { params: Promise<{ compradorId: string }> }
 ) {
   try {
-    const { compradorId } = params
+    const { compradorId } = await context.params
 
     const turnos = await prisma.turno.findMany({
       where: {
