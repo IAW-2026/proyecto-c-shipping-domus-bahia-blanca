@@ -16,7 +16,6 @@ export const turnoAgenteAceptarSchema = z.object({
 
 export const turnoVendedorResponseSchema = z.object({
   estado: z.enum(['CONFIRMADO', 'RECHAZADO_VENDEDOR']),
-  fechaHoraConfirmada: z.coerce.date(),
 })
 
 

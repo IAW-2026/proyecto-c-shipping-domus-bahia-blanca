@@ -15,8 +15,11 @@ datasource db {
 model Turno {
   id                       String   @id @default(uuid())
   
-  propiedadId              String
-
+  propiedadId              String //Necesito la id para luego solicitar lo siguiente
+  
+  direccion                String?
+  latitud                  Float?
+  longitud                 Float?                 
   nombrePropiedad          String? //No me dejaba migrarlo si no lo ponia con ?
   
   compradorId              String
@@ -24,12 +27,11 @@ model Turno {
   nombreComprador          String? //No me dejaba migrarlo si no lo ponia con ?
 
   vendedorId               String
-  
+  nombreInmobiliaria       String?
+
   agenteId                 String?
 
-  fechaHoraSolicitada      DateTime?
-
-  fechaHoraConfirmada      DateTime?
+  fechaHoraSolicitada      DateTime? //para que hora esta solicitado el turno
 
   estado                   EstadoTurno
 
@@ -40,7 +42,7 @@ model Turno {
   respuestaAgenteEn        DateTime?
   respuestaVendedorEn      DateTime?
 
-  creadoEn                 DateTime @default(now())
+  creadoEn                 DateTime @default(now()) //cuando se crea el turno en el sistema
 
   agente AgenteInmobiliario? @relation(fields: [agenteId], references: [id])
 
@@ -60,7 +62,7 @@ model AgenteInmobiliario {
   
   telefono         String?
 
-  vendedorId       String? //vendedorID
+  vendedorId       String? //inmobiliariaID
 
   estado           EstadoAgente @default(PENDIENTE)
 

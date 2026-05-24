@@ -3,64 +3,80 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
+import { requireAgente } from '@/lib/auth/requireAgente'
 import {
   ArrowUpRight,
   CalendarCheck2,
   Clock3,
   CheckCircle2,
-  TrendingUp,
   MapPin,
 } from 'lucide-react'
-
-const metrics = [
-  {
-    label: 'Visitas pendientes',
-    value: '14',
-    delta: '+3 esta semana',
-    icon: Clock3,
-    accent: 'bg-[oklch(0.62_0.07_60_/_0.12)] text-[oklch(0.45_0.07_60)]',
-  },
-  {
-    label: 'Visitas confirmadas',
-    value: '28',
-    delta: '+12% vs. semana pasada',
-    icon: CalendarCheck2,
-    accent: 'bg-[oklch(0.42_0.03_150_/_0.12)] text-primary',
-  },
-  {
-    label: 'Visitas completadas',
-    value: '63',
-    delta: 'Mes en curso',
-    icon: CheckCircle2,
-    accent: 'bg-[oklch(0.72_0.06_130_/_0.18)] text-[oklch(0.38_0.06_140)]',
-  },
-  {
-    label: 'Tasa de conversión',
-    value: '31%',
-    delta: 'Visita → oferta',
-    icon: TrendingUp,
-    accent: 'bg-[oklch(0.62_0.11_40_/_0.12)] text-accent-warm',
-  },
-]
 
 const week = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 const weekData = [4, 7, 5, 9, 6, 11, 3]
 
 export default async function DashboardPage() {
-  const { userId } = await auth()
+  const agente = await requireAgente()
 
-  const agente = await prisma.agenteInmobiliario.findUnique({
-    where: { clerkUserId: userId! },
-    select: { id: true, nombreCompleto: true },
-  })
+  const [upcoming, pendientesCount, confirmadasCount, completadasCount] = await Promise.all([
+    // Próximas visitas: turnos que el agente aceptó (PRE_ACEPTADO o CONFIRMADO)
+    prisma.turno.findMany({
+      where: {
+        agenteId: agente.id,
+        estado: { in: ['PRE_ACEPTADO', 'CONFIRMADO'] },
+      },
+      orderBy: { fechaHoraSolicitada: 'asc' },
+      take: 4,
+    }),
+    // Visitas pendientes: PENDIENTE_AGENTE para esa inmobiliaria
+    prisma.turno.count({
+      where: {
+        vendedorId: agente.vendedorId ?? undefined,
+        estado: 'PENDIENTE_AGENTE',
+        agenteId: null,
+      },
+    }),
+    // Visitas confirmadas: el agente confirmó
+    prisma.turno.count({
+      where: {
+        agenteId: agente.id,
+        estado: 'CONFIRMADO',
+      },
+    }),
+    // Visitas completadas: el agente completó
+    prisma.turno.count({
+      where: {
+        agenteId: agente.id,
+        estado: 'COMPLETADO',
+      },
+    }),
+  ])
 
-  const upcoming = await prisma.turno.findMany({
-    where: { agenteId: agente?.id },
-    orderBy: { fechaHoraSolicitada: 'asc' },
-    take: 4,
-  })
+  const firstName = agente.nombreCompleto?.split(' ')[0] ?? 'Agente'
 
-  const firstName = agente?.nombreCompleto?.split(' ')[0] ?? 'Agente'
+  const metrics = [
+    {
+      label: 'Visitas pendientes',
+      value: pendientesCount.toString(),
+      delta: 'Sin agente asignado',
+      icon: Clock3,
+      accent: 'bg-[oklch(0.62_0.07_60_/_0.12)] text-[oklch(0.45_0.07_60)]',
+    },
+    {
+      label: 'Visitas confirmadas',
+      value: confirmadasCount.toString(),
+      delta: 'Confirmadas por vendedor',
+      icon: CalendarCheck2,
+      accent: 'bg-[oklch(0.42_0.03_150_/_0.12)] text-primary',
+    },
+    {
+      label: 'Visitas completadas',
+      value: completadasCount.toString(),
+      delta: 'Mes en curso',
+      icon: CheckCircle2,
+      accent: 'bg-[oklch(0.72_0.06_130_/_0.18)] text-[oklch(0.38_0.06_140)]',
+    },
+  ]
 
   return (
     <>
@@ -92,7 +108,7 @@ export default async function DashboardPage() {
         </header>
 
         {/* Metrics */}
-        <section className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {metrics.map((m) => (
             <article
               key={m.label}
@@ -157,7 +173,7 @@ export default async function DashboardPage() {
               <div>
                 <h2 className="font-display text-xl font-medium">Próximas visitas</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-                  Próximas 48 horas
+                  Turnos aceptados
                 </p>
               </div>
               <Link
@@ -168,35 +184,41 @@ export default async function DashboardPage() {
               </Link>
             </div>
             <ul className="divide-y divide-border/60">
-              {upcoming.map((turno) => (
-                <li key={turno.id} className="flex items-start gap-4 px-6 py-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-secondary text-center leading-tight">
-                    <div>
-                      <p className="font-display text-[15px] font-medium text-primary">
-                        {turno.fechaHoraSolicitada
-                          ? new Date(turno.fechaHoraSolicitada).getHours().toString().padStart(2, '0')
-                          : '--'}
-                      </p>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {turno.fechaHoraSolicitada
-                          ? new Date(turno.fechaHoraSolicitada).getMinutes().toString().padStart(2, '0')
-                          : '--'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13.5px] font-medium text-foreground">
-                      {turno.propiedadId}
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-1 truncate text-[12px] text-muted-foreground">
-                      <MapPin className="h-3 w-3" /> {turno.compradorId}
-                    </p>
-                    <div className="mt-2">
-                      <StatusBadge status={turno.estado} />
-                    </div>
-                  </div>
+              {upcoming.length === 0 ? (
+                <li className="px-6 py-8 text-center text-[13px] text-muted-foreground">
+                  No tenés visitas próximas
                 </li>
-              ))}
+              ) : (
+                upcoming.map((turno) => (
+                  <li key={turno.id} className="flex items-start gap-4 px-6 py-4">
+                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-secondary text-center leading-tight">
+                      <div>
+                        <p className="font-display text-[15px] font-medium text-primary">
+                          {turno.fechaHoraSolicitada
+                            ? new Date(turno.fechaHoraSolicitada).getHours().toString().padStart(2, '0')
+                            : '--'}
+                        </p>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {turno.fechaHoraSolicitada
+                            ? new Date(turno.fechaHoraSolicitada).getMinutes().toString().padStart(2, '0')
+                            : '--'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13.5px] font-medium text-foreground">
+                        {turno.nombrePropiedad}
+                      </p>
+                      <p className="mt-0.5 flex items-center gap-1 truncate text-[12px] text-muted-foreground">
+                        <MapPin className="h-3 w-3" /> {turno.nombreComprador}
+                      </p>
+                      <div className="mt-2">
+                        <StatusBadge status={turno.estado} />
+                      </div>
+                    </div>
+                  </li>
+                ))
+              )}
             </ul>
           </article>
         </section>
