@@ -1,3 +1,4 @@
+'use client'
 import { SignIn } from "@clerk/nextjs";
 import Image from "next/image"
 
@@ -15,7 +16,7 @@ export default function SideBarClerk() {
           />
         </div>
         <div className="w-full max-w-md flex flex-col items-center">
-          <div className="mb-8 animate-[text-rise_700ms_ease-out_both] text-center font-sans leading-[1.05] tracking-[-0.02em]">
+          <div className="mb-8 animate-[text-rise_700ms_ease-out_both] text-center font-display leading-[1.05] tracking-[-0.02em]">
             {/* MOBILE */}
             <div className="lg:hidden flex flex-col leading-none">
               <span className="text-[50px] font-black text-[#141414]">

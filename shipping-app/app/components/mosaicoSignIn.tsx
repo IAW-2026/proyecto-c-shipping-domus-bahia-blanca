@@ -18,7 +18,7 @@ export default function mosaicoSignIn() {
             sizes="(min-width: 1024px) 50vw, 0px"
           />
           <div className="relative z-10 p-[clamp(16px,3vw,48px)] text-white">
-           <h2 className="mt-5 max-w-lg animate-[text-rise_700ms_ease-out_both] text-[clamp(28px,3.2vw,48px)] font-sans font-semibold leading-[1.05] tracking-[-0.02em] [animation-delay:120ms]">
+           <h2 className="mt-5 max-w-lg animate-[text-rise_700ms_ease-out_both] text-[clamp(28px,3.2vw,48px)] font-display font-semibold leading-[1.05] tracking-[-0.02em] [animation-delay:120ms]">
               Coordina visitas con la elegancia que mereces.
           </h2>
           </div>
