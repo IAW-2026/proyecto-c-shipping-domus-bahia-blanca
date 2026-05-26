@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function DELETE(
+export async function PATCH(
   _request: NextRequest,
   context: { params: Promise<{ compradorId: string; turnoId: string }> }
 ) {
@@ -10,7 +10,7 @@ export async function DELETE(
 
     const turno = await prisma.turno.findUnique({
       where: { id: turnoId },
-      select: { compradorId: true },
+      select: { compradorId: true, estado: true },
     })
 
     if (!turno) {
@@ -24,6 +24,13 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 403 }
+      )
+    }
+
+    if (turno.estado === 'CANCELADO') {
+      return NextResponse.json(
+        { error: 'El turno ya se encuentra cancelado' },
+        { status: 400 }
       )
     }
 
