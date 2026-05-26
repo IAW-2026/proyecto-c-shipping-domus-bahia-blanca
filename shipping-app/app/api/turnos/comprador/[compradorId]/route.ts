@@ -1,8 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+
+//Endpoint para obtener todos los turnos relacionados a un comprador, en su estado actual
 export async function GET(
-  _request: NextRequest,                                 //Existe pero no lo uso para mantener una estructura en las APIS
+  _request: NextRequest,
   context: { params: Promise<{ compradorId: string }> }
 ) {
   try {
@@ -11,9 +13,15 @@ export async function GET(
     const turnos = await prisma.turno.findMany({
       where: {
         compradorId,
-        estado: 'PENDIENTE_AGENTE',
       },
       orderBy: { creadoEn: 'desc' },
+      select: {
+        id: true,
+        propiedadId: true,
+        estado: true,
+        estadoComprador: true,
+        creadoEn: true,
+      },
     })
 
     const turnosPorPropiedad = new Map<string, typeof turnos[number]>()
