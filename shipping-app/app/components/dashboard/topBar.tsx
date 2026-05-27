@@ -11,7 +11,7 @@ export function AppTopbar({ crumbs }: { crumbs?: Crumb[] }) {
   const { user } = useUser()
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border/60 bg-background/80 px-6 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border/60 bg-[#FAF8F5] px-6 backdrop-blur-xl">
       <SidebarTrigger className="-ml-2 text-muted-foreground hover:text-foreground" />
 
       {crumbs && crumbs.length > 0 && (

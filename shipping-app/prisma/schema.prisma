@@ -50,9 +50,7 @@ model Turno {
 }
 
 model AgenteInmobiliario {
-  id               String   @id @default(uuid())
-
-  clerkUserId      String   @unique
+  id               String   @id
   
   nombreCompleto   String
 

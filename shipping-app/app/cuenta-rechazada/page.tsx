@@ -1,16 +1,15 @@
 export default function CuentaRechazadaPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-16">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-semibold">Cuenta rechazada</h1>
-        <p className="text-sm text-neutral-600">
+  <main className="min-h-screen bg-[#f8f4ef] text-stone-900">
+      <section className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center px-6 text-center">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          Cuenta rechazada
+        </h1>
+        <p className="mt-4 text-base text-stone-600">
           Tu solicitud no fue aprobada por la inmobiliaria.
         </p>
-      </header>
-
-      <section className="rounded-lg border border-neutral-200 p-6">
-        <p className="text-sm text-neutral-700">
-          Si crees que esto es un error, contacta al soporte para revisar tu
+        <p className="mt-2 text-sm text-stone-500">
+          Si crees que esto es un error, contacta a la inmobiliaria para revisar tu
           caso.
         </p>
       </section>

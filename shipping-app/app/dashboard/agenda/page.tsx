@@ -46,7 +46,7 @@ export default async function AgendaPage() {
   const { userId } = await auth()
 
   const agente = await prisma.agenteInmobiliario.findUnique({
-    where: { clerkUserId: userId! },
+    where: { id: userId! },
     select: { id: true },
   })
 

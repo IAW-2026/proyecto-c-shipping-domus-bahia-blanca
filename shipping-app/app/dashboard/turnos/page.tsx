@@ -9,10 +9,13 @@ export default async function TurnosPage() {
   const { userId } = await auth()
 
   const agente = await prisma.agenteInmobiliario.findUnique({
-    where: { clerkUserId: userId! },
+    where: { id: userId! },
     select: { id: true, vendedorId: true },
   })
 
+  //Agrego esto aunque en el layout obligue a que sea agente y eso 
+  //quiere decir que tiene un vendedorId asociado, ya que sino no puedo buscar los turnos, termina siendo un parche.
+  
   if (!agente?.vendedorId) {
     return (
       <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
@@ -24,7 +27,7 @@ export default async function TurnosPage() {
   const turnos = await prisma.turno.findMany({
     where: {
       vendedorId: agente.vendedorId, // ya no es null
-      estado: { in: ['PENDIENTE_AGENTE', 'PRE_ACEPTADO'] },
+      estado: { in: ['PENDIENTE_AGENTE']},
       agenteId: null,
     },
     orderBy: { fechaHoraSolicitada: 'asc' },
@@ -42,17 +45,6 @@ export default async function TurnosPage() {
             <p className="mt-1 text-[13.5px] text-muted-foreground">
               {turnos.length} solicitudes esperan tu confirmación.
             </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="rounded-lg border border-border/70 bg-card px-3.5 py-2 text-[12.5px] font-medium text-foreground hover:bg-secondary transition-colors">
-              Todas
-            </button>
-            <button className="rounded-lg border border-transparent bg-secondary px-3.5 py-2 text-[12.5px] font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Hoy
-            </button>
-            <button className="rounded-lg border border-transparent bg-secondary px-3.5 py-2 text-[12.5px] font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Esta semana
-            </button>
           </div>
         </header>
 
@@ -120,9 +112,6 @@ export default async function TurnosPage() {
               </div>
 
               <div className="mt-5 flex items-center justify-end gap-2">
-                <button className="h-9 rounded-lg border border-border/70 bg-transparent px-3 text-[12.5px] font-medium text-muted-foreground hover:bg-[oklch(0.62_0.11_40_/_0.08)] hover:text-accent-warm hover:border-[oklch(0.62_0.11_40_/_0.3)] inline-flex items-center gap-1.5 transition-colors">
-                  <X className="h-4 w-4" /> Rechazar
-                </button>
                 <button className="h-9 rounded-lg bg-primary px-3.5 text-[12.5px] font-medium text-primary-foreground shadow-soft hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-1.5 transition-colors">
                   <Check className="h-4 w-4" /> Aceptar
                 </button>

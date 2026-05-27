@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const agentes = await prisma.agenteInmobiliario.findMany({
     where: { estado: 'PENDIENTE' },
     select: {
-      clerkUserId: true,
+      id: true,
       nombreCompleto: true,
       nombreInmobiliaria: true,
       email: true,

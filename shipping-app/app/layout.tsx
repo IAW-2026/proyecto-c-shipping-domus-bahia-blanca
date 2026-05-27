@@ -2,7 +2,8 @@ import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider, Show, UserButton } from "@clerk/nextjs";
 
-export default function RootLayout({
+export default function RootLayout(
+  {
   children,
 }: Readonly<{
   children: React.ReactNode

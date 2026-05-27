@@ -2,6 +2,7 @@ import SideBarClerk from "@/app/components/sideBarClerk"
 import MosaicoSignIn from "@/app/components/mosaicoSignIn"
 
 export default function SignInPage() {
+  
   return (
     <div className="min-h-screen bg-[#f8f4ef] text-stone-900">
       <div className="relative overflow-hidden bg-surface">

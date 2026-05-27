@@ -41,7 +41,7 @@ export default async function TurnoDetailPage(
       },
     }),
     prisma.agenteInmobiliario.findUnique({
-      where: { clerkUserId: userId! },
+      where: { id: userId! },
       select: { id: true },
     }),
   ])

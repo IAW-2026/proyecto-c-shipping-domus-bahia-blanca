@@ -1,21 +1,23 @@
-import { redirect } from 'next/navigation'
+// app/sign-in/layout.tsx
 import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 
-export async function requireOnboarding() {
+export default async function SignInLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth()
 
-  if (!userId) redirect('/sign-in')
+  if (!userId) return <>{children}</>
 
   const agente = await prisma.agenteInmobiliario.findUnique({
-    where: { id: userId },
-    select: { estado: true },
-  })
+     where: { id: userId },
+     select: { estado: true },
+   })
+ 
 
-  if (!agente) return // sin perfil, puede hacer onboarding
-
-  // ya tiene perfil, redirigir según estado
+  if (!agente) redirect('/onboarding')
   if (agente.estado === 'PENDIENTE') redirect('/cuenta-en-revision')
   if (agente.estado === 'RECHAZADO') redirect('/cuenta-rechazada')
   if (agente.estado === 'ACEPTADO') redirect('/dashboard')
+
+  return <>{children}</>
 }

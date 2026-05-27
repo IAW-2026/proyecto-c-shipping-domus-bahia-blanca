@@ -24,7 +24,7 @@ export async function crearAgente(data: { telefono: string; vendedorId: string }
     [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Sin nombre'
 
   const agente = await prisma.agenteInmobiliario.upsert({
-    where: { clerkUserId: userId },
+    where: { id: userId },
     update: {
       nombreCompleto,
       nombreInmobiliaria: selected.nombre,
@@ -34,7 +34,7 @@ export async function crearAgente(data: { telefono: string; vendedorId: string }
       estado: 'PENDIENTE',
     },
     create: {
-      clerkUserId: userId,
+      id: userId,
       nombreCompleto,
       nombreInmobiliaria: selected.nombre,
       email,
