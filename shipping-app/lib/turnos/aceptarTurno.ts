@@ -2,13 +2,13 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 export async function aceptarTurno(turnoId: string) {
   const { userId } = await auth()
 
-  if (!userId) {
-    throw new Error('No autorizado')
-  }
+  if (!userId) throw new Error('No autorizado')
 
   const turno = await prisma.turno.findUnique({
     where: { id: turnoId },
@@ -25,4 +25,7 @@ export async function aceptarTurno(turnoId: string) {
       agenteId: userId,
     },
   })
+
+  revalidatePath('/dashboard/turnos')
+  redirect('/dashboard/turnos')
 }

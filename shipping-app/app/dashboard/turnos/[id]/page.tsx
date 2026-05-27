@@ -1,11 +1,12 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { tomarTurno } from '@/lib/actions/turno'
 import { PropertyMap } from '@/app/components/dashboard/propertyMapWrapper'
+
 import {
   ArrowLeft,
   Calendar,
@@ -42,12 +43,15 @@ export default async function TurnoDetailPage(
     }),
     prisma.agenteInmobiliario.findUnique({
       where: { id: userId! },
-      select: { id: true },
+      select: { id: true, vendedorId: true },
     }),
   ])
 
   if (!turno) notFound()
-
+    //Para que un agente que no le pertence el turno pueda acceder
+  if (!agente || agente.vendedorId !== turno.vendedorId || (turno.agenteId!=null && userId != turno.agenteId)) {
+    redirect('/unauthorized')
+  }
   const currentIdx = timeline.findIndex((t) => t.key === turno.estado)
 
   const fechaFormateada = turno.fechaHoraSolicitada
@@ -238,20 +242,23 @@ export default async function TurnoDetailPage(
 
             {/* Acciones */}
             <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
-              <p className="text-[12px] text-muted-foreground">Acciones</p>
               <div className="mt-3 grid gap-2">
-                <form action={tomarTurno.bind(null, turno.id, agente!.id)}>
-                  <button
-                    type="submit"
-                    className="h-10 w-full justify-center rounded-lg bg-primary text-[13px] font-medium text-primary-foreground hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-2 transition-colors"
-                  >
-                    <Check className="h-4 w-4" /> Tomar turno
-                  </button>
-                </form>
-                <button className="h-10 w-full justify-center rounded-lg border border-border/70 text-[13px] text-foreground hover:bg-secondary inline-flex items-center gap-2 transition-colors">
-                  <MessageSquare className="h-4 w-4" /> Mensaje al comprador
-                </button>
-                <button className="h-10 w-full justify-center rounded-lg text-[13px] text-muted-foreground hover:bg-[oklch(0.62_0.11_40_/_0.08)] hover:text-accent-warm inline-flex items-center gap-2 transition-colors">
+                {!turno.agenteId && (
+                  <>
+                    <form action={tomarTurno.bind(null, turno.id)}>
+                      <button
+                        type="submit"
+                        className="h-10 w-full justify-center rounded-lg bg-primary text-[13px] font-medium text-primary-foreground hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-2 transition-colors"
+                      >
+                        <Check className="h-4 w-4" /> Tomar turno
+                      </button>
+                    </form>
+                    <button className="h-10 w-full justify-center rounded-lg border border-border/70 text-[13px] text-foreground hover:bg-secondary inline-flex items-center gap-2 transition-colors">
+                      <MessageSquare className="h-4 w-4" /> Mensaje al comprador
+                    </button>
+                  </>
+                )}
+                <button className="h-10 w-full justify-center rounded-lg border border-red-500/30 bg-red-500/10 text-[13px] font-medium text-red-500 hover:bg-red-500/20 inline-flex items-center gap-2 transition-colors">
                   <X className="h-4 w-4" /> Cancelar turno
                 </button>
               </div>

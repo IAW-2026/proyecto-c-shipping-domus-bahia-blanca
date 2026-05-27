@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { Calendar, Check, MapPin, User2, X } from 'lucide-react'
+import { aceptarTurno } from '@/lib/turnos/aceptarTurno'
+import { tomarTurno } from '@/lib/actions/turno'
 
 export default async function TurnosPage() {
   const { userId } = await auth()
@@ -112,9 +114,14 @@ export default async function TurnosPage() {
               </div>
 
               <div className="mt-5 flex items-center justify-end gap-2">
-                <button className="h-9 rounded-lg bg-primary px-3.5 text-[12.5px] font-medium text-primary-foreground shadow-soft hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-1.5 transition-colors">
+                <form action={tomarTurno.bind(null, turno.id)}>
+                <button
+                  type="submit"
+                  className="h-9 rounded-lg bg-primary px-3.5 text-[12.5px] font-medium text-primary-foreground shadow-soft hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-1.5 transition-colors"
+                >
                   <Check className="h-4 w-4" /> Aceptar
                 </button>
+              </form>
               </div>
             </li>
           ))}
