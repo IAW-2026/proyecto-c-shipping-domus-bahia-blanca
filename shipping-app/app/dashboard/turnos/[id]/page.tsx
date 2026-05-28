@@ -4,8 +4,10 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
-import { tomarTurno } from '@/lib/actions/turno'
+import { tomarTurno, cancelarTurno } from '@/lib/actions/turno'
 import { PropertyMap } from '@/app/components/dashboard/propertyMapWrapper'
+import { DelayButton } from '@/app/components/dashboard/delayButton'
+
 
 import {
   ArrowLeft,
@@ -26,6 +28,7 @@ const timeline: { key: EstadoTurno; label: string }[] = [
 ]
 
 
+export const dynamic = 'force-dynamic'
 
 export default async function TurnoDetailPage(
   props: { params: Promise<{ id: string }> }
@@ -72,7 +75,7 @@ export default async function TurnoDetailPage(
   return (
     <>
       <AppTopbar crumbs={[{ label: 'Turnos' }, { label: turno.id.slice(0, 8).toUpperCase() }]} />
-      <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
+        <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
 
         <Link
           href="/dashboard/turnos"
@@ -101,26 +104,30 @@ export default async function TurnoDetailPage(
           {/* Columna principal */}
           <div className="space-y-6">
 
+            {/* Imagen de la propiedad (Placeholder) */}
+            <div className="w-full aspect-video rounded-2xl bg-secondary/40 border border-border/60 flex items-center justify-center text-muted-foreground text-[13px] shadow-soft">
+              [ Imagen de la propiedad ]
+            </div>
+
             {/* Mapa */}
             {turno.latitud && turno.longitud && (
-              <section className="rounded-2xl border border-border/60 bg-card p-6 shadow-soft">
-                <h2 className="font-display text-lg font-medium mb-4">Ubicación</h2>
+              <div className="w-full">
                 <PropertyMap
                   latitud={turno.latitud}
                   longitud={turno.longitud}
                   direccion={turno.direccion}
                 />
-                {turno.direccion && (
-                  <p className="mt-3 flex items-center gap-1.5 text-[13px] text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" /> {turno.direccion}
-                  </p>
-                )}
-              </section>
+              </div>
             )}
+          </div>
 
+          {/* Sidebar */}
+          <aside className="space-y-6">
+
+            
             {/* Línea de estados */}
             <section className="rounded-2xl border border-border/60 bg-card p-6 shadow-soft">
-              <h2 className="font-display text-lg font-medium">Línea de estados</h2>
+              <h2 className="font-display text-base font-medium">Turno</h2>
               <ol className="mt-6 space-y-5">
                 {timeline.map((t, i) => {
                   const reached = i <= currentIdx
@@ -170,7 +177,7 @@ export default async function TurnoDetailPage(
 
             {/* Detalle de la visita */}
             <section className="rounded-2xl border border-border/60 bg-card p-6 shadow-soft">
-              <h2 className="font-display text-lg font-medium">Detalle de la visita</h2>
+              <h2 className="font-display text-base font-medium">Detalle de la visita</h2>
               <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 text-[13px]">
                 <div>
                   <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">Fecha</dt>
@@ -205,64 +212,30 @@ export default async function TurnoDetailPage(
               </dl>
             </section>
 
-          </div>
-
-          {/* Sidebar */}
-          <aside className="space-y-6">
-
-            {/* Comprador */}
-            <section className="rounded-2xl border border-border/60 bg-card p-6 shadow-soft">
-              <h3 className="font-display text-base font-medium">Comprador</h3>
-              <div className="mt-4 flex items-center gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
-                  <User2 className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-[14px] font-medium">{turno.nombreComprador ?? turno.compradorId}</p>
-                  <p className="text-[12px] text-muted-foreground">Cliente</p>
-                </div>
-              </div>
-            </section>
-
-            {/* Agente asignado */}
-            {turno.agente && (
-              <section className="rounded-2xl border border-border/60 bg-card p-6 shadow-soft">
-                <h3 className="font-display text-base font-medium">Agente asignado</h3>
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-accent/10 text-accent-warm font-medium">
-                    {turno.agente.nombreCompleto.split(' ').map((p) => p[0]).join('')}
-                  </div>
-                  <div>
-                    <p className="text-[14px] font-medium">{turno.agente.nombreCompleto}</p>
-                    <p className="text-[12px] text-muted-foreground">Domus · Bahía Blanca</p>
-                  </div>
-                </div>
-              </section>
-            )}
-
             {/* Acciones */}
-            <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
+            
               <div className="mt-3 grid gap-2">
                 {!turno.agenteId && (
                   <>
-                    <form action={tomarTurno.bind(null, turno.id)}>
-                      <button
-                        type="submit"
+                  <DelayButton
+                     action={tomarTurno.bind(null, turno.id)}
                         className="h-10 w-full justify-center rounded-lg bg-primary text-[13px] font-medium text-primary-foreground hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-2 transition-colors"
                       >
-                        <Check className="h-4 w-4" /> Tomar turno
-                      </button>
-                    </form>
-                    <button className="h-10 w-full justify-center rounded-lg border border-border/70 text-[13px] text-foreground hover:bg-secondary inline-flex items-center gap-2 transition-colors">
-                      <MessageSquare className="h-4 w-4" /> Mensaje al comprador
-                    </button>
+                        <X className="h-4 w-4" /> Tomar turno
+                    </DelayButton>
                   </>
                 )}
-                <button className="h-10 w-full justify-center rounded-lg border border-red-500/30 bg-red-500/10 text-[13px] font-medium text-red-500 hover:bg-red-500/20 inline-flex items-center gap-2 transition-colors">
+                {turno.agenteId && (
+               
+                  <DelayButton
+                  action={cancelarTurno.bind(null, turno.id)}
+                  className="h-10 w-full justify-center rounded-lg border border-red-500/30 bg-red-500/10 text-[13px] font-medium text-red-500 hover:bg-red-500/20 inline-flex items-center gap-2 transition-colors"
+                >
                   <X className="h-4 w-4" /> Cancelar turno
-                </button>
+                </DelayButton>
+                )}
               </div>
-            </section>
+            
 
           </aside>
         </div>

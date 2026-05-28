@@ -4,9 +4,9 @@ import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { Calendar, Check, MapPin, User2, X } from 'lucide-react'
-import { aceptarTurno } from '@/lib/turnos/aceptarTurno'
 import { tomarTurno } from '@/lib/actions/turno'
 
+export const dynamic = 'force-dynamic'
 export default async function TurnosPage() {
   const { userId } = await auth()
 
