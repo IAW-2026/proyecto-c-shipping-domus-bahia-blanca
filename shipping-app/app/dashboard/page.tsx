@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
@@ -11,9 +12,6 @@ import {
   CheckCircle2,
   MapPin,
 } from 'lucide-react'
-
-const week = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
-const weekData = [4, 7, 5, 9, 6, 11, 3]
 
 export default async function DashboardPage() {
   const agente = await requireAgente()
@@ -131,42 +129,19 @@ export default async function DashboardPage() {
         </section>
 
         {/* Calendar + upcoming */}
-        <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
-          <article className="rounded-2xl border border-border/60 bg-card p-6 shadow-soft">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-display text-xl font-medium">Resumen semanal</h2>
-                <p className="mt-1 text-[12.5px] text-muted-foreground">
-                  Distribución de visitas — semana del 12 al 18 de mayo
-                </p>
-              </div>
-              <div className="flex items-center gap-3 text-[11.5px] text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary" /> Confirmadas
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary-soft" /> Pendientes
-                </span>
-              </div>
+        <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-stretch">
+          <div className="h-full">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl">
+              <Image
+                src="/fotoDashboard.webp"
+                alt="Resumen semanal"
+                fill
+                sizes="(min-width: 1024px) 60vw, 100vw"
+                className="object-cover"
+                priority
+              />
             </div>
-            <div className="mt-8 flex h-56 items-end gap-3">
-              {weekData.map((v, i) => (
-                <div key={i} className="group flex flex-1 flex-col items-center gap-2">
-                  <div className="relative flex w-full flex-1 flex-col justify-end gap-1">
-                    <div
-                      className="w-full rounded-t-md bg-primary-soft/70 transition-all group-hover:bg-primary-soft"
-                      style={{ height: `${(v / 11) * 50}%` }}
-                    />
-                    <div
-                      className="w-full rounded-t-md bg-primary transition-all"
-                      style={{ height: `${(v / 11) * 50 + 10}%` }}
-                    />
-                  </div>
-                  <span className="text-[11.5px] text-muted-foreground">{week[i]}</span>
-                </div>
-              ))}
-            </div>
-          </article>
+          </div>
 
           <article className="rounded-2xl border border-border/60 bg-card shadow-soft">
             <div className="flex items-center justify-between border-b border-border/60 px-6 py-5">
