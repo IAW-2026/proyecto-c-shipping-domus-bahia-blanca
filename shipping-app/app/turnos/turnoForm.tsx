@@ -2,11 +2,11 @@
 
 import { useState, useMemo } from 'react'
 import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   CalendarDays,
   Clock,
   MapPin,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -35,6 +35,7 @@ type Comprador = {
 type Props = {
   propiedad: Propiedad
   comprador: Comprador
+  horariosOcupados: Record<string, string[]>
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -42,7 +43,7 @@ type Props = {
 const TIME_SLOTS = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
   '12:00', '12:30', '15:00', '15:30', '16:00', '16:30',
-  '17:00', '17:30', '18:00', '18:30',
+  '17:00',
 ]
 
 const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
@@ -90,9 +91,18 @@ function buildFechaHora(date: Date, time: string): Date {
   return result
 }
 
+function formatDateKey(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function TurnoForm({ propiedad, comprador }: Props) {
+export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
+  const router = useRouter()
   const today = useMemo(() => {
     const t = new Date()
     t.setHours(0, 0, 0, 0)
@@ -103,40 +113,38 @@ export function TurnoForm({ propiedad, comprador }: Props) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [observaciones, setObservaciones] = useState('')
-  const [confirmed, setConfirmed] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const cells = useMemo(() => buildMonthGrid(cursor), [cursor])
-  const canSubmit = selectedDate && selectedTime
+  const selectedDateKey = selectedDate ? formatDateKey(selectedDate) : null
+  const bookedTimesForSelectedDate = selectedDateKey ? horariosOcupados[selectedDateKey] ?? [] : []
+  const isSelectedTimeBooked = selectedTime ? bookedTimesForSelectedDate.includes(selectedTime) : false
+  const canSubmit = selectedDate && selectedTime && !isSelectedTimeBooked
 
   function handleSubmit() {
     if (!canSubmit) return
     startTransition(async () => {
-      await crearTurno({
-        propiedadId: propiedad.id,
-        nombrePropiedad: propiedad.nombrePropiedad,
-        direccion: propiedad.direccion,
-        latitud: propiedad.latitud,
-        longitud: propiedad.longitud,
-        vendedorId: propiedad.vendedorId,
-        nombreInmobiliaria: propiedad.nombreInmobiliaria,
-        nombreComprador: comprador.nombre,
-        fechaHora: buildFechaHora(selectedDate, selectedTime),
-        observaciones: observaciones || undefined,
-        })
-      setConfirmed(true)
-    })
-  }
+      setSubmitError(null)
 
-  if (confirmed) {
-    return (
-      <ConfirmationCard
-        propiedad={propiedad}
-        date={selectedDate ? formatDate(selectedDate) : ''}
-        time={selectedTime ?? ''}
-        comprador={comprador}
-      />
-    )
+      try {
+        const turno = await crearTurno({
+          propiedadId: propiedad.id,
+          nombrePropiedad: propiedad.nombrePropiedad,
+          direccion: propiedad.direccion,
+          latitud: propiedad.latitud,
+          longitud: propiedad.longitud,
+          vendedorId: propiedad.vendedorId,
+          nombreInmobiliaria: propiedad.nombreInmobiliaria,
+          nombreComprador: comprador.nombre,
+          fechaHora: buildFechaHora(selectedDate, selectedTime),
+          observaciones: observaciones || undefined,
+        })
+        router.push(`/turnos/gracias?turnoId=${turno.id}`)
+      } catch (error) {
+        setSubmitError(error instanceof Error ? error.message : 'No se pudo crear el turno')
+      }
+    })
   }
 
   return (
@@ -227,21 +235,28 @@ export function TurnoForm({ propiedad, comprador }: Props) {
             </div>
             {selectedDate ? (
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {TIME_SLOTS.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setSelectedTime(t)}
-                    className={cn(
-                      'h-10 rounded-lg border text-[13px] font-medium transition-all',
-                      selectedTime === t
-                        ? 'border-primary bg-primary text-primary-foreground shadow-soft'
-                        : 'border-border/70 bg-background text-foreground hover:border-primary/40 hover:bg-secondary',
-                    )}
-                  >
-                    {t}
-                  </button>
-                ))}
+                {TIME_SLOTS.map((t) => {
+                  const isBooked = bookedTimesForSelectedDate.includes(t)
+
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      disabled={isBooked}
+                      title={isBooked ? 'Horario no disponible' : undefined}
+                      onClick={() => setSelectedTime(t)}
+                      className={cn(
+                        'h-10 rounded-lg border text-[13px] font-medium transition-all',
+                        isBooked && 'cursor-not-allowed border-border/50 bg-secondary/50 text-muted-foreground/50',
+                        !isBooked && selectedTime === t
+                          ? 'border-primary bg-primary text-primary-foreground shadow-soft'
+                          : !isBooked && 'border-border/70 bg-background text-foreground hover:border-primary/40 hover:bg-secondary',
+                      )}
+                    >
+                      {t}
+                    </button>
+                  )
+                })}
               </div>
             ) : (
               <div className="flex h-28 items-center justify-center rounded-xl border border-dashed border-border/70 bg-secondary/30 text-[13px] text-muted-foreground">
@@ -305,6 +320,11 @@ export function TurnoForm({ propiedad, comprador }: Props) {
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? 'Confirmando...' : 'Confirmar reserva'}
             </button>
+            {submitError && (
+              <p className="text-center text-[12px] font-medium text-red-600">
+                {submitError}
+              </p>
+            )}
             <p className="text-center text-[11.5px] text-muted-foreground">
               Recibirás la confirmación por mail y un recordatorio 24 hs antes.
             </p>
@@ -327,6 +347,7 @@ function SummaryRow({ icon, label, value }: { icon: React.ReactNode; label: stri
   )
 }
 
+/*
 function ConfirmationCard({
   propiedad,
   date,
@@ -366,3 +387,4 @@ function ConfirmationCard({
     </div>
   )
 }
+*/

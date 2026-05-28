@@ -9,6 +9,7 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
+const isTurnosRoute = createRouteMatcher(['/turnos(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
 
@@ -17,13 +18,19 @@ export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth()
 
   if (!userId) {
-    return NextResponse.redirect(new URL('/sign-in', req.url))
+    const signInUrl = new URL('/sign-in', req.url)
+    signInUrl.searchParams.set('redirect_url', `${req.nextUrl.pathname}${req.nextUrl.search}`)
+    return NextResponse.redirect(signInUrl)
   }
 
   const roles = (sessionClaims?.metadata as { roles?: string[] })?.roles ?? []
 
   // Autenticado pero sin rol agente → onboarding
   if (!roles.includes('agente')) {
+    if (isTurnosRoute(req)) {
+      return NextResponse.next()
+    }
+
     if (!isOnboardingRoute(req)) {
       return NextResponse.redirect(new URL('/onboarding', req.url))
     }

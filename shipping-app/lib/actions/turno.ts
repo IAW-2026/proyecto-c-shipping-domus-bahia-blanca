@@ -1,9 +1,11 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import type { EstadoTurno } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
+
+const ACTIVE_TURNO_STATES: EstadoTurno[] = ['PENDIENTE_AGENTE', 'PRE_ACEPTADO', 'CONFIRMADO']
 
 export async function tomarTurno(turnoId: string) {
   const { userId } = await auth()
@@ -88,7 +90,41 @@ export async function crearTurno({
   const { userId } = await auth()
   if (!userId) throw new Error('No autorizado')
 
-  await prisma.turno.create({
+  const turnoExistenteComprador = await prisma.turno.findFirst({
+    where: {
+      compradorId: userId,
+      propiedadId,
+      estado: {
+        in: ACTIVE_TURNO_STATES,
+      },
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (turnoExistenteComprador) {
+    throw new Error('Ya tenes una reserva activa para esta propiedad')
+  }
+
+  const turnoExistenteHorario = await prisma.turno.findFirst({
+    where: {
+      propiedadId,
+      fechaHoraSolicitada: fechaHora,
+      estado: {
+        in: ACTIVE_TURNO_STATES,
+      },
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (turnoExistenteHorario) {
+    throw new Error('Ese horario ya no esta disponible')
+  }
+
+  const turno = await prisma.turno.create({
     data: {
       compradorId: userId,
       nombreComprador,
@@ -103,7 +139,13 @@ export async function crearTurno({
       observaciones,
       estado: 'PENDIENTE_AGENTE',
     },
+    select: {
+      id: true,
+    },
   })
 
-  redirect('/turnos/confirmado')
+  revalidatePath('/dashboard/turnos')
+  revalidatePath('/turnos')
+
+  return turno
 }
