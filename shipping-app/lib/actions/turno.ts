@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
 export async function tomarTurno(turnoId: string) {
   const { userId } = await auth()
@@ -59,4 +60,50 @@ export async function cancelarTurno(turnoId: string) {
   })
 
   revalidatePath(`/dashboard/turnos/${turnoId}`)
+}
+
+export async function crearTurno({
+  propiedadId,
+  nombrePropiedad,
+  direccion,
+  latitud,
+  longitud,
+  vendedorId,
+  nombreInmobiliaria,
+  nombreComprador,
+  fechaHora,
+  observaciones,
+}: {
+  propiedadId: string
+  nombrePropiedad?: string | null
+  direccion?: string | null
+  latitud?: number | null
+  longitud?: number | null
+  vendedorId: string
+  nombreInmobiliaria?: string | null
+  nombreComprador?: string
+  fechaHora: Date
+  observaciones?: string
+}) {
+  const { userId } = await auth()
+  if (!userId) throw new Error('No autorizado')
+
+  await prisma.turno.create({
+    data: {
+      compradorId: userId,
+      nombreComprador,
+      propiedadId,
+      nombrePropiedad,
+      direccion,
+      latitud,
+      longitud,
+      vendedorId,
+      nombreInmobiliaria,
+      fechaHoraSolicitada: fechaHora,
+      observaciones,
+      estado: 'PENDIENTE_AGENTE',
+    },
+  })
+
+  redirect('/turnos/confirmado')
 }
