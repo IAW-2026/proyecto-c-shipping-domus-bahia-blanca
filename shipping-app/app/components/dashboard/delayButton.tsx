@@ -1,4 +1,3 @@
-// components/dashboard/actionButton.tsx
 'use client'
 
 import { useTransition } from 'react'
@@ -8,7 +7,7 @@ type Props = {
   className: string
   children: React.ReactNode
 }
-
+//Hago esto para que no se pueda spamear los botones de tomar y cancelar turno. 
 export function DelayButton({ action, className, children }: Props) {
   const [isPending, startTransition] = useTransition()
 
