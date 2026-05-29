@@ -5,29 +5,21 @@
 
 generator client {
   provider = "prisma-client-js"
+  
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Turno {
   id                       String   @id @default(uuid())
   
-  propiedadId              String //Necesito la id para luego solicitar lo siguiente
-  
-  direccion                String?
-  latitud                  Float?
-  longitud                 Float?                 
-  nombrePropiedad          String? //No me dejaba migrarlo si no lo ponia con ?
+  propiedadId              String
   
   compradorId              String
 
   nombreComprador          String? //No me dejaba migrarlo si no lo ponia con ?
-
-  vendedorId               String
-  nombreInmobiliaria       String?
 
   agenteId                 String?
 
@@ -44,9 +36,23 @@ model Turno {
 
   creadoEn                 DateTime @default(now()) //cuando se crea el turno en el sistema
 
-  agente AgenteInmobiliario? @relation(fields: [agenteId], references: [id])
+  propiedad Propiedad @relation(fields: [propiedadId], references: [id])
 
-  historial HistorialTurno[]
+  agente AgenteInmobiliario? @relation(fields: [agenteId], references: [id])
+}
+
+model Propiedad {
+  id                  String @id
+  nombrePropiedad     String?
+  direccion           String?
+  latitud             Float?
+  longitud            Float?
+  vendedorId          String
+  nombreInmobiliaria  String?
+
+  turnos              Turno[]
+
+  @@index([vendedorId])
 }
 
 model AgenteInmobiliario {
@@ -67,17 +73,6 @@ model AgenteInmobiliario {
   turnos           Turno[]
   
   
-}
-
-model HistorialTurno {
-  id           String      @id @default(uuid())
-  turnoId      String
-  estado       EstadoTurno
-  detalle      String?
-  realizadoPor String
-  creadoEn     DateTime    @default(now())
-
-  turno        Turno              @relation(fields: [turnoId], references: [id])
 }
 
 enum EstadoTurnoComprador {
@@ -101,4 +96,3 @@ enum EstadoAgente {
   ACEPTADO
   RECHAZADO
 }
-

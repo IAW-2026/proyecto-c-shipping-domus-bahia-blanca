@@ -1,6 +1,7 @@
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider, Show, UserButton } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
+import { HeaderAuth } from "./components/headerAuth";
 
 export default function RootLayout({
   children,
@@ -20,11 +21,7 @@ export default function RootLayout({
       >
         <ClerkProvider>
           <header className="absolute right-0 top-0 z-20 flex items-center gap-4 p-4">
-            <Show when="signed-out">
-            </Show>
-            <Show when="signed-in">
-              <UserButton />
-            </Show>
+            <HeaderAuth />
           </header>
           {children}
         </ClerkProvider>

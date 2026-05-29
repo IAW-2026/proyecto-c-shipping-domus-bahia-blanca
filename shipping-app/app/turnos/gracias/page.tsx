@@ -42,9 +42,13 @@ export default async function GraciasTurnoPage({
             compradorId: userId,
           },
           select: {
-            nombrePropiedad: true,
-            direccion: true,
             fechaHoraSolicitada: true,
+            propiedad: {
+              select: {
+                nombrePropiedad: true,
+                direccion: true,
+              },
+            },
           },
         })
       : null,
@@ -74,9 +78,9 @@ export default async function GraciasTurnoPage({
 
         {turno && (
           <div className="mt-7 rounded-xl border border-border/60 bg-secondary/40 p-5 text-left">
-            <p className="font-display text-[18px] font-medium">{turno.nombrePropiedad}</p>
+            <p className="font-display text-[18px] font-medium">{turno.propiedad.nombrePropiedad}</p>
             <p className="mt-1 flex items-center gap-1.5 text-[13px] text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5" /> {turno.direccion}
+              <MapPin className="h-3.5 w-3.5" /> {turno.propiedad.direccion}
             </p>
 
             {turno.fechaHoraSolicitada && (

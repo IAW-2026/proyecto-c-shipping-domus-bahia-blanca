@@ -73,6 +73,9 @@ export default async function AgendaPage() {
         notIn: ['CANCELADO', 'RECHAZADO_VENDEDOR'],
       },
     },
+    include: {
+      propiedad: true,
+    },
   })
 
 
@@ -148,11 +151,11 @@ export default async function AgendaPage() {
                         {/* Tooltip */}
                         <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 scale-95 rounded-xl border border-border/60 bg-card p-3 shadow-lg opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100">
                           <p className="text-[12px] font-medium text-foreground">
-                            {turno.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
+                            {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
                           </p>
-                          {turno.direccion && (
+                          {turno.propiedad.direccion && (
                             <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
-                              {turno.direccion}
+                              {turno.propiedad.direccion}
                             </p>
                           )}
                         </div>
@@ -201,7 +204,7 @@ export default async function AgendaPage() {
                     </div>
                     <div>
                       <p className="text-[13.5px] font-medium">
-                        {turno.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
+                        {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
                       </p>
                       <p className="mt-0.5 text-[12px] text-muted-foreground">
                         {fecha} · {hora} hs

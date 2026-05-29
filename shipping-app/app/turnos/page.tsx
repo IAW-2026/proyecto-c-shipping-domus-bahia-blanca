@@ -1,5 +1,5 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import type { EstadoTurno } from '@prisma/client'
 import { TurnoForm } from '@/app/turnos/turnoForm'
 import { prisma } from '@/lib/prisma'
@@ -7,22 +7,103 @@ import { prisma } from '@/lib/prisma'
 const ACTIVE_TURNO_STATES: EstadoTurno[] = ['PENDIENTE_AGENTE', 'PRE_ACEPTADO', 'CONFIRMADO']
 
 // TODO: reemplazar con la URL real de la app externa
-async function fetchPropiedad(propiedadId: string) {
-  // Mock mientras no esté disponible el endpoint
-  return {
-    id: propiedadId,
-    nombrePropiedad: 'Casa en Av. Alem 1200',
-    direccion: 'Av. Alem 1200, Bahía Blanca',
-    latitud: -38.7183,
-    longitud: -62.2663,
-    vendedorId: 'inm-3',
-    nombreInmobiliaria: 'Domus Bahía Blanca',
-  }
+type PropiedadExterna = {
+  id: string
+  sellerId: string
+  title: string
+  address: string | null
+  street: string | null
+  streetNumber: string | null
+  neighborhood: string | null
+  city: string | null
+  province: string | null
+  country: string | null
+  postalCode: string | null
+  latitude: number | null
+  longitude: number | null
+  multimedia: {
+    id: string
+    url: string
+    alt?: string | null
+    order?: number | null
+  }[]
+}
 
-  // Cuando esté listo:
-  // const res = await fetch(`https://otra-app.com/api/propiedades/${propiedadId}`)
-  // if (!res.ok) return null
-  // return res.json()
+const MOCK_PROPIEDADES: PropiedadExterna[] = [
+  {
+    id: 'casa-cj',
+    sellerId: 'inm-3',
+    title: 'Casa CJ',
+    address: 'Grove Street 12, Bahia Blanca',
+    street: 'Grove Street',
+    streetNumber: '12',
+    neighborhood: 'Centro',
+    city: 'Bahia Blanca',
+    province: 'Buenos Aires',
+    country: 'Argentina',
+    postalCode: '8000',
+    latitude: -38.7183,
+    longitude: -62.2663,
+    multimedia: [{ id: 'casa-cj-1', url: '/CasaCJ.webp', alt: 'Fachada de Casa CJ', order: 1 }],
+  },
+  {
+    id: 'luke-house',
+    sellerId: 'inm-3',
+    title: 'Casa Luke',
+    address: 'Tatooine 1977, Bahia Blanca',
+    street: 'Tatooine',
+    streetNumber: '1977',
+    neighborhood: 'Palihue',
+    city: 'Bahia Blanca',
+    province: 'Buenos Aires',
+    country: 'Argentina',
+    postalCode: '8000',
+    latitude: -38.6968,
+    longitude: -62.2901,
+    multimedia: [{ id: 'luke-house-1', url: '/luke_1.webp', alt: 'Fachada de Casa Luke', order: 1 }],
+  },
+  {
+    id: 'casa-simpsons',
+    sellerId: 'inm-3',
+    title: 'Casa Simpsons',
+    address: 'Av. Siempreviva 742, Bahia Blanca',
+    street: 'Av. Siempreviva',
+    streetNumber: '742',
+    neighborhood: 'Universitario',
+    city: 'Bahia Blanca',
+    province: 'Buenos Aires',
+    country: 'Argentina',
+    postalCode: '8000',
+    latitude: -38.7075,
+    longitude: -62.2676,
+    multimedia: [{ id: 'casa-simpsons-1', url: '/casaSimpsons.webp', alt: 'Fachada de Casa Simpsons', order: 1 }],
+  },
+]
+
+function mapPropiedadExterna(propiedad: PropiedadExterna) {
+  const image = [...propiedad.multimedia].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
+
+  return {
+    id: propiedad.id,
+    nombrePropiedad: propiedad.title,
+    direccion: propiedad.address,
+    latitud: propiedad.latitude,
+    longitud: propiedad.longitude,
+    vendedorId: propiedad.sellerId,
+    nombreInmobiliaria: 'Domus Bahia Blanca',
+    imageUrl: image?.url ?? null,
+    imageAlt: image?.alt ?? propiedad.title,
+  }
+}
+//TODO: Implementar el fetch bien cuando estemos en etapa 3
+async function fetchPropiedad(propiedadId: string) {
+  const propiedad = MOCK_PROPIEDADES.find((item) => item.id === propiedadId)
+  if (!propiedad) return null
+
+  return mapPropiedadExterna({
+    ...propiedad,
+    id: propiedadId,
+  })
 }
 
 function formatSlotDate(date: Date) {
@@ -107,7 +188,7 @@ export default async function NuevoTurnoPage({
     currentUser(),
   ])
 
-  if (!propiedad) redirect('/')
+  if (!propiedad) notFound()
 
   return (
     <TurnoForm

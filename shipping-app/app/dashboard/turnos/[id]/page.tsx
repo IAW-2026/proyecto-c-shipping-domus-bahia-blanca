@@ -14,7 +14,6 @@ import {
   Calendar,
   Check,
   MapPin,
-  MessageSquare,
   User2,
   X,
 } from 'lucide-react'
@@ -41,7 +40,7 @@ export default async function TurnoDetailPage(
       where: { id },
       include: {
         agente: { select: { nombreCompleto: true } },
-        historial: { orderBy: { creadoEn: 'asc' } },
+        propiedad: true,
       },
     }),
     prisma.agenteInmobiliario.findUnique({
@@ -52,7 +51,7 @@ export default async function TurnoDetailPage(
 
   if (!turno) notFound()
     //Para que un agente que no le pertence el turno pueda acceder
-  if (!agente || agente.vendedorId !== turno.vendedorId || (turno.agenteId!=null && userId != turno.agenteId)) {
+  if (!agente || agente.vendedorId !== turno.propiedad.vendedorId || (turno.agenteId!=null && userId != turno.agenteId)) {
     redirect('/unauthorized')
   }
   const currentIdx = timeline.findIndex((t) => t.key === turno.estado)
@@ -90,10 +89,10 @@ export default async function TurnoDetailPage(
               {turno.id.slice(0, 8).toUpperCase()}
             </p>
             <h1 className="mt-2 font-display text-[32px] font-medium leading-tight">
-              {turno.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
+              {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
             </h1>
             <p className="mt-1.5 flex items-center gap-1.5 text-[13.5px] text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5" /> {turno.direccion ?? turno.vendedorId}
+              <MapPin className="h-3.5 w-3.5" /> {turno.propiedad.direccion ?? turno.propiedad.vendedorId}
             </p>
           </div>
           <StatusBadge status={turno.estado} />
@@ -110,12 +109,12 @@ export default async function TurnoDetailPage(
             </div>
 
             {/* Mapa */}
-            {turno.latitud && turno.longitud && (
+            {turno.propiedad.latitud && turno.propiedad.longitud && (
               <div className="w-full">
                 <PropertyMap
-                  latitud={turno.latitud}
-                  longitud={turno.longitud}
-                  direccion={turno.direccion}
+                  latitud={turno.propiedad.latitud}
+                  longitud={turno.propiedad.longitud}
+                  direccion={turno.propiedad.direccion}
                 />
               </div>
             )}
@@ -132,14 +131,6 @@ export default async function TurnoDetailPage(
                 {timeline.map((t, i) => {
                   const reached = i <= currentIdx
                   const active = i === currentIdx
-                  const historialEntry = turno.historial.find(
-                    (h) => h.estado === (
-                      i === 0 ? 'PENDIENTE_AGENTE' :
-                      i === 1 ? 'PRE_ACEPTADO' :
-                      i === 2 ? 'CONFIRMADO' :
-                      'COMPLETADO'
-                    )
-                  )
                   return (
                     <li key={t.key} className="flex items-start gap-4">
                       <div className="flex flex-col items-center">
@@ -158,11 +149,11 @@ export default async function TurnoDetailPage(
                           {t.label}
                         </p>
                         <p className="mt-0.5 text-[12px] text-muted-foreground">
-                          {historialEntry
-                            ? new Date(historialEntry.creadoEn).toLocaleDateString('es-AR', {
+                          {i === 0
+                            ? new Date(turno.creadoEn).toLocaleDateString('es-AR', {
                                 day: 'numeric',
                                 month: 'short',
-                              }) + ' · ' + new Date(historialEntry.creadoEn).toLocaleTimeString('es-AR', {
+                              }) + ' · ' + new Date(turno.creadoEn).toLocaleTimeString('es-AR', {
                                 hour: '2-digit',
                                 minute: '2-digit',
                               })
@@ -197,7 +188,7 @@ export default async function TurnoDetailPage(
                 </div>
                 <div>
                   <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">Inmobiliaria</dt>
-                  <dd className="mt-1 text-foreground">{turno.nombreInmobiliaria ?? turno.vendedorId}</dd>
+                  <dd className="mt-1 text-foreground">{turno.propiedad.nombreInmobiliaria ?? turno.propiedad.vendedorId}</dd>
                 </div>
                 {turno.observaciones && (
                   <div className="col-span-2">

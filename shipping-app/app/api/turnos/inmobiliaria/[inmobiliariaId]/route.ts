@@ -27,8 +27,13 @@ export async function GET(request: Request) {
 
     const turnos = await prisma.turno.findMany({
       where: {
-        vendedorId,
+        propiedad: {
+          vendedorId,
+        },
         estado: 'PRE_ACEPTADO',
+      },
+      include: {
+        propiedad: true,
       },
     })
 

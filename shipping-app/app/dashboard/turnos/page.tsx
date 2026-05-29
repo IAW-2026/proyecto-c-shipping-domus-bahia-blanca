@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
-import { Calendar, Check, MapPin, User2, X } from 'lucide-react'
+import { Calendar, Check, MapPin, User2 } from 'lucide-react'
 import { tomarTurno } from '@/lib/actions/turno'
 
 export const dynamic = 'force-dynamic'
@@ -28,11 +28,16 @@ export default async function TurnosPage() {
 
   const turnos = await prisma.turno.findMany({
     where: {
-      vendedorId: agente.vendedorId, // ya no es null
+      propiedad: {
+        vendedorId: agente.vendedorId,
+      },
       estado: { in: ['PENDIENTE_AGENTE']},
       agenteId: null,
     },
     orderBy: { fechaHoraSolicitada: 'asc' },
+    include: {
+      propiedad: true,
+    },
   })
 
   return (
@@ -65,10 +70,10 @@ export default async function TurnosPage() {
                     href={`/dashboard/turnos/${turno.id}`}
                     className="mt-1 block font-display text-[19px] font-medium leading-snug text-foreground hover:text-primary transition-colors"
                   >
-                    Propiedad {turno.propiedadId}
+                    {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
                   </Link>
                   <p className="mt-1 flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" /> {turno.vendedorId}
+                    <MapPin className="h-3.5 w-3.5" /> {turno.propiedad.direccion ?? turno.propiedad.vendedorId}
                   </p>
                 </div>
                 <StatusBadge status={turno.estado} />

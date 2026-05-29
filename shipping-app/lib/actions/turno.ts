@@ -28,14 +28,6 @@ export async function tomarTurno(turnoId: string) {
     },
   })
 
-  await prisma.historialTurno.create({
-    data: {
-      turnoId,
-      estado: 'PRE_ACEPTADO',
-      realizadoPor: userId,
-    },
-  })
-
   revalidatePath('/dashboard/turnos')
 }
 
@@ -128,16 +120,23 @@ export async function crearTurno({
     data: {
       compradorId: userId,
       nombreComprador,
-      propiedadId,
-      nombrePropiedad,
-      direccion,
-      latitud,
-      longitud,
-      vendedorId,
-      nombreInmobiliaria,
       fechaHoraSolicitada: fechaHora,
       observaciones,
       estado: 'PENDIENTE_AGENTE',
+      propiedad: {
+        connectOrCreate: {
+          where: { id: propiedadId },
+          create: {
+            id: propiedadId,
+            nombrePropiedad,
+            direccion,
+            latitud,
+            longitud,
+            vendedorId,
+            nombreInmobiliaria,
+          },
+        },
+      },
     },
     select: {
       id: true,

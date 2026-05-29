@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
@@ -25,11 +24,16 @@ export default async function DashboardPage() {
       },
       orderBy: { fechaHoraSolicitada: 'asc' },
       take: 4,
+      include: {
+        propiedad: true,
+      },
     }),
     // Visitas pendientes: PENDIENTE_AGENTE para esa inmobiliaria
     prisma.turno.count({
       where: {
-        vendedorId: agente.vendedorId ?? undefined,
+        propiedad: {
+          vendedorId: agente.vendedorId ?? undefined,
+        },
         estado: 'PENDIENTE_AGENTE',
         agenteId: null,
       },
@@ -182,7 +186,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13.5px] font-medium text-foreground">
-                        {turno.nombrePropiedad}
+                        {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
                       </p>
                       <p className="mt-0.5 flex items-center gap-1 truncate text-[12px] text-muted-foreground">
                         <MapPin className="h-3 w-3" /> {turno.nombreComprador}
