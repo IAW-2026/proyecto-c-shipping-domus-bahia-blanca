@@ -1,5 +1,5 @@
-import SideBarClerk from "@/app/components/sideBarClerk"
-import MosaicoSignIn from "@/app/components/mosaicoSignIn"
+import SideBarClerk from "@/app/components/sign-in/sideBarClerk"
+import MosaicoSignIn from "@/app/components/sign-in/mosaicoSignIn"
 
 export default function SignInPage() {
   
