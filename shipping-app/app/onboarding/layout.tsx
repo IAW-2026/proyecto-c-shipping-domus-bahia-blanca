@@ -11,11 +11,10 @@ export default async function onBoardingLayout({ children }: { children: React.R
     where: { id: userId },
     select: { estado: true },
   })
-
-  if (!agente) redirect('/onboarding')
+  if (!agente) return <>{children}</>
   if (agente.estado === 'ACEPTADO') redirect('/dashboard')
   if (agente.estado === 'PENDIENTE') redirect('/cuenta-en-revision')
   if (agente.estado === 'RECHAZADO') redirect('/cuenta-rechazada')
 
-  return <>{children}</>
+  
 }

@@ -30,6 +30,8 @@ const hours = Array.from({ length: 17 }, (_, i) => {
   return `${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
 })
 
+const PAGE_SIZE = 5
+
 function getWeekDays() {
   const today = new Date()
   const day = today.getDay()
@@ -46,7 +48,14 @@ function getWeekDays() {
   })
 }
 
-export default async function AgendaPage() {
+export default async function AgendaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page } = await searchParams
+  const requestedPage = Number.parseInt(page ?? '1', 10)
+  const currentPage = Number.isNaN(requestedPage) ? 1 : Math.max(1, requestedPage)
   const { userId } = await auth()
 
   const agente = await prisma.agenteInmobiliario.findUnique({
@@ -70,11 +79,18 @@ export default async function AgendaPage() {
         notIn: ['CANCELADO'],
       },
     },
+    orderBy: {
+      fechaHoraSolicitada: 'asc',
+    },
     include: {
       propiedad: true,
     },
   })
 
+  const totalPages = Math.max(1, Math.ceil(turnos.length / PAGE_SIZE))
+  const safePage = Math.min(currentPage, totalPages)
+  const pageStart = (safePage - 1) * PAGE_SIZE
+  const turnosPagina = turnos.slice(pageStart, pageStart + PAGE_SIZE)
 
   const turnoMap = new Map<string, typeof turnos[number]>()
   for (const turno of turnos) {
@@ -106,10 +122,10 @@ export default async function AgendaPage() {
       </p>
     </header>
 
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.5fr_1fr]">
+    <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1.5fr_1fr]">
 
       {/* Tabla calendario */}
-      <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">
+      <div className="h-[528px] self-start overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">
         {/* Header días */}
         <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-border/60 bg-secondary/30 text-[11.5px] font-medium uppercase tracking-wider text-muted-foreground">
           <div className="px-3 py-3" />
@@ -121,7 +137,7 @@ export default async function AgendaPage() {
         </div>
 
         {/* Grid horas x días */}
-        <div className="max-h-[28rem] overflow-y-auto">
+        <div className="h-[487px] overflow-y-auto">
           {hours.map((h) => (
               <div
                 key={h}
@@ -137,7 +153,10 @@ export default async function AgendaPage() {
                   }
                   return (
                     <div key={di} className="border-r border-border/40 last:border-0 p-1.5">
-                      <div className={`group relative rounded-lg p-2 text-left ${statusStyles[turno.estado].chip}`}>
+                      <Link
+                        href={`/dashboard/turnos/${turno.id}`}
+                        className={`group relative block rounded-lg p-2 text-left transition-transform hover:-translate-y-0.5 hover:shadow-soft ${statusStyles[turno.estado].chip}`}
+                      >
                         <p className="text-[11px] font-medium">
                           {new Date(turno.fechaHoraSolicitada!).toLocaleTimeString('es-AR', {
                             timeZone: 'America/Argentina/Buenos_Aires',
@@ -156,7 +175,7 @@ export default async function AgendaPage() {
                             </p>
                           )}
                         </div>
-                      </div>
+                      </Link>
                     </div>
                   )
                 })}
@@ -175,7 +194,7 @@ export default async function AgendaPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {turnos.map((turno) => {
+            {turnosPagina.map((turno) => {
               const fecha = turno.fechaHoraSolicitada
                 ? new Date(turno.fechaHoraSolicitada).toLocaleDateString('es-AR', {
                     timeZone: 'America/Argentina/Buenos_Aires',
@@ -217,6 +236,37 @@ export default async function AgendaPage() {
                 </Link>
               )
             })}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-card px-4 py-3 shadow-soft">
+                <p className="text-[12px] text-muted-foreground">
+                  Página {safePage} de {totalPages}
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <Link
+                    href={`/dashboard/agenda?page=${Math.max(1, safePage - 1)}`}
+                    aria-disabled={safePage === 1}
+                    className={`grid h-8 w-8 place-items-center rounded-lg border border-border/70 transition-colors ${
+                      safePage === 1
+                        ? 'pointer-events-none text-muted-foreground/40'
+                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    }`}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    href={`/dashboard/agenda?page=${Math.min(totalPages, safePage + 1)}`}
+                    aria-disabled={safePage === totalPages}
+                    className={`grid h-8 w-8 place-items-center rounded-lg border border-border/70 transition-colors ${
+                      safePage === totalPages
+                        ? 'pointer-events-none text-muted-foreground/40'
+                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    }`}
+                  >
+                    <ArrowLeft className="h-4 w-4 rotate-180" />
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

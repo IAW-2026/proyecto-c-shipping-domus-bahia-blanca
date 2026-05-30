@@ -1,7 +1,6 @@
 'use client'
 
 import { Show, UserButton } from '@clerk/nextjs'
-import Link from 'next/link'
 import { useSyncExternalStore } from 'react'
 
 const subscribe = () => () => {}

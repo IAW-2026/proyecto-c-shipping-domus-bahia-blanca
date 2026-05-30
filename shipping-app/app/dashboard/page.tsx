@@ -25,7 +25,7 @@ export default async function DashboardPage() {
         estado: { in: ['PRE_ACEPTADO', 'CONFIRMADO'] },
       },
       orderBy: { fechaHoraSolicitada: 'asc' },
-      take: 4,
+      take: 12,
       include: {
         propiedad: true,
       },
@@ -133,21 +133,22 @@ export default async function DashboardPage() {
         </section>
 
         {/* Calendar + upcoming */}
-        <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-stretch">
-          <div className="h-full">
-            <div className="relative h-full w-full overflow-hidden rounded-2xl">
-              <Image
-                src="/fotoDashboard.webp"
-                alt="Resumen semanal"
-                fill
-                sizes="(min-width: 1024px) 60vw, 100vw"
-                className="object-cover"
-                priority
-              />
-            </div>
+        
+        <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-stretch ">
+          <div className="h-full hidden lg:block">
+           <div className="overflow-hidden rounded-2xl">
+            <Image
+              src="/fotoDashboard.webp"
+              alt="Resumen semanal"
+              width={1200}
+              height={800}
+              sizes="(min-width: 1024px) 60vw, 100vw"
+              className="w-full h-auto object-cover"
+              priority
+            />
           </div>
-
-          <article className="rounded-2xl border border-border/60 bg-card shadow-soft">
+          </div>
+          <article className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">
             <div className="flex items-center justify-between border-b border-border/60 px-6 py-5">
               <div>
                 <h2 className="font-display text-xl font-medium">Próximos turnos</h2>
@@ -162,14 +163,14 @@ export default async function DashboardPage() {
                 Ver agenda
               </Link>
             </div>
-            <ul className="divide-y divide-border/60">
+            <ul className="max-h-[336px] divide-y divide-border/60 overflow-y-auto overscroll-contain">
               {upcoming.length === 0 ? (
                 <li className="px-6 py-8 text-center text-[13px] text-muted-foreground">
                   No tenés visitas próximas
                 </li>
               ) : (
                 upcoming.map((turno) => (
-                  <li key={turno.id} className="flex items-start gap-4 px-6 py-4">
+                  <li key={turno.id} className="flex h-28 items-start gap-4 px-6 py-4">
                     <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-secondary text-center leading-tight">
                       <div>
                         <p className="font-display text-[15px] font-medium text-primary">
@@ -204,6 +205,7 @@ export default async function DashboardPage() {
                 ))
               )}
             </ul>
+            <div className="h-5 border-t border-border/60 bg-card" />
           </article>
         </section>
       </div>

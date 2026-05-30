@@ -53,6 +53,7 @@ export async function cancelarTurno(turnoId: string) {
   if (!turno) throw new Error('Turno no encontrado')
   if (turno.agenteId !== userId) throw new Error('No autorizado')
   if (turno.estado === 'PENDIENTE_AGENTE') throw new Error('El turno ya está pendiente')
+  if (turno.estado === 'COMPLETADO') throw new Error('No se puede cancelar un turno completado')
 
   await prisma.turno.update({
     where: { id: turnoId },
@@ -62,6 +63,41 @@ export async function cancelarTurno(turnoId: string) {
     },
   })
 
+  revalidatePath(`/dashboard/turnos/${turnoId}`)
+}
+
+export async function completarTurno(turnoId: string) {
+  const { userId } = await auth()
+
+  if (!userId) throw new Error('No autorizado')
+
+  const turno = await prisma.turno.findUnique({
+    where: { id: turnoId },
+    select: {
+      agenteId: true,
+      estado: true,
+      fechaHoraSolicitada: true,
+    },
+  })
+
+  if (!turno) throw new Error('Turno no encontrado')
+  if (turno.agenteId !== userId) throw new Error('No autorizado')
+  if (turno.estado !== 'CONFIRMADO') throw new Error('Solo se pueden completar turnos confirmados')
+  if (!turno.fechaHoraSolicitada) throw new Error('El turno no tiene fecha asignada')
+  if (turno.fechaHoraSolicitada > new Date()) {
+    throw new Error('El turno todavia no se realizo')
+  }
+
+  await prisma.turno.update({
+    where: { id: turnoId },
+    data: {
+      estado: 'COMPLETADO',
+    },
+  })
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/agenda')
+  revalidatePath('/dashboard/completados')
   revalidatePath(`/dashboard/turnos/${turnoId}`)
 }
 

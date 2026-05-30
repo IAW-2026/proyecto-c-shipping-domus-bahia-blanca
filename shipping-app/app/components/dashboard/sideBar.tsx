@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   CalendarClock,
   ClipboardList,
+  CheckCircle2,
   LogOut,
 } from 'lucide-react'
 import {
@@ -14,7 +15,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -24,8 +24,9 @@ import {
 
 const main = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-  { title: 'Turnos pendientes', url: '/dashboard/turnos', icon: ClipboardList },
+  { title: 'Turnos', url: '/dashboard/turnos', icon: ClipboardList },
   { title: 'Agenda', url: '/dashboard/agenda', icon: CalendarClock },
+  { title: 'Turnos completados', url: '/dashboard/completados', icon: CheckCircle2 },
 ]
 
 export function AppSidebar() {
@@ -76,11 +77,6 @@ export function AppSidebar() {
 
       <SidebarContent className="px-2">
         <SidebarGroup>
-          {!collapsed && (
-            <SidebarGroupLabel className="text-[10.5px] uppercase tracking-[0.16em] text-sidebar-foreground">
-              Principal
-            </SidebarGroupLabel>
-          )}
           <SidebarGroupContent>
             <SidebarMenu>{main.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>

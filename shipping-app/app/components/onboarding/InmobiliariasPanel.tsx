@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { BriefcaseBusiness, Building2 } from 'lucide-react'
 import { InmobiliariaCard } from './InmobiliariaCard'
 
 type Inmobiliaria = {
@@ -29,13 +30,13 @@ export function InmobiliariasPanel({ inmobiliarias, onSelect }: InmobiliariasPan
             <h2 className="text-2xl font-semibold text-[#284335]">Inmobiliarias</h2>
             <p className="text-xs text-[#424844]">Seleccione su agencia de preferencia</p>
           </div>
-          <span className="material-symbols-outlined text-[#3f5b4b]">business_center</span>
+          <BriefcaseBusiness className="h-5 w-5 text-[#3f5b4b]" />
         </div>
 
         <div className="flex-grow overflow-y-auto pr-2 space-y-3 custom-scrollbar">
           {inmobiliarias.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-2 text-[#424844]">
-              <span className="material-symbols-outlined text-4xl opacity-40">domain_disabled</span>
+              <Building2 className="h-10 w-10 opacity-40" />
               <p className="text-sm">No hay inmobiliarias disponibles</p>
             </div>
           ) : (

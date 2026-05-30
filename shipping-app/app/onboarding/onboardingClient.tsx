@@ -63,6 +63,11 @@ export default function OnboardingPage({ crearAgente }: Props) {
         <div className="max-w-[1280px] w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
           <OnboardingHeader>
+            {submitError && (
+              <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
+                {submitError}
+              </p>
+            )}
             <PhoneForm
               value={phone}
               onChange={setPhone}
@@ -88,13 +93,6 @@ export default function OnboardingPage({ crearAgente }: Props) {
           {loading ? 'Enviando...' : 'Continuar'}
         </button>
       </main>
-      <footer className="py-6 px-6 text-center">
-              <div className="max-w-[1280px] mx-auto border-t border-[#c2c8c2]/30 pt-6">
-                <p className="text-xs text-[#424844]">
-                  © 2026 Domus Bahía Blanca. Todos los derechos reservados.
-                </p>
-              </div>
-            </footer>
     </div>
   )
 }

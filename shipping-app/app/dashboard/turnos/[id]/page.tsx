@@ -5,15 +5,20 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
-import { tomarTurno, cancelarTurno } from '@/lib/actions/turno'
+import { tomarTurno, cancelarTurno, completarTurno } from '@/lib/actions/turno'
 import { PropertyMap } from '@/app/components/dashboard/propertyMapWrapper'
 import { DelayButton } from '@/app/components/dashboard/delayButton'
 
 
 import {
   ArrowLeft,
+  Bath,
   Calendar,
   Check,
+  CircleCheck,
+  DoorOpen,
+  Ruler,
+  BedDouble,
   MapPin,
   User2,
   X,
@@ -26,6 +31,25 @@ const timeline: { key: EstadoTurno; label: string }[] = [
   { key: 'CONFIRMADO', label: 'Confirmado' },
   { key: 'COMPLETADO', label: 'Completado' },
 ]
+
+function formatMoney(value: unknown, moneda: string) {
+  if (value === null || value === undefined) return '-'
+
+  const numberValue = Number(value)
+  if (Number.isNaN(numberValue)) return '-'
+
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: moneda,
+    maximumFractionDigits: 0,
+  }).format(numberValue)
+}
+
+function formatValue(value: unknown, suffix = '') {
+  if (value === null || value === undefined || value === '') return '-'
+
+  return `${value}${suffix}`
+}
 
 
 export const dynamic = 'force-dynamic'
@@ -78,6 +102,45 @@ export default async function TurnoDetailPage(
       })
     : '--'
   const imagenPrincipal = turno.propiedad.multimedia[0]
+  const puedeCompletarTurno =
+    turno.estado === 'CONFIRMADO' &&
+    turno.agenteId === userId &&
+    Boolean(turno.fechaHoraSolicitada && turno.fechaHoraSolicitada <= new Date())
+  const puedeCancelarTurno = Boolean(turno.agenteId && turno.estado !== 'COMPLETADO')
+  const destacados = [
+    {
+      label: 'Cubiertos',
+      value: formatValue(turno.propiedad.metrosCubiertos, ' m²'),
+      icon: Ruler,
+    },
+    {
+      label: 'Ambientes',
+      value: formatValue(turno.propiedad.ambientes),
+      icon: DoorOpen,
+    },
+    {
+      label: 'Dormitorios',
+      value: formatValue(turno.propiedad.dormitorios),
+      icon: BedDouble,
+    },
+    {
+      label: 'Baños',
+      value: formatValue(turno.propiedad.banios),
+      icon: Bath,
+    },
+  ]
+  const detalles = [
+    { label: 'Dirección', value: formatValue(turno.propiedad.direccion) },
+    { label: 'Barrio', value: formatValue(turno.propiedad.barrio) },
+    { label: 'Ciudad', value: formatValue(turno.propiedad.ciudad) },
+    { label: 'Provincia', value: formatValue(turno.propiedad.provincia) },
+    { label: 'País', value: formatValue(turno.propiedad.pais) },
+    { label: 'Precio', value: formatMoney(turno.propiedad.precio, turno.propiedad.moneda) },
+    { label: 'Expensas', value: formatMoney(turno.propiedad.expensas, turno.propiedad.moneda) },
+    { label: 'Metros totales', value: formatValue(turno.propiedad.metrosTotales, ' m²') },
+    { label: 'Antigüedad', value: formatValue(turno.propiedad.antiguedad) },
+    { label: 'Condición', value: formatValue(turno.propiedad.condicion) },
+  ]
 
   return (
     <>
@@ -128,6 +191,50 @@ export default async function TurnoDetailPage(
               )}
             </div>
 
+            <section className="space-y-9">
+              <div className="rounded-2xl border border-border/60 bg-card px-5 py-5 shadow-soft">
+                <dl className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+                  {destacados.map((item) => (
+                    <div key={item.label} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5 shrink-0 text-primary/70" />
+                      <div className="min-w-0 leading-tight">
+                        <dt className="font-display text-[18px] font-semibold text-foreground">
+                          {item.value}
+                        </dt>
+                        <dd className="mt-0.5 text-[12px] text-muted-foreground">{item.label}</dd>
+                      </div>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+
+              {turno.propiedad.descripcion && (
+                <div>
+                  <h2 className="font-display text-[22px] font-semibold leading-tight text-primary">
+                    Acerca de la propiedad
+                  </h2>
+                  <p className="mt-4 text-[14px] leading-relaxed text-foreground">
+                    {turno.propiedad.descripcion}
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <h2 className="font-display text-[22px] font-semibold leading-tight text-primary">
+                  Detalles adicionales
+                </h2>
+                <dl className="mt-5 grid grid-cols-1 gap-x-8 gap-y-4 text-[13.5px] sm:grid-cols-2">
+                  {detalles.map((detalle) => (
+                    <div key={detalle.label} className="flex items-center gap-2">
+                      <CircleCheck className="h-4 w-4 shrink-0 text-primary/60" />
+                      <dt className="text-muted-foreground">{detalle.label}:</dt>
+                      <dd className="min-w-0 truncate font-medium text-foreground">{detalle.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </section>
+
             {/* Mapa */}
             {turno.propiedad.latitud && turno.propiedad.longitud && (
               <div className="w-full">
@@ -168,6 +275,7 @@ export default async function TurnoDetailPage(
                         <p className={`text-[13.5px] font-medium ${reached ? 'text-foreground' : 'text-muted-foreground'}`}>
                           {t.label}
                         </p>
+                        {/*TODO: Agregar horario de cada cambio de estado 
                         <p className="mt-0.5 text-[12px] text-muted-foreground">
                           {i === 0
                             ? new Date(turno.creadoEn).toLocaleDateString('es-AR', {
@@ -179,6 +287,7 @@ export default async function TurnoDetailPage(
                               })
                             : '—'}
                         </p>
+                        */}
                       </div>
                     </li>
                   )
@@ -236,7 +345,15 @@ export default async function TurnoDetailPage(
                     </DelayButton>
                   </>
                 )}
-                {turno.agenteId && (
+                {puedeCompletarTurno && (
+                  <DelayButton
+                    action={completarTurno.bind(null, turno.id)}
+                    className="h-10 w-full justify-center rounded-lg bg-primary text-[13px] font-medium text-primary-foreground hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-2 transition-colors"
+                  >
+                    <Check className="h-4 w-4" /> Visita completada
+                  </DelayButton>
+                )}
+                {puedeCancelarTurno && (
                
                   <DelayButton
                   action={cancelarTurno.bind(null, turno.id)}

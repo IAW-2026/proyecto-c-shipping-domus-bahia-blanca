@@ -1,3 +1,5 @@
+import { Building2, CheckCircle2, ChevronRight } from 'lucide-react'
+
 type InmobiliariaCardProps = {
   nombre: string
   selected?: boolean
@@ -22,7 +24,7 @@ export function InmobiliariaCard({
     >
       {/* Avatar placeholder en lugar de imagen mockeada */}
       <div className="w-16 h-16 rounded-lg flex-shrink-0 bg-[#f0eded] flex items-center justify-center">
-        <span className="material-symbols-outlined text-[#728973] text-2xl">business</span>
+        <Building2 className="h-6 w-6 text-[#728973]" />
       </div>
 
       <div className="flex-grow">
@@ -32,23 +34,21 @@ export function InmobiliariaCard({
             {nombre}
           </h3>
           {verified && (
-            <span
-              className="material-symbols-outlined text-[14px] text-[#284335]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              verified
-            </span>
+            <CheckCircle2 className="h-3.5 w-3.5 fill-[#284335] text-[#284335]" />
           )}
         </div>
       </div>
 
-      <span className={`material-symbols-outlined transition-all
+      {selected ? (
+        <CheckCircle2 className="h-5 w-5 text-[#284335] opacity-100 transition-all" />
+      ) : (
+        <ChevronRight className={`h-5 w-5 transition-all
         ${selected
           ? 'text-[#284335] opacity-100'
           : 'text-[#727973] opacity-0 group-hover:opacity-100 group-hover:text-[#284335]'
-        }`}>
-        {selected ? 'check_circle' : 'arrow_forward_ios'}
-      </span>
+        }`}
+        />
+      )}
     </div>
   )
 }
