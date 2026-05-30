@@ -26,12 +26,7 @@ const statusStyles: Record<EstadoTurno, { label: string; chip: string; dot: stri
     label: "Cancelado",
     chip: "bg-[oklch(0.62_0.11_40_/_0.12)] text-[oklch(0.5_0.13_35)] ring-1 ring-inset ring-[oklch(0.62_0.11_40_/_0.25)]",
     dot: "bg-accent",
-  },
-  RECHAZADO_VENDEDOR: {
-    label: "Rechazado",
-    chip: "bg-[oklch(0.62_0.11_40_/_0.12)] text-[oklch(0.5_0.13_35)] ring-1 ring-inset ring-[oklch(0.62_0.11_40_/_0.25)]",
-    dot: "bg-accent",
-  },
+  }
 }
 
 export function StatusBadge({

@@ -10,6 +10,7 @@ import {
   Clock3,
   CheckCircle2,
   MapPin,
+  UserRound,
 } from 'lucide-react'
 
 export default async function DashboardPage() {
@@ -188,8 +189,13 @@ export default async function DashboardPage() {
                         {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
                       </p>
                       <p className="mt-0.5 flex items-center gap-1 truncate text-[12px] text-muted-foreground">
-                        <MapPin className="h-3 w-3" /> {turno.nombreComprador}
+                        <MapPin className="h-3 w-3" /> {turno.propiedad.direccion}
+                        
                       </p>
+                       <p className="mt-0.5 flex items-center gap-1 truncate text-[12px] text-muted-foreground">
+                          <UserRound  className="h-3 w-3" /> {turno.nombreComprador}
+                       </p>
+                      
                       <div className="mt-2">
                         <StatusBadge status={turno.estado} />
                       </div>

@@ -232,7 +232,7 @@ export default async function TurnoDetailPage(
                      action={tomarTurno.bind(null, turno.id)}
                         className="h-10 w-full justify-center rounded-lg bg-primary text-[13px] font-medium text-primary-foreground hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-2 transition-colors"
                       >
-                        <X className="h-4 w-4" /> Tomar turno
+                        <Check className="h-4 w-4" /> Tomar turno
                     </DelayButton>
                   </>
                 )}
