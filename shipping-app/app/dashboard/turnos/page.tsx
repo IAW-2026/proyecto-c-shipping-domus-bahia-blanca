@@ -28,9 +28,7 @@ export default async function TurnosPage() {
 
   const turnos = await prisma.turno.findMany({
     where: {
-      propiedad: {
-        vendedorId: agente.vendedorId,
-      },
+      vendedorId: agente.vendedorId,
       estado: { in: ['PENDIENTE_AGENTE']},
       agenteId: null,
     },

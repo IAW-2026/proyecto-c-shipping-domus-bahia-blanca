@@ -20,6 +20,8 @@ model Turno {
   
   compradorId              String
 
+  vendedorId               String
+
   nombreComprador          String? //No me dejaba migrarlo si no lo ponia con ?
 
   agenteId                 String?
@@ -40,6 +42,8 @@ model Turno {
   propiedad Propiedad @relation(fields: [propiedadId], references: [id])
 
   agente AgenteInmobiliario? @relation(fields: [agenteId], references: [id])
+
+  @@index([vendedorId])
 }
 
 model Propiedad {

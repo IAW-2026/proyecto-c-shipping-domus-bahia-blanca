@@ -1,9 +1,26 @@
 import { prisma } from '@/lib/prisma'
 
 import { NextResponse } from 'next/server'
+import type { EstadoTurno } from '@prisma/client'
 
-//Get para obtener los turnos que tienen un estado preaceptado de vendedor
-export async function GET(request: Request) {
+const ESTADOS_TURNO: EstadoTurno[] = [
+  'PENDIENTE_AGENTE',
+  'PRE_ACEPTADO',
+  'RECHAZADO_VENDEDOR',
+  'CONFIRMADO',
+  'CANCELADO',
+  'COMPLETADO',
+]
+
+function isEstadoTurno(value: string): value is EstadoTurno {
+  return ESTADOS_TURNO.includes(value as EstadoTurno)
+}
+
+// Get para obtener los turnos de una inmobiliaria desde la app externa.
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ inmobiliariaId: string }> }
+) {
   try {
     // Verificar API key
     const apiKey = request.headers.get('x-api-key')
@@ -15,8 +32,11 @@ export async function GET(request: Request) {
       )
     }
 
+    const { inmobiliariaId } = await context.params
     const { searchParams } = new URL(request.url)
-    const vendedorId = searchParams.get('inmobiliariaId')
+    const estadoParam = searchParams.get('estado')
+    let estado: EstadoTurno | undefined
+    const vendedorId = inmobiliariaId
 
     if (!vendedorId) {
       return NextResponse.json(
@@ -25,13 +45,23 @@ export async function GET(request: Request) {
       )
     }
 
+    if (estadoParam) {
+      if (!isEstadoTurno(estadoParam)) {
+        return NextResponse.json(
+          { error: 'estado invalido' },
+          { status: 400 }
+        )
+      }
+
+      estado = estadoParam
+    }
+
     const turnos = await prisma.turno.findMany({
       where: {
-        propiedad: {
-          vendedorId,
-        },
-        estado: 'PRE_ACEPTADO',
+        vendedorId,
+        ...(estado ? { estado } : {}),
       },
+      orderBy: { fechaHoraSolicitada: 'asc' },
       include: {
         propiedad: true,
       },

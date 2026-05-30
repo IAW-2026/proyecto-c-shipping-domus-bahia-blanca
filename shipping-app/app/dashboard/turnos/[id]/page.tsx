@@ -51,7 +51,7 @@ export default async function TurnoDetailPage(
 
   if (!turno) notFound()
     //Para que un agente que no le pertence el turno pueda acceder
-  if (!agente || agente.vendedorId !== turno.propiedad.vendedorId || (turno.agenteId!=null && userId != turno.agenteId)) {
+  if (!agente || agente.vendedorId !== turno.vendedorId || (turno.agenteId!=null && userId != turno.agenteId)) {
     redirect('/unauthorized')
   }
   const currentIdx = timeline.findIndex((t) => t.key === turno.estado)

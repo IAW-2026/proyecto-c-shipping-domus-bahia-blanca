@@ -14,6 +14,7 @@ import {
 
 export default async function DashboardPage() {
   const agente = await requireAgente()
+  const agenteVendedorId = agente.vendedorId ?? ''
 
   const [upcoming, pendientesCount, confirmadasCount, completadasCount] = await Promise.all([
     // Próximas visitas: turnos que el agente aceptó (PRE_ACEPTADO o CONFIRMADO)
@@ -31,9 +32,7 @@ export default async function DashboardPage() {
     // Visitas pendientes: PENDIENTE_AGENTE para esa inmobiliaria
     prisma.turno.count({
       where: {
-        propiedad: {
-          vendedorId: agente.vendedorId ?? undefined,
-        },
+        vendedorId: agenteVendedorId,
         estado: 'PENDIENTE_AGENTE',
         agenteId: null,
       },

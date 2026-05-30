@@ -9,16 +9,25 @@ const ACTIVE_TURNO_STATES: EstadoTurno[] = ['PENDIENTE_AGENTE', 'PRE_ACEPTADO', 
 
 export async function tomarTurno(turnoId: string) {
   const { userId } = await auth()
-  
-    if (!userId) throw new Error('No autorizado')
-  
-    const turno = await prisma.turno.findUnique({
+
+  if (!userId) throw new Error('No autorizado')
+
+  const [turno, agente] = await Promise.all([
+    prisma.turno.findUnique({
       where: { id: turnoId },
-      select: { estado: true },
-    })
-  
-    if (!turno) throw new Error('Turno no encontrado')
-    if (turno.estado !== 'PENDIENTE_AGENTE') throw new Error('El turno no puede ser aceptado')
+      select: { estado: true, vendedorId: true },
+    }),
+    prisma.agenteInmobiliario.findUnique({
+      where: { id: userId },
+      select: { vendedorId: true },
+    }),
+  ])
+
+  if (!turno) throw new Error('Turno no encontrado')
+  if (!agente?.vendedorId || agente.vendedorId !== turno.vendedorId) {
+    throw new Error('No autorizado')
+  }
+  if (turno.estado !== 'PENDIENTE_AGENTE') throw new Error('El turno no puede ser aceptado')
 
   await prisma.turno.update({
     where: { id: turnoId },
@@ -116,27 +125,32 @@ export async function crearTurno({
     throw new Error('Ese horario ya no esta disponible')
   }
 
+  const propiedad = await prisma.propiedad.upsert({
+    where: { id: propiedadId },
+    update: {},
+    create: {
+      id: propiedadId,
+      nombrePropiedad,
+      direccion,
+      latitud,
+      longitud,
+      vendedorId,
+      nombreInmobiliaria,
+    },
+    select: {
+      vendedorId: true,
+    },
+  })
+
   const turno = await prisma.turno.create({
     data: {
       compradorId: userId,
+      vendedorId: propiedad.vendedorId,
       nombreComprador,
       fechaHoraSolicitada: fechaHora,
       observaciones,
       estado: 'PENDIENTE_AGENTE',
-      propiedad: {
-        connectOrCreate: {
-          where: { id: propiedadId },
-          create: {
-            id: propiedadId,
-            nombrePropiedad,
-            direccion,
-            latitud,
-            longitud,
-            vendedorId,
-            nombreInmobiliaria,
-          },
-        },
-      },
+      propiedadId,
     },
     select: {
       id: true,

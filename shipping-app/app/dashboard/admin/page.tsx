@@ -120,7 +120,7 @@ export default async function AdminPage({
                       <p className="font-medium text-foreground">
                         {turno.propiedad.nombrePropiedad ?? turno.propiedadId}
                       </p>
-                      <p className="text-[11.5px] text-muted-foreground">{turno.propiedad.vendedorId}</p>
+                      <p className="text-[11.5px] text-muted-foreground">{turno.vendedorId}</p>
                     </td>
                     <td className="px-3 py-4 text-foreground">{turno.compradorId}</td>
                     <td className="px-3 py-4">
