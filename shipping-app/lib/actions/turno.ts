@@ -68,22 +68,61 @@ export async function cancelarTurno(turnoId: string) {
 export async function crearTurno({
   propiedadId,
   nombrePropiedad,
+  descripcion,
   direccion,
+  barrio,
+  ciudad,
+  provincia,
+  pais,
+  codigoPostal,
   latitud,
   longitud,
+  precio,
+  expensas,
+  moneda,
+  ambientes,
+  dormitorios,
+  banios,
+  metrosTotales,
+  metrosCubiertos,
+  antiguedad,
+  condicion,
   vendedorId,
   nombreInmobiliaria,
+  multimedia,
   nombreComprador,
   fechaHora,
   observaciones,
 }: {
   propiedadId: string
   nombrePropiedad?: string | null
+  descripcion?: string | null
   direccion?: string | null
+  barrio?: string | null
+  ciudad?: string | null
+  provincia?: string | null
+  pais?: string | null
+  codigoPostal?: string | null
   latitud?: number | null
   longitud?: number | null
+  precio?: string | number | null
+  expensas?: string | number | null
+  moneda?: string
+  ambientes?: number | null
+  dormitorios?: number | null
+  banios?: number | null
+  metrosTotales?: number | null
+  metrosCubiertos?: number | null
+  antiguedad?: string | null
+  condicion?: string | null
   vendedorId: string
   nombreInmobiliaria?: string | null
+  multimedia?: {
+    id: string
+    url: string
+    alt?: string | null
+    order?: number | null
+  }[]
   nombreComprador?: string
   fechaHora: Date
   observaciones?: string
@@ -125,17 +164,52 @@ export async function crearTurno({
     throw new Error('Ese horario ya no esta disponible')
   }
 
+  const propiedadData = {
+    nombrePropiedad,
+    descripcion,
+    direccion,
+    barrio,
+    ciudad,
+    provincia,
+    pais,
+    codigoPostal,
+    latitud,
+    longitud,
+    precio,
+    expensas,
+    moneda,
+    ambientes,
+    dormitorios,
+    banios,
+    metrosTotales,
+    metrosCubiertos,
+    antiguedad,
+    condicion,
+    vendedorId,
+    nombreInmobiliaria,
+  }
+  const multimediaData = (multimedia ?? []).map((item, index) => ({
+    id: item.id,
+    url: item.url,
+    alt: item.alt,
+    orden: item.order ?? index,
+  }))
+
   const propiedad = await prisma.propiedad.upsert({
     where: { id: propiedadId },
-    update: {},
+    update: {
+      ...propiedadData,
+      multimedia: {
+        deleteMany: {},
+        create: multimediaData,
+      },
+    },
     create: {
       id: propiedadId,
-      nombrePropiedad,
-      direccion,
-      latitud,
-      longitud,
-      vendedorId,
-      nombreInmobiliaria,
+      ...propiedadData,
+      multimedia: {
+        create: multimediaData,
+      },
     },
     select: {
       vendedorId: true,

@@ -12,8 +12,7 @@ type PropiedadExterna = {
   sellerId: string
   title: string
   address: string | null
-  street: string | null
-  streetNumber: string | null
+  description: string | null
   neighborhood: string | null
   city: string | null
   province: string | null
@@ -21,6 +20,16 @@ type PropiedadExterna = {
   postalCode: string | null
   latitude: number | null
   longitude: number | null
+  price: string | number | null
+  expenses: string | number | null
+  currency: string
+  rooms: number | null
+  bedrooms: number | null
+  bathrooms: number | null
+  totalSqMeters: number | null
+  coveredSqMeters: number | null
+  antiquity: string | null
+  condition: string | null
   multimedia: {
     id: string
     url: string
@@ -34,9 +43,8 @@ const MOCK_PROPIEDADES: PropiedadExterna[] = [
     id: 'casa-cj',
     sellerId: 'inm-3',
     title: 'Casa CJ',
+    description: 'Casa familiar con patio y ambientes luminosos.',
     address: 'Grove Street 12, Bahia Blanca',
-    street: 'Grove Street',
-    streetNumber: '12',
     neighborhood: 'Centro',
     city: 'Bahia Blanca',
     province: 'Buenos Aires',
@@ -44,15 +52,24 @@ const MOCK_PROPIEDADES: PropiedadExterna[] = [
     postalCode: '8000',
     latitude: -38.7183,
     longitude: -62.2663,
+    price: '120000',
+    expenses: null,
+    currency: 'USD',
+    rooms: 4,
+    bedrooms: 3,
+    bathrooms: 2,
+    totalSqMeters: 180,
+    coveredSqMeters: 135,
+    antiquity: 'USADA',
+    condition: 'BUENA',
     multimedia: [{ id: 'casa-cj-1', url: '/CasaCJ.webp', alt: 'Fachada de Casa CJ', order: 1 }],
   },
   {
     id: 'luke-house',
     sellerId: 'inm-3',
     title: 'Casa Luke',
+    description: 'Propiedad tranquila en zona residencial.',
     address: 'Tatooine 1977, Bahia Blanca',
-    street: 'Tatooine',
-    streetNumber: '1977',
     neighborhood: 'Palihue',
     city: 'Bahia Blanca',
     province: 'Buenos Aires',
@@ -60,15 +77,24 @@ const MOCK_PROPIEDADES: PropiedadExterna[] = [
     postalCode: '8000',
     latitude: -38.6968,
     longitude: -62.2901,
+    price: '98000',
+    expenses: null,
+    currency: 'USD',
+    rooms: 3,
+    bedrooms: 2,
+    bathrooms: 1,
+    totalSqMeters: 140,
+    coveredSqMeters: 95,
+    antiquity: 'USADA',
+    condition: 'MUY_BUENA',
     multimedia: [{ id: 'luke-house-1', url: '/luke_1.webp', alt: 'Fachada de Casa Luke', order: 1 }],
   },
   {
     id: 'casa-simpsons',
     sellerId: 'inm-3',
     title: 'Casa Simpsons',
+    description: 'Casa amplia con jardin y ubicacion urbana.',
     address: 'Av. Siempreviva 742, Bahia Blanca',
-    street: 'Av. Siempreviva',
-    streetNumber: '742',
     neighborhood: 'Universitario',
     city: 'Bahia Blanca',
     province: 'Buenos Aires',
@@ -76,23 +102,46 @@ const MOCK_PROPIEDADES: PropiedadExterna[] = [
     postalCode: '8000',
     latitude: -38.7075,
     longitude: -62.2676,
+    price: '150000',
+    expenses: '12000',
+    currency: 'USD',
+    rooms: 5,
+    bedrooms: 4,
+    bathrooms: 2,
+    totalSqMeters: 220,
+    coveredSqMeters: 160,
+    antiquity: 'USADA',
+    condition: 'BUENA',
     multimedia: [{ id: 'casa-simpsons-1', url: '/casaSimpsons.webp', alt: 'Fachada de Casa Simpsons', order: 1 }],
   },
 ]
 
 function mapPropiedadExterna(propiedad: PropiedadExterna) {
-  const image = [...propiedad.multimedia].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
-
   return {
     id: propiedad.id,
     nombrePropiedad: propiedad.title,
+    descripcion: propiedad.description,
     direccion: propiedad.address,
+    barrio: propiedad.neighborhood,
+    ciudad: propiedad.city,
+    provincia: propiedad.province,
+    pais: propiedad.country,
+    codigoPostal: propiedad.postalCode,
     latitud: propiedad.latitude,
     longitud: propiedad.longitude,
+    precio: propiedad.price,
+    expensas: propiedad.expenses,
+    moneda: propiedad.currency,
+    ambientes: propiedad.rooms,
+    dormitorios: propiedad.bedrooms,
+    banios: propiedad.bathrooms,
+    metrosTotales: propiedad.totalSqMeters,
+    metrosCubiertos: propiedad.coveredSqMeters,
+    antiguedad: propiedad.antiquity,
+    condicion: propiedad.condition,
     vendedorId: propiedad.sellerId,
     nombreInmobiliaria: 'Domus Bahia Blanca',
-    imageUrl: image?.url ?? null,
-    imageAlt: image?.alt ?? propiedad.title,
+    multimedia: propiedad.multimedia,
   }
 }
 //TODO: Implementar el fetch bien cuando estemos en etapa 3

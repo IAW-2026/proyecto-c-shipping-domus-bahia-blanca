@@ -70,7 +70,6 @@ Estados:
 * `CONFIRMADO`
 * `COMPLETADO`
 * `CANCELADO`
-* `RECHAZADO_VENDEDOR`
 
 ---
 

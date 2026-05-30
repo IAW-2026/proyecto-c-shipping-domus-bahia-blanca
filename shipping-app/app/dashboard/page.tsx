@@ -57,21 +57,21 @@ export default async function DashboardPage() {
 
   const metrics = [
     {
-      label: 'Visitas pendientes',
+      label: 'Turnos pendientes',
       value: pendientesCount.toString(),
       delta: 'Sin agente asignado',
       icon: Clock3,
       accent: 'bg-[oklch(0.62_0.07_60_/_0.12)] text-[oklch(0.45_0.07_60)]',
     },
     {
-      label: 'Visitas confirmadas',
+      label: 'Turnos confirmados',
       value: confirmadasCount.toString(),
       delta: 'Confirmadas por vendedor',
       icon: CalendarCheck2,
       accent: 'bg-[oklch(0.42_0.03_150_/_0.12)] text-primary',
     },
     {
-      label: 'Visitas completadas',
+      label: 'Turnos completados',
       value: completadasCount.toString(),
       delta: 'Mes en curso',
       icon: CheckCircle2,
@@ -149,7 +149,7 @@ export default async function DashboardPage() {
           <article className="rounded-2xl border border-border/60 bg-card shadow-soft">
             <div className="flex items-center justify-between border-b border-border/60 px-6 py-5">
               <div>
-                <h2 className="font-display text-xl font-medium">Próximas visitas</h2>
+                <h2 className="font-display text-xl font-medium">Próximos turnos</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                   Turnos aceptados
                 </p>

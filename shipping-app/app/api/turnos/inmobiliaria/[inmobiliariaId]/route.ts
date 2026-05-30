@@ -6,7 +6,6 @@ import type { EstadoTurno } from '@prisma/client'
 const ESTADOS_TURNO: EstadoTurno[] = [
   'PENDIENTE_AGENTE',
   'PRE_ACEPTADO',
-  'RECHAZADO_VENDEDOR',
   'CONFIRMADO',
   'CANCELADO',
   'COMPLETADO',

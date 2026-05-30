@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
@@ -40,7 +41,13 @@ export default async function TurnoDetailPage(
       where: { id },
       include: {
         agente: { select: { nombreCompleto: true } },
-        propiedad: true,
+        propiedad: {
+          include: {
+            multimedia: {
+              orderBy: { orden: 'asc' },
+            },
+          },
+        },
       },
     }),
     prisma.agenteInmobiliario.findUnique({
@@ -70,6 +77,7 @@ export default async function TurnoDetailPage(
         minute: '2-digit',
       })
     : '--'
+  const imagenPrincipal = turno.propiedad.multimedia[0]
 
   return (
     <>
@@ -103,9 +111,21 @@ export default async function TurnoDetailPage(
           {/* Columna principal */}
           <div className="space-y-6">
 
-            {/* Imagen de la propiedad (Placeholder) */}
-            <div className="w-full aspect-video rounded-2xl bg-secondary/40 border border-border/60 flex items-center justify-center text-muted-foreground text-[13px] shadow-soft">
-              [ Imagen de la propiedad ]
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border/60 bg-secondary/40 shadow-soft">
+              {imagenPrincipal ? (
+                <Image
+                  src={imagenPrincipal.url}
+                  alt={imagenPrincipal.alt ?? turno.propiedad.nombrePropiedad ?? 'Propiedad'}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 720px"
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="grid h-full place-items-center text-[13px] text-muted-foreground">
+                  Imagen no disponible
+                </div>
+              )}
             </div>
 
             {/* Mapa */}

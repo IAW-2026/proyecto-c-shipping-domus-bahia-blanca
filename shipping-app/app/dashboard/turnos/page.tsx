@@ -87,7 +87,7 @@ export default async function TurnosPage() {
                       Comprador
                     </p>
                     <p className="text-[13px] font-medium text-foreground">
-                      {turno.compradorId}
+                      {turno.nombreComprador}
                     </p>
                   </div>
                 </div>

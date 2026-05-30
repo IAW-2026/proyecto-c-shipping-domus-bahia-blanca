@@ -7,13 +7,15 @@ type Props = {
 }
 
 export function PropertyHero({ propiedad }: Props) {
+  const image = [...propiedad.multimedia].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
+
   return (
     <section className="order-1 self-start overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft lg:col-start-1 lg:row-start-1">
       <div className="relative aspect-[4/3] min-h-[260px] w-full bg-secondary">
-        {propiedad.imageUrl ? (
+        {image?.url ? (
           <Image
-            src={propiedad.imageUrl}
-            alt={propiedad.imageAlt ?? propiedad.nombrePropiedad ?? 'Propiedad'}
+            src={image.url}
+            alt={image.alt ?? propiedad.nombrePropiedad ?? 'Propiedad'}
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 620px"

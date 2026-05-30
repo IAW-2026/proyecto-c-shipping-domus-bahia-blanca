@@ -20,10 +20,7 @@ const statusStyles: Record<EstadoTurno, { chip: string }> = {
   },
   CANCELADO: {
     chip: 'bg-[oklch(0.62_0.11_40_/_0.12)] text-[oklch(0.5_0.13_35)] ring-1 ring-inset ring-[oklch(0.62_0.11_40_/_0.25)]',
-  },
-  RECHAZADO_VENDEDOR: {
-    chip: 'bg-[oklch(0.62_0.11_40_/_0.12)] text-[oklch(0.5_0.13_35)] ring-1 ring-inset ring-[oklch(0.62_0.11_40_/_0.25)]',
-  },
+  }
 }
 
 const hours = Array.from({ length: 17 }, (_, i) => {
@@ -70,7 +67,7 @@ export default async function AgendaPage() {
         lte: end,
       },
       estado: {
-        notIn: ['CANCELADO', 'RECHAZADO_VENDEDOR'],
+        notIn: ['CANCELADO'],
       },
     },
     include: {

@@ -49,15 +49,44 @@ model Turno {
 model Propiedad {
   id                  String @id
   nombrePropiedad     String?
+  descripcion         String?
   direccion           String?
+  barrio              String?
+  ciudad              String?
+  provincia           String?
+  pais                String?
+  codigoPostal        String?
   latitud             Float?
   longitud            Float?
+  precio              Decimal? @db.Decimal(14, 2)
+  expensas            Decimal? @db.Decimal(14, 2)
+  moneda              String @default("ARS")
+  ambientes           Int?
+  dormitorios         Int?
+  banios              Int?
+  metrosTotales       Int?
+  metrosCubiertos     Int?
+  antiguedad          String?
+  condicion           String?
   vendedorId          String
   nombreInmobiliaria  String?
 
   turnos              Turno[]
+  multimedia          PropertyMultimedia[]
 
   @@index([vendedorId])
+}
+
+model PropertyMultimedia {
+  id           String @id
+  propiedadId  String
+  url          String
+  alt          String?
+  orden        Int?
+
+  propiedad    Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+
+  @@index([propiedadId])
 }
 
 model AgenteInmobiliario {
@@ -90,7 +119,6 @@ enum EstadoTurnoComprador {
 enum EstadoTurno {
   PENDIENTE_AGENTE
   PRE_ACEPTADO
-  RECHAZADO_VENDEDOR
   CONFIRMADO
   CANCELADO
   COMPLETADO
