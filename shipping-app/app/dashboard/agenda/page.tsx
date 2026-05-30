@@ -5,6 +5,10 @@ import type { EstadoTurno } from '@prisma/client'
 import Link from 'next/link'
 import { ArrowLeft, Calendar } from 'lucide-react'
 
+export const metadata = {
+  title: 'Agenda - Domus',
+}
+
 const statusStyles: Record<EstadoTurno, { chip: string }> = {
   PENDIENTE_AGENTE: {
     chip: 'bg-[oklch(0.62_0.07_60_/_0.12)] text-[oklch(0.45_0.07_60)] ring-1 ring-inset ring-[oklch(0.62_0.07_60_/_0.2)]',
@@ -112,7 +116,7 @@ export default async function AgendaPage({
   return (
     <>
   <AppTopbar crumbs={[{ label: 'Inicio' }, { label: 'Agenda' }]} />
-  <div className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
+  <main className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
     
     {/* Header */}
     <header className="mb-7">
@@ -272,7 +276,7 @@ export default async function AgendaPage({
       </div>
 
     </div>
-  </div>
+  </main>
 </>
   )
 }

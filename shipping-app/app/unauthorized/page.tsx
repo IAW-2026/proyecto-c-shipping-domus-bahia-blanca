@@ -1,3 +1,7 @@
+export const metadata = {
+  title: 'Acceso no autorizado - Domus',
+}
+
 export default function UnauthorizedPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-16">

@@ -47,7 +47,7 @@ export default async function AdminPage({
   return (
     <>
       <AppTopbar crumbs={[{ label: 'Inicio' }, { label: 'Administración' }]} />
-      <div className="mx-auto w-full max-w-[1400px] px-6 py-8 lg:px-10">
+      <main className="mx-auto w-full max-w-[1400px] px-6 py-8 lg:px-10">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-[30px] font-medium leading-tight">
@@ -199,7 +199,7 @@ export default async function AdminPage({
             </div>
           </div>
         </section>
-      </div>
+      </main>
     </>
   )
 }

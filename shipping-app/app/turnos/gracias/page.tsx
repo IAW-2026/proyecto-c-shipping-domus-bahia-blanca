@@ -3,6 +3,10 @@ import { redirect } from 'next/navigation'
 import { CalendarDays, CheckCircle2, Clock, MapPin } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 
+export const metadata = {
+  title: 'Turno reservado - Domus',
+}
+
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat('es-AR', {
     weekday: 'long',

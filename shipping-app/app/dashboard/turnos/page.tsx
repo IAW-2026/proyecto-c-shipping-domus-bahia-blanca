@@ -6,6 +6,10 @@ import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { Calendar, Check, MapPin, User2 } from 'lucide-react'
 import { tomarTurno } from '@/lib/actions/turno'
 
+export const metadata = {
+  title: 'Turnos pendientes - Domus',
+}
+
 export const dynamic = 'force-dynamic'
 export default async function TurnosPage() {
   const { userId } = await auth()
@@ -20,9 +24,9 @@ export default async function TurnosPage() {
   
   if (!agente?.vendedorId) {
     return (
-      <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+      <main className="flex h-full items-center justify-center text-muted-foreground text-sm">
         No tenés una inmobiliaria asignada.
-      </div>
+      </main>
     )
   }
 
@@ -41,7 +45,7 @@ export default async function TurnosPage() {
   return (
     <>
       <AppTopbar crumbs={[{ label: 'Inicio' }, { label: 'Turnos pendientes' }]} />
-      <div className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
+      <main className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="font-display text-[30px] font-medium leading-tight">
@@ -129,7 +133,7 @@ export default async function TurnosPage() {
             </li>
           ))}
         </ul>
-      </div>
+      </main>
     </>
   )
 }

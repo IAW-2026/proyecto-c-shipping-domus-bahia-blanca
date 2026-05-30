@@ -1,3 +1,7 @@
+export const metadata = {
+  title: 'Cuenta rechazada - Domus',
+}
+
 export default function CuentaRechazadaPage() {
   return (
   <main className="min-h-screen bg-[#f8f4ef] text-stone-900">

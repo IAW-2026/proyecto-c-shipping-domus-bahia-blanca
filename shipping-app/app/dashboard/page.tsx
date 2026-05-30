@@ -13,6 +13,10 @@ import {
   UserRound,
 } from 'lucide-react'
 
+export const metadata = {
+  title: 'Dashboard - Domus',
+}
+
 export default async function DashboardPage() {
   const agente = await requireAgente()
   const agenteVendedorId = agente.vendedorId ?? ''
@@ -83,7 +87,7 @@ export default async function DashboardPage() {
   return (
     <>
       <AppTopbar crumbs={[{ label: 'Inicio' }, { label: 'Dashboard' }]} />
-      <div className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
+      <main className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-[12px] uppercase tracking-[0.2em] text-accent-warm">
@@ -208,7 +212,7 @@ export default async function DashboardPage() {
             <div className="h-5 border-t border-border/60 bg-card" />
           </article>
         </section>
-      </div>
+      </main>
     </>
   )
 }

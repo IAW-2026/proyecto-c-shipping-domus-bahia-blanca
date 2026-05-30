@@ -32,6 +32,10 @@ const timeline: { key: EstadoTurno; label: string }[] = [
   { key: 'COMPLETADO', label: 'Completado' },
 ]
 
+export const metadata = {
+  title: 'Detalle del turno - Domus',
+}
+
 function formatMoney(value: unknown, moneda: string) {
   if (value === null || value === undefined) return '-'
 
@@ -145,7 +149,7 @@ export default async function TurnoDetailPage(
   return (
     <>
       <AppTopbar crumbs={[{ label: 'Turnos' }, { label: turno.id.slice(0, 8).toUpperCase() }]} />
-        <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
+        <main className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
 
         <Link
           href="/dashboard/turnos"
@@ -195,14 +199,17 @@ export default async function TurnoDetailPage(
               <div className="rounded-2xl border border-border/60 bg-card px-5 py-5 shadow-soft">
                 <dl className="grid grid-cols-2 gap-5 sm:grid-cols-4">
                   {destacados.map((item) => (
-                    <div key={item.label} className="flex items-center gap-3">
-                      <item.icon className="h-5 w-5 shrink-0 text-primary/70" />
-                      <div className="min-w-0 leading-tight">
-                        <dt className="font-display text-[18px] font-semibold text-foreground">
+                    <div key={item.label}>
+                      <dt className="sr-only">{item.label}</dt>
+                      <dd className="flex items-center gap-3">
+                        <item.icon className="h-5 w-5 shrink-0 text-primary/70" />
+                        <span className="min-w-0 leading-tight">
+                          <span className="block font-display text-[18px] font-semibold text-foreground">
                           {item.value}
-                        </dt>
-                        <dd className="mt-0.5 text-[12px] text-muted-foreground">{item.label}</dd>
-                      </div>
+                          </span>
+                          <span className="mt-0.5 block text-[12px] text-muted-foreground">{item.label}</span>
+                        </span>
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -226,8 +233,10 @@ export default async function TurnoDetailPage(
                 <dl className="mt-5 grid grid-cols-1 gap-x-8 gap-y-4 text-[13.5px] sm:grid-cols-2">
                   {detalles.map((detalle) => (
                     <div key={detalle.label} className="flex items-center gap-2">
-                      <CircleCheck className="h-4 w-4 shrink-0 text-primary/60" />
-                      <dt className="text-muted-foreground">{detalle.label}:</dt>
+                      <dt className="flex items-center gap-2 text-muted-foreground">
+                        <CircleCheck className="h-4 w-4 shrink-0 text-primary/60" />
+                        {detalle.label}:
+                      </dt>
                       <dd className="min-w-0 truncate font-medium text-foreground">{detalle.value}</dd>
                     </div>
                   ))}
@@ -367,7 +376,7 @@ export default async function TurnoDetailPage(
 
           </aside>
         </div>
-      </div>
+      </main>
     </>
   )
 }

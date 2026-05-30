@@ -1,3 +1,7 @@
+export const metadata = {
+  title: 'Cuenta en revision - Domus',
+}
+
 export default function CuentaEnRevisionPage() {
   return (
     <main className="min-h-screen bg-[#f8f4ef] text-stone-900">

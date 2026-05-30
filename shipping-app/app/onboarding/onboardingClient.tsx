@@ -59,7 +59,7 @@ export default function OnboardingPage({ crearAgente }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf9f8] font-sans">
-      <main className="relative flex-grow flex items-center justify-center py-20 px-6">
+      <div className="relative flex-grow flex items-center justify-center py-20 px-6">
         <div className="max-w-[1280px] w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
           <OnboardingHeader>
@@ -92,7 +92,7 @@ export default function OnboardingPage({ crearAgente }: Props) {
         >
           {loading ? 'Enviando...' : 'Continuar'}
         </button>
-      </main>
+      </div>
     </div>
   )
 }

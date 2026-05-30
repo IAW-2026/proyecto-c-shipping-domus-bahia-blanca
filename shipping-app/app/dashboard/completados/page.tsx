@@ -7,6 +7,10 @@ import { requireAgente } from '@/lib/auth/requireAgente'
 
 type OrdenFecha = 'asc' | 'desc'
 
+export const metadata = {
+  title: 'Turnos completados - Domus',
+}
+
 function formatDate(date: Date) {
   return date.toLocaleDateString('es-AR', {
     timeZone: 'America/Argentina/Buenos_Aires',
@@ -50,7 +54,7 @@ export default async function TurnosCompletadosPage({
   return (
     <>
       <AppTopbar crumbs={[{ label: 'Inicio' }, { label: 'Turnos completados' }]} />
-      <div className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
+      <main className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
         <header className="mb-7 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="font-display text-[30px] font-medium leading-tight">
@@ -148,7 +152,7 @@ export default async function TurnosCompletadosPage({
             </ul>
           </section>
         )}
-      </div>
+      </main>
     </>
   )
 }

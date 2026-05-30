@@ -6,6 +6,10 @@ import { prisma } from '@/lib/prisma'
 
 const ACTIVE_TURNO_STATES: EstadoTurno[] = ['PENDIENTE_AGENTE', 'PRE_ACEPTADO', 'CONFIRMADO']
 
+export const metadata = {
+  title: 'Reservar turno - Domus',
+}
+
 // TODO: reemplazar con la URL real de la app externa
 type PropiedadExterna = {
   id: string
@@ -240,17 +244,19 @@ export default async function NuevoTurnoPage({
   if (!propiedad) notFound()
 
   return (
-    <TurnoForm
-      propiedad={{
-        ...propiedad,
-        id: propiedadId,
-      }}
-      comprador={{
-        id: userId,
-        nombre: user?.fullName ?? '',
-        email: user?.emailAddresses[0].emailAddress ?? '',
-      }}
-      horariosOcupados={horariosOcupados}
-    />
+    <main>
+      <TurnoForm
+        propiedad={{
+          ...propiedad,
+          id: propiedadId,
+        }}
+        comprador={{
+          id: userId,
+          nombre: user?.fullName ?? '',
+          email: user?.emailAddresses[0].emailAddress ?? '',
+        }}
+        horariosOcupados={horariosOcupados}
+      />
+    </main>
   )
 }
