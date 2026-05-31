@@ -4,11 +4,13 @@ import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { prisma } from '@/lib/prisma'
 import { requireAgente } from '@/lib/auth/requireAgente'
+import { OrderControl } from './orderControl'
 
 type OrdenFecha = 'asc' | 'desc'
 
 export const metadata = {
   title: 'Turnos completados - Domus',
+  description: 'Listado de turnos completados por el agente inmobiliario.',
 }
 
 function formatDate(date: Date) {
@@ -76,28 +78,7 @@ export default async function TurnosCompletadosPage({
           <p className="text-[12.5px] text-muted-foreground">
             Ordenados por fecha {ordenFecha === 'asc' ? 'ascendente' : 'descendente'}.
           </p>
-          <div className="inline-flex rounded-lg border border-border/70 bg-card p-1 shadow-soft">
-            <Link
-              href="/dashboard/completados?orden=desc"
-              className={`rounded-md px-3 py-1.5 text-[12.5px] font-medium transition-colors ${
-                ordenFecha === 'desc'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-              }`}
-            >
-              Más recientes
-            </Link>
-            <Link
-              href="/dashboard/completados?orden=asc"
-              className={`rounded-md px-3 py-1.5 text-[12.5px] font-medium transition-colors ${
-                ordenFecha === 'asc'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-              }`}
-            >
-              Más antiguos
-            </Link>
-          </div>
+          <OrderControl orden={ordenFecha} />
         </div>
 
         {turnos.length === 0 ? (

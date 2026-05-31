@@ -8,6 +8,7 @@ import { tomarTurno } from '@/lib/actions/turno'
 
 export const metadata = {
   title: 'Turnos pendientes - Domus',
+  description: 'Listado de turnos pendientes de aceptar para la inmobiliaria.',
 }
 
 export const dynamic = 'force-dynamic'

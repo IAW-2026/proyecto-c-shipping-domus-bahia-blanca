@@ -34,6 +34,7 @@ const timeline: { key: EstadoTurno; label: string }[] = [
 
 export const metadata = {
   title: 'Detalle del turno - Domus',
+  description: 'Detalle del turno, propiedad, comprador y acciones disponibles para el agente.',
 }
 
 function formatMoney(value: unknown, moneda: string) {

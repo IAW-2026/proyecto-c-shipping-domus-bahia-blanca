@@ -1,5 +1,6 @@
 export const metadata = {
   title: 'Acceso no autorizado - Domus',
+  description: 'Aviso de acceso no autorizado a una seccion protegida de Domus.',
 }
 
 export default function UnauthorizedPage() {

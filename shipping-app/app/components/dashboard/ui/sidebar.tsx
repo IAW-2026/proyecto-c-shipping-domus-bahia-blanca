@@ -28,9 +28,9 @@ const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen: (open: boolean | ((open: boolean) => boolean)) => void;
   openMobile: boolean;
-  setOpenMobile: (open: boolean) => void;
+  setOpenMobile: React.Dispatch<React.SetStateAction<boolean>>;
   toggleSidebar: () => void;
 };
 
@@ -88,9 +88,8 @@ const SidebarProvider = React.forwardRef<
 
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      setOpenMobile((open) => !open);
       setOpen((open) => !open);
-    }, [setOpen, setOpenMobile]);
+    }, [setOpen]);
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
@@ -259,24 +258,40 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar();
+  const { setOpen, setOpenMobile } = useSidebar();
 
   return (
-    <Button
-      ref={ref}
-      data-sidebar="trigger"
-      variant="ghost"
-      size="icon"
-      className={cn("h-7 w-7", className)}
-      onClick={(event) => {
-        onClick?.(event);
-        toggleSidebar();
-      }}
-      {...props}
-    >
-      <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+    <>
+      <Button
+        data-sidebar="trigger"
+        variant="ghost"
+        size="icon"
+        className={cn("h-7 w-7 md:hidden", className)}
+        onClick={(event) => {
+          onClick?.(event);
+          setOpenMobile((open) => !open);
+        }}
+        {...props}
+      >
+        <PanelLeft />
+        <span className="sr-only">Abrir sidebar</span>
+      </Button>
+      <Button
+        ref={ref}
+        data-sidebar="trigger"
+        variant="ghost"
+        size="icon"
+        className={cn("hidden h-7 w-7 md:inline-flex", className)}
+        onClick={(event) => {
+          onClick?.(event);
+          setOpen((open) => !open);
+        }}
+        {...props}
+      >
+        <PanelLeft />
+        <span className="sr-only">Contraer sidebar</span>
+      </Button>
+    </>
   );
 });
 SidebarTrigger.displayName = "SidebarTrigger";

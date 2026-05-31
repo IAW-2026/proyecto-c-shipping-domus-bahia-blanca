@@ -1,20 +1,14 @@
-import Link from 'next/link'
-import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
-import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { requireAgente } from '@/lib/auth/requireAgente'
-import {
-  ArrowUpRight,
-  CalendarCheck2,
-  Clock3,
-  CheckCircle2,
-  MapPin,
-  UserRound,
-} from 'lucide-react'
+import { CalendarCheck2, CheckCircle2, Clock3 } from 'lucide-react'
+import { DashboardHeader } from '../components/dashboard/dashboardHeader'
+import { DashboardScheduleSection } from '../components/dashboard/dashboardScheduleSection'
+import { MetricsSection } from '../components/dashboard/metricsSection'
 
 export const metadata = {
   title: 'Dashboard - Domus',
+  description: 'Resumen de turnos, metricas y proximas visitas del agente inmobiliario.',
 }
 
 export default async function DashboardPage() {
@@ -22,7 +16,6 @@ export default async function DashboardPage() {
   const agenteVendedorId = agente.vendedorId ?? ''
 
   const [upcoming, pendientesCount, confirmadasCount, completadasCount] = await Promise.all([
-    // Próximas visitas: turnos que el agente aceptó (PRE_ACEPTADO o CONFIRMADO)
     prisma.turno.findMany({
       where: {
         agenteId: agente.id,
@@ -34,7 +27,6 @@ export default async function DashboardPage() {
         propiedad: true,
       },
     }),
-    // Visitas pendientes: PENDIENTE_AGENTE para esa inmobiliaria
     prisma.turno.count({
       where: {
         vendedorId: agenteVendedorId,
@@ -42,14 +34,12 @@ export default async function DashboardPage() {
         agenteId: null,
       },
     }),
-    // Visitas confirmadas: el agente confirmó
     prisma.turno.count({
       where: {
         agenteId: agente.id,
         estado: 'CONFIRMADO',
       },
     }),
-    // Visitas completadas: el agente completó
     prisma.turno.count({
       where: {
         agenteId: agente.id,
@@ -88,130 +78,13 @@ export default async function DashboardPage() {
     <>
       <AppTopbar crumbs={[{ label: 'Inicio' }, { label: 'Dashboard' }]} />
       <main className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-[12px] uppercase tracking-[0.2em] text-accent-warm">
-              Hola, {firstName}
-            </p>
-            <h1 className="mt-2 font-display text-[32px] font-medium leading-tight text-foreground">
-              Tu agenda de hoy.
-            </h1>
-            <p className="mt-1 text-[14px] text-muted-foreground">
-              {new Date().toLocaleDateString('es-AR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              })}
-            </p>
-          </div>
-          <Link
-            href="/dashboard/turnos"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-[13px] font-medium text-primary-foreground shadow-soft transition-colors hover:bg-[oklch(0.36_0.03_150)]"
-          >
-            Ver turnos pendientes
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        </header>
+        <DashboardHeader firstName={firstName} />
 
-        {/* Metrics */}
-        <section className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {metrics.map((m) => (
-            <article
-              key={m.label}
-              className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-shadow hover:shadow-elev"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[12.5px] font-medium text-muted-foreground">
-                  {m.label}
-                </span>
-                <span className={`grid h-9 w-9 place-items-center rounded-lg ${m.accent}`}>
-                  <m.icon className="h-[18px] w-[18px]" />
-                </span>
-              </div>
-              <p className="mt-5 font-display text-[34px] font-medium leading-none text-foreground">
-                {m.value}
-              </p>
-              <p className="mt-2 text-[12px] text-muted-foreground">{m.delta}</p>
-            </article>
-          ))}
-        </section>
+        {/* Metricas */}
+        <MetricsSection metrics={metrics} />
 
-        {/* Calendar + upcoming */}
-        
-        <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-stretch ">
-          <div className="h-full hidden lg:block">
-           <div className="overflow-hidden rounded-2xl">
-            <Image
-              src="/fotoDashboard.webp"
-              alt="Resumen semanal"
-              width={1200}
-              height={800}
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              className="w-full h-auto object-cover"
-              priority
-            />
-          </div>
-          </div>
-          <article className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">
-            <div className="flex items-center justify-between border-b border-border/60 px-6 py-5">
-              <div>
-                <h2 className="font-display text-xl font-medium">Próximos turnos</h2>
-                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-                  Turnos aceptados
-                </p>
-              </div>
-              <Link
-                href="/dashboard/agenda"
-                className="text-[12.5px] font-medium text-primary hover:underline"
-              >
-                Ver agenda
-              </Link>
-            </div>
-            <ul className="max-h-[336px] divide-y divide-border/60 overflow-y-auto overscroll-contain">
-              {upcoming.length === 0 ? (
-                <li className="px-6 py-8 text-center text-[13px] text-muted-foreground">
-                  No tenés visitas próximas
-                </li>
-              ) : (
-                upcoming.map((turno) => (
-                  <li key={turno.id} className="flex h-28 items-start gap-4 px-6 py-4">
-                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-secondary text-center leading-tight">
-                      <div>
-                        <p className="font-display text-[15px] font-medium text-primary">
-                          {turno.fechaHoraSolicitada
-                            ? new Date(turno.fechaHoraSolicitada).getHours().toString().padStart(2, '0')
-                            : '--'}
-                        </p>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                          {turno.fechaHoraSolicitada
-                            ? new Date(turno.fechaHoraSolicitada).getMinutes().toString().padStart(2, '0')
-                            : '--'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13.5px] font-medium text-foreground">
-                        {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
-                      </p>
-                      <p className="mt-0.5 flex items-center gap-1 truncate text-[12px] text-muted-foreground">
-                        <MapPin className="h-3 w-3" /> {turno.propiedad.direccion}
-                        
-                      </p>
-                       <p className="mt-0.5 flex items-center gap-1 truncate text-[12px] text-muted-foreground">
-                          <UserRound  className="h-3 w-3" /> {turno.nombreComprador}
-                       </p>
-                      
-                      <div className="mt-2">
-                        <StatusBadge status={turno.estado} />
-                      </div>
-                    </div>
-                  </li>
-                ))
-              )}
-            </ul>
-            <div className="h-5 border-t border-border/60 bg-card" />
-          </article>
-        </section>
+        {/* ProximasVisitas + imagen */}
+        <DashboardScheduleSection upcoming={upcoming} />
       </main>
     </>
   )

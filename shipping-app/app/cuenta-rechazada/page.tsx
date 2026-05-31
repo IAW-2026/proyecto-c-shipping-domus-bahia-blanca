@@ -1,5 +1,6 @@
 export const metadata = {
   title: 'Cuenta rechazada - Domus',
+  description: 'Aviso de cuenta rechazada para agentes inmobiliarios en Domus.',
 }
 
 export default function CuentaRechazadaPage() {

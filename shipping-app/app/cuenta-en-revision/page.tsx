@@ -1,5 +1,6 @@
 export const metadata = {
   title: 'Cuenta en revision - Domus',
+  description: 'Estado de revision de cuenta para agentes inmobiliarios en Domus.',
 }
 
 export default function CuentaEnRevisionPage() {

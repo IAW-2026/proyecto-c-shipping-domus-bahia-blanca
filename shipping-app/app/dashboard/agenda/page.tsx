@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar } from 'lucide-react'
 
 export const metadata = {
   title: 'Agenda - Domus',
+  description: 'Agenda semanal de visitas y turnos asignados al agente inmobiliario.',
 }
 
 const statusStyles: Record<EstadoTurno, { chip: string }> = {
@@ -80,7 +81,7 @@ export default async function AgendaPage({
         lte: end,
       },
       estado: {
-        notIn: ['CANCELADO'],
+        notIn: ['CANCELADO', 'COMPLETADO'],
       },
     },
     orderBy: {

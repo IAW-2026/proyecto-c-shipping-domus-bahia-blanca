@@ -1,13 +1,14 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { notFound, redirect } from 'next/navigation'
 import type { EstadoTurno } from '@prisma/client'
-import { TurnoForm } from '@/app/turnos/turnoForm'
+import { TurnoForm } from '@/app/pedirturnos/turnoForm'
 import { prisma } from '@/lib/prisma'
 
 const ACTIVE_TURNO_STATES: EstadoTurno[] = ['PENDIENTE_AGENTE', 'PRE_ACEPTADO', 'CONFIRMADO']
 
 export const metadata = {
   title: 'Reservar turno - Domus',
+  description: 'Formulario para reservar una visita a una propiedad publicada en Domus.',
 }
 
 // TODO: reemplazar con la URL real de la app externa

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export const metadata = {
   title: 'Turno reservado - Domus',
+  description: 'Confirmacion de solicitud de turno y resumen de la reserva realizada.',
 }
 
 function formatDate(date: Date) {

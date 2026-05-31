@@ -3,6 +3,7 @@ import MosaicoSignIn from "@/app/components/sign-in/mosaicoSignIn"
 
 export const metadata = {
   title: 'Ingresar - Domus',
+  description: 'Ingreso seguro a Domus para agentes inmobiliarios y usuarios autorizados.',
 }
 
 export default function SignInPage() {
