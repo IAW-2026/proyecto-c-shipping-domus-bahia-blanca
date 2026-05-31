@@ -1,7 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
-import { userHasAdminRole } from '@/lib/auth/requireAdmin'
 
 export default async function CuentaEnRevisionLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth()

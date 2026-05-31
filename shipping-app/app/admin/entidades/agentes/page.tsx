@@ -46,6 +46,7 @@ function EstadoField({ defaultValue }: { defaultValue?: EstadoAgente }) {
     <label className="grid gap-1.5 text-[12px] font-medium text-muted-foreground">
       Estado
       <select
+        key={defaultValue ?? 'PENDIENTE'}
         name="estado"
         defaultValue={defaultValue ?? 'PENDIENTE'}
         className="h-9 rounded-lg border border-border/70 bg-[#FAF8F5] px-3 text-[13px] text-foreground outline-none focus:border-primary"
