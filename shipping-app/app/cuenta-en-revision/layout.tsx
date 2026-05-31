@@ -7,7 +7,6 @@ export default async function CuentaEnRevisionLayout({ children }: { children: R
   const { userId } = await auth()
 
   if (!userId) redirect('/sign-in')
-  if (await userHasAdminRole(userId)) return <>{children}</>
 
   const agente = await prisma.agenteInmobiliario.findUnique({
     where: { id: userId },

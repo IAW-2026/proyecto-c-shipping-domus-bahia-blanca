@@ -7,6 +7,7 @@ import {
   CalendarClock,
   ClipboardList,
   CheckCircle2,
+  Crown,
   LogOut,
 } from 'lucide-react'
 import {
@@ -28,13 +29,18 @@ const main = [
   { title: 'Turnos completados', url: '/dashboard/completados', icon: CheckCircle2 },
 ]
 
-export function AppSidebar() {
+const adminItem = { title: 'Panel administracion', url: '/admin', icon: Crown }
+
+type SidebarItem = (typeof main)[number] | typeof adminItem
+
+export function AppSidebar({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname()
+  const items = isAdmin ? [...main, adminItem] : main
 
   const isActive = (path: string) =>
     path === '/dashboard' ? pathname === path : pathname.startsWith(path)
 
-  const renderItem = (item: (typeof main)[number]) => (
+  const renderItem = (item: SidebarItem) => (
     <SidebarMenuItem key={item.url}>
       <SidebarMenuButton
         asChild
@@ -73,7 +79,7 @@ export function AppSidebar() {
       <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>{main.map(renderItem)}</SidebarMenu>
+            <SidebarMenu>{items.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
