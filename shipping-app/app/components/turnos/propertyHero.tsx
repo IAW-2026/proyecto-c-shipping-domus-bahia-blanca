@@ -18,6 +18,8 @@ export function PropertyHero({ propiedad }: Props) {
             alt={image.alt ?? propiedad.nombrePropiedad ?? 'Propiedad'}
             fill
             priority
+            fetchPriority="high"
+            quality={72}
             sizes="(max-width: 1024px) 100vw, 620px"
             className="object-cover"
           />

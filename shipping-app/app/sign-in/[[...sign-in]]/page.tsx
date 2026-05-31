@@ -27,6 +27,7 @@ export default function SignInPage() {
                 className="absolute inset-0 object-cover"
                 priority
                 fetchPriority="high"
+                quality={76}
               />
             </MosaicoSignIn>
           </div>
@@ -40,6 +41,7 @@ export default function SignInPage() {
                 className="object-cover object-top blur-[1.5px]"
                 priority
                 fetchPriority="high"
+                quality={76}
               />
             </div>
             <SideBarClerk />

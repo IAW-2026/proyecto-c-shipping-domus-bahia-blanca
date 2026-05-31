@@ -188,6 +188,8 @@ export default async function TurnoDetailPage(
                   sizes="(max-width: 1024px) 100vw, 720px"
                   className="object-cover"
                   priority
+                  fetchPriority="high"
+                  quality={72}
                 />
               ) : (
                 <div className="grid h-full place-items-center text-[13px] text-muted-foreground">

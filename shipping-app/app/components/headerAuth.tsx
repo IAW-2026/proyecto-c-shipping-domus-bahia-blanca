@@ -10,15 +10,15 @@ const getServerSnapshot = () => false
 export function HeaderAuth() {
   const mounted = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot)
 
-  if (!mounted) return <div className="h-8 w-8" aria-hidden="true" />
+  if (!mounted) return <div className="h-10 w-10" aria-hidden="true" />
 
   return (
-    <>
+    <div className="grid h-10 w-10 place-items-center">
       <Show when="signed-out">
       </Show>
       <Show when="signed-in">
         <UserButton />
       </Show>
-    </>
+    </div>
   )
 }

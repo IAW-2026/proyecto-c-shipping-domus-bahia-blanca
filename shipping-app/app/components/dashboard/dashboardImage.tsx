@@ -3,15 +3,16 @@ import Image from 'next/image'
 export function DashboardImage() {
   return (
     <div className="hidden h-full lg:block">
-      <div className="overflow-hidden rounded-2xl">
+      <div className="relative aspect-[3/2] overflow-hidden rounded-2xl">
         <Image
           src="/fotoDashboard.webp"
           alt="Resumen semanal"
-          width={1200}
-          height={800}
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 60vw, 50vw"
-          className="h-auto w-full object-cover"
+          fill
+          sizes="(min-width: 1280px) 720px, (min-width: 1024px) calc((100vw - 5rem) * 0.58), 0px"
+          className="object-cover"
           priority
+          fetchPriority="high"
+          quality={72}
         />
       </div>
     </div>
