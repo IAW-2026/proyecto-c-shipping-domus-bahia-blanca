@@ -14,7 +14,7 @@ export default function CuentaEnRevisionPage() {
           Tu cuenta fue creada y esta en proceso de validacion. Cuando el equipo
           de la inmobiliaria la apruebe, vas a poder acceder al dashboard.
         </p>
-        <p className="mt-2 text-sm text-stone-500">
+        <p className="mt-2 text-sm text-stone-700">
           Si necesitas asistencia, contacta al administrador.
         </p>
       </section>
