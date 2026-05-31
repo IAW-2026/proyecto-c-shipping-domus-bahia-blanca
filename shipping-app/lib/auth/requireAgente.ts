@@ -8,14 +8,14 @@ export async function requireAgente() {
 
   if (!userId) redirect('/sign-in')
 
-  const client = await clerkClient()
-  const user = await client.users.getUser(userId)
+  const [user, agente] = await Promise.all([
+    clerkClient().then((client) => client.users.getUser(userId)),
+    prisma.agenteInmobiliario.findUnique({
+      where: { id: userId },
+      select: { id: true, estado: true, nombreCompleto: true, vendedorId: true },
+    }),
+  ])
   const isAdmin = metadataHasAdminRole(user.publicMetadata as RoleMetadata)
-
-  const agente = await prisma.agenteInmobiliario.findUnique({
-    where: { id: userId },
-    select: { id: true, estado: true, nombreCompleto: true, vendedorId: true },
-  })
 
   if (isAdmin && !agente) {
     return {
@@ -26,14 +26,15 @@ export async function requireAgente() {
         user.emailAddresses?.[0]?.emailAddress ||
         'Admin',
       vendedorId: null,
+      isAdmin,
     }
   }
 
-  if (isAdmin && agente) return agente
+  if (isAdmin && agente) return { ...agente, isAdmin }
 
   if (!agente) redirect('/onboarding')
   if (agente.estado === 'RECHAZADO') redirect('/cuenta-rechazada')
   if (agente.estado === 'PENDIENTE') redirect('/cuenta-en-revision')
 
-  return agente
+  return { ...agente, isAdmin }
 }

@@ -182,37 +182,40 @@ export default async function NuevoTurnoPage({
 
   if (!propiedadId) redirect('/')
 
-  const turnoExistente = await prisma.turno.findFirst({
-    where: {
-      compradorId: userId,
-      propiedadId,
-      estado: {
-        in: ACTIVE_TURNO_STATES,
+  const [turnoExistente, turnosOcupados, propiedad, user] = await Promise.all([
+    prisma.turno.findFirst({
+      where: {
+        compradorId: userId,
+        propiedadId,
+        estado: {
+          in: ACTIVE_TURNO_STATES,
+        },
       },
-    },
-    select: {
-      id: true,
-    },
-  })
+      select: {
+        id: true,
+      },
+    }),
+    prisma.turno.findMany({
+      where: {
+        propiedadId,
+        estado: {
+          in: ACTIVE_TURNO_STATES,
+        },
+        fechaHoraSolicitada: {
+          not: null,
+        },
+      },
+      select: {
+        fechaHoraSolicitada: true,
+      },
+    }),
+    fetchPropiedad(propiedadId),
+    currentUser(),
+  ])
 
   if (turnoExistente) {
     redirect(`/turnos/gracias?turnoId=${turnoExistente.id}`)
   }
-
-  const turnosOcupados = await prisma.turno.findMany({
-    where: {
-      propiedadId,
-      estado: {
-        in: ACTIVE_TURNO_STATES,
-      },
-      fechaHoraSolicitada: {
-        not: null,
-      },
-    },
-    select: {
-      fechaHoraSolicitada: true,
-    },
-  })
 
   const horariosOcupados = turnosOcupados.reduce<Record<string, string[]>>((acc, turno) => {
     if (!turno.fechaHoraSolicitada) return acc
@@ -222,11 +225,6 @@ export default async function NuevoTurnoPage({
 
     return acc
   }, {})
-
-  const [propiedad, user] = await Promise.all([
-    fetchPropiedad(propiedadId),
-    currentUser(),
-  ])
 
   if (!propiedad) notFound()
 

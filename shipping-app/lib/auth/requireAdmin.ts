@@ -31,10 +31,12 @@ export async function requireAdmin() {
 
   if (!userId) redirect('/sign-in')
 
-  if (!(await userHasAdminRole(userId))) {
+  const client = await clerkClient()
+  const user = await client.users.getUser(userId)
+
+  if (!metadataHasAdminRole(user.publicMetadata as RoleMetadata)) {
     redirect('/unauthorized')
   }
 
-  const client = await clerkClient()
-  return client.users.getUser(userId)
+  return user
 }
