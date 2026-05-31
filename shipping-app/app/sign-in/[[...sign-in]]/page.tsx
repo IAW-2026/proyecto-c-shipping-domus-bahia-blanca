@@ -5,6 +5,10 @@ import Image from "next/image"
 export const metadata = {
   title: 'Ingresar - Domus',
   description: 'Ingreso seguro a Domus para agentes inmobiliarios y usuarios autorizados.',
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function SignInPage() {
