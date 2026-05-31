@@ -7,19 +7,20 @@ import { BookingSummary } from '@/app/components/turnos/bookingSummary'
 import { PropertyHero } from '@/app/components/turnos/propertyHero'
 import { VisitCalendar } from '@/app/components/turnos/visitCalendar'
 import type { CompradorTurno, PropiedadTurno } from '@/app/components/turnos/types'
-import { crearTurno } from '@/lib/actions/turno'
+import { crearTurno } from '@/lib/turnos/turno'
+import {
+  argentinaCalendarDate,
+  argentinaDateKey,
+  argentinaDateTime,
+  argentinaMonthDate,
+  TURNOS_TIME_SLOTS,
+} from '@/lib/turnos/horarios'
 
 type Props = {
   propiedad: PropiedadTurno
   comprador: CompradorTurno
   horariosOcupados: Record<string, string[]>
 }
-
-const TIME_SLOTS = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '12:00', '12:30', '15:00', '15:30', '16:00', '16:30',
-  '17:00',
-]
 
 const DAY_LABELS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
@@ -29,18 +30,20 @@ const MONTH_LABELS = [
 ]
 
 function startOfMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), 1)
+  return argentinaMonthDate(date.getUTCFullYear(), date.getUTCMonth())
 }
 
 function buildMonthGrid(cursor: Date) {
   const first = startOfMonth(cursor)
-  const offset = (first.getDay() + 6) % 7
-  const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate()
+  const offset = (first.getUTCDay() + 6) % 7
+  const daysInMonth = new Date(
+    Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 0, 12)
+  ).getUTCDate()
   const cells: (Date | null)[] = []
 
   for (let i = 0; i < offset; i++) cells.push(null)
   for (let day = 1; day <= daysInMonth; day++) {
-    cells.push(new Date(cursor.getFullYear(), cursor.getMonth(), day))
+    cells.push(argentinaMonthDate(cursor.getUTCFullYear(), cursor.getUTCMonth(), day))
   }
   while (cells.length < 42) cells.push(null)
 
@@ -49,40 +52,21 @@ function buildMonthGrid(cursor: Date) {
 
 function isSameDay(a: Date, b: Date) {
   return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
+    a.getUTCFullYear() === b.getUTCFullYear() &&
+    a.getUTCMonth() === b.getUTCMonth() &&
+    a.getUTCDate() === b.getUTCDate()
   )
 }
 
 function formatDate(date: Date) {
-  return `${DAY_LABELS[(date.getDay() + 6) % 7]} ${date.getDate()} ${MONTH_LABELS[date.getMonth()].slice(0, 3)}`
-}
-
-function buildFechaHora(date: Date, time: string) {
-  const [hours, minutes] = time.split(':').map(Number)
-  const result = new Date(date)
-  result.setHours(hours, minutes, 0, 0)
-  return result
-}
-
-function formatDateKey(date: Date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-
-  return `${year}-${month}-${day}`
+  return `${DAY_LABELS[(date.getUTCDay() + 6) % 7]} ${date.getUTCDate()} ${MONTH_LABELS[date.getUTCMonth()].slice(0, 3)}`
 }
 
 export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
   const router = useRouter()
-  const today = useMemo(() => {
-    const date = new Date()
-    date.setHours(0, 0, 0, 0)
-    return date
-  }, [])
+  const today = useMemo(() => argentinaCalendarDate(), [])
 
-  const [cursor, setCursor] = useState(() => startOfMonth(new Date()))
+  const [cursor, setCursor] = useState(() => startOfMonth(argentinaCalendarDate()))
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [observaciones, setObservaciones] = useState('')
@@ -90,7 +74,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
   const [isPending, startTransition] = useTransition()
 
   const cells = useMemo(() => buildMonthGrid(cursor), [cursor])
-  const selectedDateKey = selectedDate ? formatDateKey(selectedDate) : null
+  const selectedDateKey = selectedDate ? argentinaDateKey(selectedDate) : null
   const selectedDateLabel = selectedDate ? formatDate(selectedDate) : null
   const bookedTimesForSelectedDate = selectedDateKey ? horariosOcupados[selectedDateKey] ?? [] : []
   const isSelectedTimeBooked = selectedTime ? bookedTimesForSelectedDate.includes(selectedTime) : false
@@ -134,7 +118,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
           nombreInmobiliaria: propiedad.nombreInmobiliaria,
           multimedia: propiedad.multimedia,
           nombreComprador: comprador.nombre,
-          fechaHora: buildFechaHora(selectedDate, selectedTime),
+          fechaHora: argentinaDateTime(selectedDate, selectedTime),
           observaciones: observaciones || undefined,
         })
         router.push(`/turnos/gracias?turnoId=${turno.id}`)
@@ -168,7 +152,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
             cells={cells}
             dayLabels={DAY_LABELS}
             monthLabels={MONTH_LABELS}
-            timeSlots={TIME_SLOTS}
+            timeSlots={TURNOS_TIME_SLOTS}
             selectedDate={selectedDate}
             selectedDateLabel={selectedDateLabel}
             selectedTime={selectedTime}

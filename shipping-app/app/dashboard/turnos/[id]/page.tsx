@@ -3,9 +3,10 @@ import Image from 'next/image'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { userHasAdminRole } from '@/lib/auth/requireAdmin'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
-import { tomarTurno, cancelarTurno, completarTurno } from '@/lib/actions/turno'
+import { tomarTurno, cancelarTurno, completarTurno } from '@/lib/turnos/turno'
 import { PropertyMap } from '@/app/components/dashboard/propertyMapWrapper'
 import { DelayButton } from '@/app/components/dashboard/delayButton'
 
@@ -64,6 +65,7 @@ export default async function TurnoDetailPage(
 ) {
   const { id } = await props.params
   const { userId } = await auth()
+  const isAdmin = userId ? await userHasAdminRole(userId) : false
 
   const [turno, agente] = await Promise.all([
     prisma.turno.findUnique({
@@ -87,7 +89,7 @@ export default async function TurnoDetailPage(
 
   if (!turno) notFound()
     //Para que un agente que no le pertence el turno pueda acceder
-  if (!agente || agente.vendedorId !== turno.vendedorId || (turno.agenteId!=null && userId != turno.agenteId)) {
+  if (!isAdmin && (!agente || agente.vendedorId !== turno.vendedorId || (turno.agenteId!=null && userId != turno.agenteId))) {
     redirect('/unauthorized')
   }
   const currentIdx = timeline.findIndex((t) => t.key === turno.estado)

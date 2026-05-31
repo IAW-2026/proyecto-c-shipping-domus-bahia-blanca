@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { argentinaMonthDate } from '@/lib/turnos/horarios'
 
 type Props = {
   cursor: Date
@@ -41,20 +42,24 @@ export function VisitCalendar({
           <div>
             <p className="text-[12.5px] font-medium text-muted-foreground">Elegi un dia</p>
             <p className="mt-0.5 font-display text-[18px] text-foreground">
-              {monthLabels[cursor.getMonth()]} {cursor.getFullYear()}
+              {monthLabels[cursor.getUTCMonth()]} {cursor.getUTCFullYear()}
             </p>
           </div>
           <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() => onCursorChange(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
+              onClick={() => onCursorChange(
+                argentinaMonthDate(cursor.getUTCFullYear(), cursor.getUTCMonth() - 1)
+              )}
               className="h-9 w-9 rounded-lg border border-border/70 inline-flex items-center justify-center hover:bg-secondary transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               type="button"
-              onClick={() => onCursorChange(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
+              onClick={() => onCursorChange(
+                argentinaMonthDate(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1)
+              )}
               className="h-9 w-9 rounded-lg border border-border/70 inline-flex items-center justify-center hover:bg-secondary transition-colors"
             >
               <ChevronRight className="h-4 w-4" />
@@ -71,7 +76,7 @@ export function VisitCalendar({
           {cells.map((cell, index) => {
             if (!cell) return <div key={index} className="h-8 rounded-lg" />
 
-            const disabled = cell < today || cell.getDay() === 0
+            const disabled = cell < today || cell.getUTCDay() === 0
             const isSelected = selectedDate && isSameDay(cell, selectedDate)
             const isToday = isSameDay(cell, today)
 
@@ -89,7 +94,7 @@ export function VisitCalendar({
                   isSelected && 'bg-primary text-primary-foreground hover:bg-primary shadow-soft',
                 )}
               >
-                {cell.getDate()}
+                {cell.getUTCDate()}
               </button>
             )
           })}

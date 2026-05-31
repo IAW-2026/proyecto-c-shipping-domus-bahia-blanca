@@ -1,18 +1,39 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import type { EstadoTurno } from '@prisma/client'
 
+const ESTADOS_COMPRADOR: EstadoTurno[] = [
+  'PENDIENTE_AGENTE',
+  'PRE_ACEPTADO',
+  'CONFIRMADO',
+  'CANCELADO',
+  'COMPLETADO',
+]
+
+function isEstadoComprador(value: string): value is EstadoTurno {
+  return ESTADOS_COMPRADOR.includes(value as EstadoTurno)
+}
 
 //Endpoint para obtener todos los turnos relacionados a un comprador, en su estado actual
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: Promise<{ compradorId: string }> }
 ) {
   try {
     const { compradorId } = await context.params
+    const estadoParam = request.nextUrl.searchParams.get('estado')?.toUpperCase()
+
+    if (estadoParam && !isEstadoComprador(estadoParam)) {
+      return NextResponse.json(
+        { error: 'estado invalido' },
+        { status: 400 }
+      )
+    }
 
     const turnos = await prisma.turno.findMany({
       where: {
         compradorId,
+        ...(estadoParam ? { EstadoTurno: estadoParam } : {}),
       },
       orderBy: { creadoEn: 'desc' },
       select: {

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { Calendar, Check, MapPin, User2 } from 'lucide-react'
-import { tomarTurno } from '@/lib/actions/turno'
+import { tomarTurno } from '@/lib/turnos/turno'
 
 export const metadata = {
   title: 'Turnos pendientes - Domus',

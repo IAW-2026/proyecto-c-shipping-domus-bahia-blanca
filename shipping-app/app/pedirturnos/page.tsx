@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import type { EstadoTurno } from '@prisma/client'
 import { TurnoForm } from '@/app/pedirturnos/turnoForm'
 import { prisma } from '@/lib/prisma'
+import { argentinaDateKeyFromInstant, argentinaTimeFromInstant } from '@/lib/turnos/horarios'
 
 const ACTIVE_TURNO_STATES: EstadoTurno[] = ['PENDIENTE_AGENTE', 'PRE_ACEPTADO', 'CONFIRMADO']
 
@@ -160,21 +161,6 @@ async function fetchPropiedad(propiedadId: string) {
   })
 }
 
-function formatSlotDate(date: Date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-
-  return `${year}-${month}-${day}`
-}
-
-function formatSlotTime(date: Date) {
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-
-  return `${hours}:${minutes}`
-}
-
 export default async function NuevoTurnoPage({
   searchParams,
 }: {
@@ -231,8 +217,8 @@ export default async function NuevoTurnoPage({
   const horariosOcupados = turnosOcupados.reduce<Record<string, string[]>>((acc, turno) => {
     if (!turno.fechaHoraSolicitada) return acc
 
-    const dateKey = formatSlotDate(turno.fechaHoraSolicitada)
-    acc[dateKey] = [...(acc[dateKey] ?? []), formatSlotTime(turno.fechaHoraSolicitada)]
+    const dateKey = argentinaDateKeyFromInstant(turno.fechaHoraSolicitada)
+    acc[dateKey] = [...(acc[dateKey] ?? []), argentinaTimeFromInstant(turno.fechaHoraSolicitada)]
 
     return acc
   }, {})

@@ -22,6 +22,7 @@ export async function GET(
 ) {
   try {
     // Verificar API key
+    /*
     const apiKey = request.headers.get('x-api-key')
 
     if (!apiKey || apiKey !== process.env.SELLER_APP_API_KEY) {
@@ -30,7 +31,7 @@ export async function GET(
         { status: 401 }
       )
     }
-
+*/
     const { inmobiliariaId } = await context.params
     const { searchParams } = new URL(request.url)
     const estadoParam = searchParams.get('estado')

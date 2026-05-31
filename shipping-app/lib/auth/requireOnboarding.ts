@@ -1,11 +1,13 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { userHasAdminRole } from '@/lib/auth/requireAdmin'
 
 export async function requireOnboarding() {
   const { userId } = await auth()
 
   if (!userId) redirect('/sign-in')
+  if (await userHasAdminRole(userId)) return
 
   const agente = await prisma.agenteInmobiliario.findUnique({
     where: { id: userId },

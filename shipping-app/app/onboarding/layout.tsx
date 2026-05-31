@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
+import { userHasAdminRole } from '@/lib/auth/requireAdmin'
 
 export default async function onBoardingLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth()
@@ -16,5 +17,5 @@ export default async function onBoardingLayout({ children }: { children: React.R
   if (agente.estado === 'PENDIENTE') redirect('/cuenta-en-revision')
   if (agente.estado === 'RECHAZADO') redirect('/cuenta-rechazada')
 
-  
+  return <>{children}</>
 }

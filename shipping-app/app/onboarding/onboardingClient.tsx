@@ -50,6 +50,7 @@ export default function OnboardingPage({ crearAgente }: Props) {
     })
 
     router.push('/cuenta-en-revision')
+    router.refresh()
   } catch (error) {
     setSubmitError(error instanceof Error ? error.message : 'No se pudo completar el onboarding')
   } finally {
