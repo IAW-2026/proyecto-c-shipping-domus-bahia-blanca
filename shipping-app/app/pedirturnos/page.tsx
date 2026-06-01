@@ -153,7 +153,50 @@ function mapPropiedadExterna(propiedad: PropiedadExterna) {
 //TODO: Implementar el fetch bien cuando estemos en etapa 3
 async function fetchPropiedad(propiedadId: string) {
   const propiedad = MOCK_PROPIEDADES.find((item) => item.id === propiedadId)
-  if (!propiedad) return null
+  if (!propiedad) {
+    const propiedadLocal = await prisma.propiedad.findUnique({
+      where: { id: propiedadId },
+      include: {
+        multimedia: {
+          orderBy: { orden: 'asc' },
+        },
+      },
+    })
+
+    if (!propiedadLocal) return null
+
+    return {
+      id: propiedadLocal.id,
+      nombrePropiedad: propiedadLocal.nombrePropiedad,
+      descripcion: propiedadLocal.descripcion,
+      direccion: propiedadLocal.direccion,
+      barrio: propiedadLocal.barrio,
+      ciudad: propiedadLocal.ciudad,
+      provincia: propiedadLocal.provincia,
+      pais: propiedadLocal.pais,
+      codigoPostal: propiedadLocal.codigoPostal,
+      latitud: propiedadLocal.latitud,
+      longitud: propiedadLocal.longitud,
+      precio: propiedadLocal.precio?.toString() ?? null,
+      expensas: propiedadLocal.expensas?.toString() ?? null,
+      moneda: propiedadLocal.moneda,
+      ambientes: propiedadLocal.ambientes,
+      dormitorios: propiedadLocal.dormitorios,
+      banios: propiedadLocal.banios,
+      metrosTotales: propiedadLocal.metrosTotales,
+      metrosCubiertos: propiedadLocal.metrosCubiertos,
+      antiguedad: propiedadLocal.antiguedad,
+      condicion: propiedadLocal.condicion,
+      vendedorId: propiedadLocal.vendedorId,
+      nombreInmobiliaria: propiedadLocal.nombreInmobiliaria,
+      multimedia: propiedadLocal.multimedia.map((item) => ({
+        id: item.id,
+        url: item.url,
+        alt: item.alt,
+        order: item.orden,
+      })),
+    }
+  }
 
   return mapPropiedadExterna({
     ...propiedad,
