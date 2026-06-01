@@ -14,13 +14,8 @@ const apiEndpoints = [
   },
   {
     method: 'PATCH',
-    path: '/api/agentes/[id]/confirmar',
-    name: 'Confirmar agente',
-  },
-  {
-    method: 'PATCH',
-    path: '/api/agentes/[id]/rechazar',
-    name: 'Rechazar agente',
+    path: '/api/agentes/[id] body: { estado: "ACEPTADO" | "RECHAZADO" }',
+    name: 'Actualizar estado de agente',
   },
   {
     method: 'GET',

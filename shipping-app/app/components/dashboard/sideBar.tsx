@@ -8,12 +8,10 @@ import {
   ClipboardList,
   CheckCircle2,
   Crown,
-  LogOut,
 } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -84,19 +82,6 @@ export function AppSidebar({ isAdmin }: { isAdmin: boolean }) {
         </SidebarGroup>
 
       </SidebarContent>
-
-      <SidebarFooter className="px-2 pb-4">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild className="hover:bg-sidebar-accent text-sidebar-foreground">
-              <Link href="/" className="flex items-center gap-3">
-                <LogOut className="h-[18px] w-[18px]" />
-                <span className="text-[13.5px] group-data-[collapsible=icon]:hidden">Salir</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   )
 }
