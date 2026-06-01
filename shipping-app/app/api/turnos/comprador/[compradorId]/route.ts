@@ -33,7 +33,7 @@ export async function GET(
     const turnos = await prisma.turno.findMany({
       where: {
         compradorId,
-        ...(estadoParam ? { estado: estadoParam } : {}),
+        ...(estadoParam ? { EstadoTurno: estadoParam } : {}),
       },
       orderBy: { creadoEn: 'desc' },
       select: {
