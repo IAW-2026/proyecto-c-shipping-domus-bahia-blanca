@@ -48,9 +48,11 @@ export default function OnboardingPage({ crearAgente }: Props) {
       telefono: phoneValue.trim(),
       vendedorId: selectedInmobiliariaId,
     })
-
-    router.refresh()
+    console.log("Llegue aca 3")
     router.replace('/cuenta-en-revision')
+    console.log("Llegue aca 2")
+    router.refresh()
+    
   } catch (error) {
     setSubmitError(error instanceof Error ? error.message : 'No se pudo completar el onboarding')
   } finally {
