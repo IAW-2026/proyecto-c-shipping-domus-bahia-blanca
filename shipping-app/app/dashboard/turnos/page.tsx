@@ -36,6 +36,9 @@ export default async function TurnosPage() {
       vendedorId: agente.vendedorId,
       estado: { in: ['PENDIENTE_AGENTE']},
       agenteId: null,
+      fechaHoraSolicitada: {
+        gt: new Date(),
+      },
     },
     orderBy: { fechaHoraSolicitada: 'asc' },
     include: {
