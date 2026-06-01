@@ -12,7 +12,7 @@ export function DashboardImage() {
           className="object-cover"
           priority
           fetchPriority="high"
-          quality={72}
+          quality={75}
         />
       </div>
     </div>

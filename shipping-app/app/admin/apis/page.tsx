@@ -47,7 +47,7 @@ export default function AdminApisPage() {
         </Link>
 
         <header>
-          <h1 className="font-display text-[32px] font-medium leading-tight">Probar APIs</h1>
+          <h1 className="font-display text-[32px] font-medium leading-tight text-primary">Probar APIs</h1>
           <p className="mt-2 text-[14px] leading-6 text-muted-foreground">
             Endpoints activos para integraciones externas e internas.
           </p>

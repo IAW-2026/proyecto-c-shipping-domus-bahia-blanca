@@ -6,7 +6,7 @@ export default function SideBarClerk() {
   return (
     <section className="flex h-full items-center justify-center px-6 py-8 lg:px-14 lg:py-10">
       <div className="flex w-full max-w-[400px] flex-col items-center justify-center lg:max-w-md">
-        <h1 className="mb-8 w-full animate-[text-rise_700ms_ease-out_both] text-center font-display leading-[1.05] tracking-[-0.02em]">
+        <h1 data-unstyled-heading className="mb-8 w-full animate-[text-rise_700ms_ease-out_both] text-center font-display leading-[1.05] tracking-[-0.02em]">
           {/* MOBILE */}
           <span className="lg:hidden flex flex-col leading-none">
             <span className="text-[50px] font-black text-[#141414]">

@@ -9,8 +9,8 @@ import { OrderControl } from './orderControl'
 type OrdenFecha = 'asc' | 'desc'
 
 export const metadata = {
-  title: 'Turnos completados - Domus',
-  description: 'Listado de turnos completados por el agente inmobiliario.',
+  title: 'Turnos finalizados - Domus',
+  description: 'Listado de turnos completados y cancelados por el agente inmobiliario.',
 }
 
 function formatDate(date: Date) {
@@ -43,7 +43,7 @@ export default async function TurnosCompletadosPage({
   const turnos = await prisma.turno.findMany({
     where: {
       agenteId: agente.id,
-      estado: 'COMPLETADO',
+      estado: { in: ['COMPLETADO', 'CANCELADO'] },
     },
     orderBy: {
       fechaHoraSolicitada: ordenFecha,
@@ -55,15 +55,15 @@ export default async function TurnosCompletadosPage({
 
   return (
     <>
-      <AppTopbar crumbs={[{ label: 'Inicio' }, { label: 'Turnos completados' }]} />
+      <AppTopbar crumbs={[{ label: 'Inicio' }, { label: 'Turnos finalizados' }]} />
       <main className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
         <header className="mb-7 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="font-display text-[30px] font-medium leading-tight">
-              Turnos completados
+              Turnos finalizados
             </h1>
             <p className="mt-1 text-[13.5px] text-muted-foreground">
-              {turnos.length} visitas finalizadas por vos.
+              {turnos.length} visitas completadas o canceladas.
             </p>
           </div>
           <Link
@@ -83,7 +83,7 @@ export default async function TurnosCompletadosPage({
 
         {turnos.length === 0 ? (
           <div className="rounded-2xl border border-border/60 bg-card p-10 text-center text-[13.5px] text-muted-foreground shadow-soft">
-            Todavia no tenes turnos completados.
+            Todavia no tenes turnos completados o cancelados.
           </div>
         ) : (
           <section className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">

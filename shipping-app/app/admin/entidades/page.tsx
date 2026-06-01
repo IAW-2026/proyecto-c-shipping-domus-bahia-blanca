@@ -45,7 +45,7 @@ export default async function AdminEntidadesPage() {
         </Link>
 
         <header>
-          <h1 className="font-display text-[32px] font-medium leading-tight">
+          <h1 className="font-display text-[32px] font-medium leading-tight text-primary">
             Consultar entidades
           </h1>
           <p className="mt-2 text-[14px] leading-6 text-muted-foreground">

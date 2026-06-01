@@ -68,3 +68,12 @@ body {
     transform: translateY(0);
   }
 }
+
+@layer base {
+  :where(h1):not([data-unstyled-heading]) {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--color-primary);
+  }
+}

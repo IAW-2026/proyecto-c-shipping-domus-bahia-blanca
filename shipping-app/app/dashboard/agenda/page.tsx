@@ -39,13 +39,11 @@ const PAGE_SIZE = 5
 
 function getWeekDays() {
   const today = new Date()
-  const day = today.getDay()
-  const monday = new Date(today)
-  monday.setDate(today.getDate() - ((day + 6) % 7))
+  today.setHours(0, 0, 0, 0)
 
   return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday)
-    d.setDate(monday.getDate() + i)
+    const d = new Date(today)
+    d.setDate(today.getDate() + i)
     return {
       label: d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' }),
       date: d,
@@ -76,10 +74,6 @@ export default async function AgendaPage({
   const turnos = await prisma.turno.findMany({
     where: {
       agenteId: agente?.id,
-      fechaHoraSolicitada: {
-        gte: start,
-        lte: end,
-      },
       estado: {
         notIn: ['CANCELADO', 'COMPLETADO'],
       },
@@ -97,8 +91,14 @@ export default async function AgendaPage({
   const pageStart = (safePage - 1) * PAGE_SIZE
   const turnosPagina = turnos.slice(pageStart, pageStart + PAGE_SIZE)
 
+  const turnosSemana = turnos.filter((turno) => {
+    if (!turno.fechaHoraSolicitada) return false
+
+    return turno.fechaHoraSolicitada >= start && turno.fechaHoraSolicitada <= end
+  })
+
   const turnoMap = new Map<string, typeof turnos[number]>()
-  for (const turno of turnos) {
+  for (const turno of turnosSemana) {
     if (!turno.fechaHoraSolicitada) continue
     const d = new Date(turno.fechaHoraSolicitada)
     const dayIndex = weekDays.findIndex(

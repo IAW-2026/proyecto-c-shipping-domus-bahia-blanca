@@ -26,7 +26,7 @@ const main = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Turnos', url: '/dashboard/turnos', icon: ClipboardList },
   { title: 'Agenda', url: '/dashboard/agenda', icon: CalendarClock },
-  { title: 'Turnos completados', url: '/dashboard/completados', icon: CheckCircle2 },
+  { title: 'Turnos finalizados', url: '/dashboard/finalizados', icon: CheckCircle2 },
 ]
 
 const adminItem = { title: 'Panel administracion', url: '/admin', icon: Crown }

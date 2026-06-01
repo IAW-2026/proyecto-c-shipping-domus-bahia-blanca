@@ -9,7 +9,7 @@ export function OnboardingHeader({ children }: OnboardingHeaderProps) {
         <span className="font-semibold text-xs tracking-widest uppercase text-[#284335]">
           Bienvenido
         </span>
-        <h1 className="text-[36px] md:text-[48px] font-bold leading-tight tracking-tight text-[#284335]">
+        <h1 data-unstyled-heading className="text-[36px] md:text-[48px] font-bold leading-tight tracking-tight text-[#284335]">
           Domus Bahía Blanca
         </h1>
         <p className="text-lg text-[#424844] max-w-md leading-relaxed">
