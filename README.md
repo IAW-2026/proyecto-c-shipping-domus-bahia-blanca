@@ -31,7 +31,7 @@ La autenticacion se realiza con Clerk.
 
 - Usuario comprador/Agente Inmobiliario : Ingresa como buyer desde `/sign-in` y como todavia no tiene perfil de agente inmobiliario se lo redirecciona a `/onboarding` donde completa un formulario y se le asigna el rol de agente inmobiliario pero queda pendiente a confirmacion por la seller app.
 
-- Usuario comprador : ingresar por la buyer app al apretar el boton de reservar, visita `/sign-in` si no esta logeado y se lo redirecciona a visita desde `/turnos?propiedadId={idprop}&source=external`. (Si el usuario ya tiene un turno para esa propiedad se lo redirije a /turnos/gracias)
+- Usuario comprador : ingresar por la buyer app al apretar el boton de reservar, visita `/sign-in` si no esta logeado y se lo redirecciona a visita desde `/pedirturno?propiedadId={idprop}&source=external`. (Si el usuario ya tiene un turno para esa propiedad se lo redirije a /turnos/gracias) Ejemplos mockeados: `proyecto-c-shipping-domus-bahia.vercel.app/pedirturnos?propiedadId=casa-cj&source=external` en vez de casa-cj puede ser `luke-house` o `casa-simpsons`
 
 Credenciales de prueba:
 
