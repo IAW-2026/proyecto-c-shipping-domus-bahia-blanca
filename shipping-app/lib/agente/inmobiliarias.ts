@@ -1,4 +1,4 @@
-type InmobiliariaItem = {
+export type InmobiliariaItem = {
   id: string
   nombre: string
 }
@@ -8,10 +8,7 @@ export async function getInmobiliarias(): Promise<InmobiliariaItem[]> {
   return [
     { id: 'inm-1', nombre: 'Domus Centro' },
     { id: 'inm-2', nombre: 'Bahia Norte' },
-    { id: 'inm-3', nombre: 'Costa Sur' },
-    { id: 'inm-4', nombre: 'Domus Norte'},
-    { id: 'inm-5', nombre: 'Costa Norte' },
-    { id: 'inm-6', nombre: 'Bahia Sur' },
+    { id: 'inm-3', nombre: 'Costa Sur' }
   ]
 }
 /*

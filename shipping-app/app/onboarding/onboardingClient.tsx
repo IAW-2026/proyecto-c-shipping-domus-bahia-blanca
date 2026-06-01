@@ -5,31 +5,15 @@ import { useRouter } from 'next/navigation'
 import { OnboardingHeader } from '@/app/components/onboarding/OnboardingHeader'
 import { PhoneForm } from '@/app/components/onboarding/PhoneForm'
 import { InmobiliariasPanel } from '@/app/components/onboarding/InmobiliariasPanel'
-
-// Tipos
-type Inmobiliaria = {
-  id: string
-  nombre: string
-}
+import type { InmobiliariaItem } from '@/lib/agente/inmobiliarias'
 
 
 type Props = {
   crearAgente: (data: { telefono: string; vendedorId: string }) => Promise<AgenteInmobiliario>
-}
-// TODO: reemplazar con fetch real a /api/inmobiliarias
-function getInmobiliarias(): Inmobiliaria[] {
-  return [
-    { id: 'inm-1', nombre: 'Domus Centro' },
-    { id: 'inm-2', nombre: 'Bahia Norte' },
-    { id: 'inm-3', nombre: 'Costa Sur' },
-    { id: 'inm-4', nombre: 'Domus Norte'},
-    { id: 'inm-5', nombre: 'Costa Norte' },
-    { id: 'inm-6', nombre: 'Bahia Sur' },
-  ]
+  inmobiliarias: InmobiliariaItem[]
 }
 
-export default function OnboardingPage({ crearAgente }: Props) {
-  const inmobiliarias = getInmobiliarias()
+export default function OnboardingPage({ crearAgente, inmobiliarias }: Props) {
   const router = useRouter()
   const [selectedInmobiliariaId, setSelectedInmobiliariaId] = useState<string | null>(null)
   const [phone, setPhone] = useState('')
