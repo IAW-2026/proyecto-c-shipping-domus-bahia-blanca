@@ -33,9 +33,6 @@ model Turno {
   observaciones            String?
 
   estadoComprador EstadoTurnoComprador @default(PENDIENTE)
-  
-  respuestaAgenteEn        DateTime?
-  respuestaVendedorEn      DateTime?
 
   creadoEn                 DateTime @default(now()) //cuando se crea el turno en el sistema
 

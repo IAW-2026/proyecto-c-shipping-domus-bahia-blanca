@@ -37,12 +37,6 @@ const estadosComprador: EstadoTurnoComprador[] = [
 
 const PAGE_SIZE = 6
 
-function dateTimeInputValue(value: Date | null) {
-  if (!value) return ''
-
-  return value.toISOString().slice(0, 16)
-}
-
 function TextField({
   name,
   label,
@@ -61,28 +55,6 @@ function TextField({
         name={name}
         defaultValue={defaultValue ?? ''}
         required={required}
-        className="h-9 rounded-lg border border-border/70 bg-[#FAF8F5] px-3 text-[13px] text-foreground outline-none focus:border-primary"
-      />
-    </label>
-  )
-}
-
-function DateField({
-  name,
-  label,
-  defaultValue,
-}: {
-  name: string
-  label: string
-  defaultValue?: Date | null
-}) {
-  return (
-    <label className="grid gap-1.5 text-[12px] font-medium text-muted-foreground">
-      {label}
-      <input
-        type="datetime-local"
-        name={name}
-        defaultValue={dateTimeInputValue(defaultValue ?? null)}
         className="h-9 rounded-lg border border-border/70 bg-[#FAF8F5] px-3 text-[13px] text-foreground outline-none focus:border-primary"
       />
     </label>
@@ -150,9 +122,9 @@ function isEstadoTurno(value: string | undefined): value is EstadoTurno {
 export default async function AdminTurnosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string; inmobiliaria?: string; page?: string }>
+  searchParams: Promise<{ estado?: string; inmobiliaria?: string; page?: string; error?: string }>
 }) {
-  const { estado, inmobiliaria, page } = await searchParams
+  const { estado, inmobiliaria, page, error } = await searchParams
   const estadoFiltro = isEstadoTurno(estado) ? estado : ''
   const inmobiliariaFiltro = inmobiliaria?.trim() ?? ''
   const currentPage = Math.max(1, Number.parseInt(page ?? '1', 10) || 1)
@@ -220,6 +192,12 @@ export default async function AdminTurnosPage({
             Ver, crear, editar y eliminar cualquier turno.
           </p>
         </header>
+
+        {error === 'turno-duplicado' && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] font-medium text-red-700">
+            Ya existe un turno para esta propiedad en esa fecha y horario.
+          </div>
+        )}
 
         <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
           <div className="mb-4 flex items-center gap-2">
@@ -289,8 +267,6 @@ export default async function AdminTurnosPage({
               </select>
             </label>
             <TextField name="observaciones" label="Observaciones" />
-            <DateField name="respuestaAgenteEn" label="Respuesta agente" />
-            <DateField name="respuestaVendedorEn" label="Respuesta vendedor" />
             <div className="flex items-end">
               <button className="h-9 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-[oklch(0.36_0.03_150)]">
                 Crear turno
@@ -443,8 +419,6 @@ export default async function AdminTurnosPage({
                       </select>
                     </label>
                     <TextField name="observaciones" label="Observaciones" defaultValue={turno.observaciones} />
-                    <DateField name="respuestaAgenteEn" label="Respuesta agente" defaultValue={turno.respuestaAgenteEn} />
-                    <DateField name="respuestaVendedorEn" label="Respuesta vendedor" defaultValue={turno.respuestaVendedorEn} />
                     <div className="flex items-end gap-2">
                       <button className="h-9 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-[oklch(0.36_0.03_150)]">
                         Guardar
