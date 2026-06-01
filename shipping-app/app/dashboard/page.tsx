@@ -32,6 +32,9 @@ export default async function DashboardPage() {
         vendedorId: agenteVendedorId,
         estado: 'PENDIENTE_AGENTE',
         agenteId: null,
+        fechaHoraSolicitada: {
+          gt: new Date(),
+        },
       },
     }),
     prisma.turno.count({
