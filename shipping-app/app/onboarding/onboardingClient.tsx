@@ -49,8 +49,8 @@ export default function OnboardingPage({ crearAgente }: Props) {
       vendedorId: selectedInmobiliariaId,
     })
 
-    router.push('/cuenta-en-revision')
     router.refresh()
+    router.replace('/cuenta-en-revision')
   } catch (error) {
     setSubmitError(error instanceof Error ? error.message : 'No se pudo completar el onboarding')
   } finally {

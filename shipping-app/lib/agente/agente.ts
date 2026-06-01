@@ -60,6 +60,10 @@ export async function crearAgente(data: { telefono: string; vendedorId: string }
     },
   })
 
+  revalidatePath('/onboarding')
+  revalidatePath('/cuenta-en-revision')
+  revalidatePath('/dashboard')
+
   return agente
 }
 
