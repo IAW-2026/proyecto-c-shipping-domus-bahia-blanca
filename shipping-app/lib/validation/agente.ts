@@ -12,6 +12,6 @@ export const agenteUpdateSchema = agenteCreateSchema.partial().omit({ id: true }
 
 export const agentePerfilSchema = z.object({
   nombreCompleto: z.string().min(1).optional(),
-  telefono: z.string().min(1),
+  telefono: z.string().min(1).max(15).regex(/^\d+$/),
   vendedorId: z.string().min(1),
 })

@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 
+const MAX_PHONE_DIGITS = 15
+
 type PhoneFormProps = {
   onSubmit?: (phone: string) => void
   loading?: boolean
@@ -15,7 +17,7 @@ export function PhoneForm({ onSubmit, loading = false, value, onChange, formId =
   const phone = value ?? internalPhone
 
   const handlePhoneChange = (nextValue: string) => {
-    const digitsOnly = nextValue.replace(/\D/g, '')
+    const digitsOnly = nextValue.replace(/\D/g, '').slice(0, MAX_PHONE_DIGITS)
 
     if (onChange) {
       onChange(digitsOnly)
@@ -43,6 +45,7 @@ export function PhoneForm({ onSubmit, loading = false, value, onChange, formId =
           type="tel"
           inputMode="numeric"
           pattern="[0-9]*"
+          maxLength={MAX_PHONE_DIGITS}
           value={phone}
           onChange={(e) => handlePhoneChange(e.target.value)}
           placeholder="5492911234567"
