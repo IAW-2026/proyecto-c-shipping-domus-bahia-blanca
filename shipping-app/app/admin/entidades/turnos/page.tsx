@@ -5,6 +5,7 @@ import {
   crearTurnoAdmin,
   eliminarTurnoAdmin,
 } from '@/lib/turnos/turno'
+import { getInmobiliarias } from '@/lib/agente/inmobiliarias'
 import {
   argentinaCalendarDate,
   argentinaDateKey,
@@ -57,6 +58,33 @@ function TextField({
         required={required}
         className="h-9 rounded-lg border border-border/70 bg-[#FAF8F5] px-3 text-[13px] text-foreground outline-none focus:border-primary"
       />
+    </label>
+  )
+}
+
+function InmobiliariaField({
+  inmobiliarias,
+  defaultValue,
+}: {
+  inmobiliarias: { id: string; nombre: string }[]
+  defaultValue?: string | null
+}) {
+  return (
+    <label className="grid gap-1.5 text-[12px] font-medium text-muted-foreground">
+      Inmobiliaria
+      <select
+        name="vendedorId"
+        defaultValue={defaultValue ?? ''}
+        required
+        className="h-9 rounded-lg border border-border/70 bg-[#FAF8F5] px-3 text-[13px] text-foreground outline-none focus:border-primary"
+      >
+        <option value="">Seleccionar</option>
+        {inmobiliarias.map((inmobiliaria) => (
+          <option key={inmobiliaria.id} value={inmobiliaria.id}>
+            {inmobiliaria.nombre}
+          </option>
+        ))}
+      </select>
     </label>
   )
 }
@@ -122,9 +150,15 @@ function isEstadoTurno(value: string | undefined): value is EstadoTurno {
 export default async function AdminTurnosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string; inmobiliaria?: string; page?: string; error?: string }>
+  searchParams: Promise<{
+    estado?: string
+    inmobiliaria?: string
+    page?: string
+    error?: string
+    success?: string
+  }>
 }) {
-  const { estado, inmobiliaria, page, error } = await searchParams
+  const { estado, inmobiliaria, page, error, success } = await searchParams
   const estadoFiltro = isEstadoTurno(estado) ? estado : ''
   const inmobiliariaFiltro = inmobiliaria?.trim() ?? ''
   const currentPage = Math.max(1, Number.parseInt(page ?? '1', 10) || 1)
@@ -134,7 +168,15 @@ export default async function AdminTurnosPage({
     ...(inmobiliariaFiltro ? { vendedorId: inmobiliariaFiltro } : {}),
   }
 
-  const [turnos, propiedades, agentes, inmobiliarias, totalTurnos, filteredTurnos] =
+  const [
+    turnos,
+    propiedades,
+    agentes,
+    inmobiliariasFiltroItems,
+    inmobiliariasFormulario,
+    totalTurnos,
+    filteredTurnos,
+  ] =
     await Promise.all([
       prisma.turno.findMany({
         where,
@@ -159,15 +201,32 @@ export default async function AdminTurnosPage({
         orderBy: { vendedorId: 'asc' },
         select: { vendedorId: true, nombreInmobiliaria: true },
       }),
+      getInmobiliarias(),
       prisma.turno.count(),
       prisma.turno.count({ where }),
     ])
 
   const hasFilters = Boolean(estadoFiltro || inmobiliariaFiltro)
+  const inmobiliariasPorId = new Map(
+    inmobiliariasFormulario.map((item) => [item.id, item.nombre])
+  )
+  for (const item of inmobiliariasFiltroItems) {
+    if (!inmobiliariasPorId.has(item.vendedorId)) {
+      inmobiliariasPorId.set(item.vendedorId, item.nombreInmobiliaria ?? item.vendedorId)
+    }
+  }
+  const inmobiliariasSelect = Array.from(inmobiliariasPorId, ([id, nombre]) => ({
+    id,
+    nombre,
+  })).sort((a, b) => a.nombre.localeCompare(b.nombre))
   const totalPages = Math.max(1, Math.ceil(filteredTurnos / PAGE_SIZE))
   const pageParams = new URLSearchParams()
   if (estadoFiltro) pageParams.set('estado', estadoFiltro)
   if (inmobiliariaFiltro) pageParams.set('inmobiliaria', inmobiliariaFiltro)
+  if (currentPage > 1) pageParams.set('page', currentPage.toString())
+  const currentHref = pageParams.size
+    ? `/admin/entidades/turnos?${pageParams.toString()}`
+    : '/admin/entidades/turnos'
   const paginationHref = (targetPage: number) => {
     const params = new URLSearchParams(pageParams)
     params.set('page', targetPage.toString())
@@ -198,6 +257,16 @@ export default async function AdminTurnosPage({
             Ya existe un turno para esta propiedad en esa fecha y horario.
           </div>
         )}
+        {success === 'turno-actualizado' && (
+          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-[13px] font-medium text-green-700">
+            Turno actualizado correctamente.
+          </div>
+        )}
+        {success === 'turno-creado' && (
+          <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-[13px] font-medium text-green-700">
+            Turno creado correctamente.
+          </div>
+        )}
 
         <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
           <div className="mb-4 flex items-center gap-2">
@@ -205,6 +274,7 @@ export default async function AdminTurnosPage({
             <h2 className="font-display text-xl font-medium">Crear turno</h2>
           </div>
           <form action={crearTurnoAdmin} className="grid gap-3 md:grid-cols-3">
+            <input type="hidden" name="returnTo" value={currentHref} />
             <label className="grid gap-1.5 text-[12px] font-medium text-muted-foreground">
               Propiedad
               <select
@@ -221,7 +291,7 @@ export default async function AdminTurnosPage({
               </select>
             </label>
             <TextField name="compradorId" label="Comprador ID" required />
-            <TextField name="vendedorId" label="Vendedor ID" required />
+            <InmobiliariaField inmobiliarias={inmobiliariasSelect} />
             <TextField name="nombreComprador" label="Nombre comprador" />
             <label className="grid gap-1.5 text-[12px] font-medium text-muted-foreground">
               Agente
@@ -309,7 +379,7 @@ export default async function AdminTurnosPage({
                 className="h-9 rounded-lg border border-border/70 bg-[#FAF8F5] px-3 text-[13px] text-foreground outline-none focus:border-primary"
               >
                 <option value="">Todas las inmobiliarias</option>
-                {inmobiliarias.map((item) => (
+                {inmobiliariasFiltroItems.map((item) => (
                   <option key={item.vendedorId} value={item.vendedorId}>
                     {item.nombreInmobiliaria
                       ? `${item.nombreInmobiliaria} (${item.vendedorId})`
@@ -356,6 +426,7 @@ export default async function AdminTurnosPage({
                 <div className="mt-4 rounded-xl border border-border/60 bg-[#FAF8F5] p-4">
                   <form action={actualizarTurnoAdmin} className="grid gap-3 md:grid-cols-3">
                     <input type="hidden" name="id" value={turno.id} />
+                    <input type="hidden" name="returnTo" value={currentHref} />
                     <label className="grid gap-1.5 text-[12px] font-medium text-muted-foreground">
                       Propiedad
                       <select
@@ -372,7 +443,10 @@ export default async function AdminTurnosPage({
                       </select>
                     </label>
                     <TextField name="compradorId" label="Comprador ID" defaultValue={turno.compradorId} required />
-                    <TextField name="vendedorId" label="Vendedor ID" defaultValue={turno.vendedorId} required />
+                    <InmobiliariaField
+                      inmobiliarias={inmobiliariasSelect}
+                      defaultValue={turno.vendedorId}
+                    />
                     <TextField name="nombreComprador" label="Nombre comprador" defaultValue={turno.nombreComprador} />
                     <label className="grid gap-1.5 text-[12px] font-medium text-muted-foreground">
                       Agente

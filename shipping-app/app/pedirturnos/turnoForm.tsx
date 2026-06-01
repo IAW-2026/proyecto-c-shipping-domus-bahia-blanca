@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { BookingNotes } from '@/app/components/turnos/bookingNotes'
 import { BookingSummary } from '@/app/components/turnos/bookingSummary'
@@ -20,6 +20,15 @@ type Props = {
   propiedad: PropiedadTurno
   comprador: CompradorTurno
   horariosOcupados: Record<string, string[]>
+}
+
+type TurnoWeather = {
+  temperature: number
+  feelsLike: number
+  description: string
+  precipitationProbability: number
+  iconUrl: string
+  forecastTime: string
 }
 
 const DAY_LABELS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
@@ -71,10 +80,16 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [observaciones, setObservaciones] = useState('')
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [weather, setWeather] = useState<TurnoWeather | null>(null)
+  const [weatherLoading, setWeatherLoading] = useState(false)
+  const [weatherError, setWeatherError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const cells = useMemo(() => buildMonthGrid(cursor), [cursor])
   const selectedDateKey = selectedDate ? argentinaDateKey(selectedDate) : null
+  const weatherRequestEnabled = Boolean(
+    selectedDateKey && propiedad.latitud !== null && propiedad.longitud !== null
+  )
   const selectedDateLabel = selectedDate ? formatDate(selectedDate) : null
   const bookedTimesForSelectedDate = selectedDateKey ? horariosOcupados[selectedDateKey] ?? [] : []
   const isSelectedTimeBooked = selectedTime ? bookedTimesForSelectedDate.includes(selectedTime) : false
@@ -84,6 +99,47 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
     setSelectedDate(date)
     setSelectedTime(null)
   }
+
+  useEffect(() => {
+    if (!selectedDateKey || propiedad.latitud === null || propiedad.longitud === null) return
+
+    const controller = new AbortController()
+    const params = new URLSearchParams({
+      lat: propiedad.latitud.toString(),
+      lon: propiedad.longitud.toString(),
+      date: selectedDateKey,
+    })
+    if (selectedTime) params.set('time', selectedTime)
+
+    async function loadWeather() {
+      await Promise.resolve()
+      if (controller.signal.aborted) return
+
+      setWeatherLoading(true)
+      setWeatherError(null)
+
+      try {
+        const response = await fetch(`/api/weather?${params}`, { signal: controller.signal })
+        if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as { error?: string } | null
+          throw new Error(payload?.error ?? 'Pronostico no disponible')
+        }
+
+        const nextWeather = (await response.json()) as TurnoWeather
+        setWeather(nextWeather)
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+        setWeather(null)
+        setWeatherError(error instanceof Error ? error.message : 'Pronostico no disponible')
+      } finally {
+        if (!controller.signal.aborted) setWeatherLoading(false)
+      }
+    }
+
+    loadWeather()
+
+    return () => controller.abort()
+  }, [propiedad.latitud, propiedad.longitud, selectedDateKey, selectedTime])
 
   function handleSubmit() {
     if (!selectedDate || !selectedTime || isSelectedTimeBooked) return
@@ -177,6 +233,9 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
             propiedad={propiedad}
             selectedDateLabel={selectedDateLabel ?? '-'}
             selectedTime={selectedTime}
+            weather={weatherRequestEnabled ? weather : null}
+            weatherLoading={weatherRequestEnabled ? weatherLoading : false}
+            weatherError={weatherRequestEnabled ? weatherError : null}
           />
         </div>
       </div>

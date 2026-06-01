@@ -87,12 +87,12 @@ export default async function TurnosCompletadosPage({
           </div>
         ) : (
           <section className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">
-            <div className="grid grid-cols-[1.1fr_0.9fr_0.8fr_150px_44px] border-b border-border/60 bg-secondary/30 px-5 py-3 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+            <div className="grid grid-cols-1 border-b border-border/60 bg-secondary/30 px-5 py-3 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground md:grid-cols-[1.1fr_0.9fr_0.8fr_150px_44px]">
               <span>Propiedad</span>
-              <span>Comprador</span>
-              <span>Fecha</span>
-              <span>Estado</span>
-              <span />
+              <span className="hidden md:block">Comprador</span>
+              <span className="hidden md:block">Fecha</span>
+              <span className="hidden md:block">Estado</span>
+              <span className="hidden md:block" />
             </div>
 
             <ul className="divide-y divide-border/60">

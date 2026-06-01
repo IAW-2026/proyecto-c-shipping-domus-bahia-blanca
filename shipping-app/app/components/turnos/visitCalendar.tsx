@@ -101,43 +101,45 @@ export function VisitCalendar({
         </div>
       </div>
 
-      <div className="min-h-[184px]">
+      <div>
         <div className="mb-3 flex items-baseline justify-between">
           <p className="text-[12.5px] font-medium">Elegi un horario</p>
           {selectedDateLabel && (
             <p className="text-[12px] text-muted-foreground">{selectedDateLabel}</p>
           )}
         </div>
-        {selectedDate ? (
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {timeSlots.map((time) => {
-              const isBooked = bookedTimesForSelectedDate.includes(time)
+        <div className="h-[280px] overflow-y-auto pb-3">
+          {selectedDate ? (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {timeSlots.map((time) => {
+                const isBooked = bookedTimesForSelectedDate.includes(time)
 
-              return (
-                <button
-                  key={time}
-                  type="button"
-                  disabled={isBooked}
-                  title={isBooked ? 'Horario no disponible' : undefined}
-                  onClick={() => onSelectedTimeChange(time)}
-                  className={cn(
-                    'h-8 rounded-lg border text-[13px] font-medium transition-all',
-                    isBooked && 'cursor-not-allowed border-border/50 bg-secondary/50 text-muted-foreground/50',
-                    !isBooked && selectedTime === time
-                      ? 'border-primary bg-primary text-primary-foreground shadow-soft'
-                      : !isBooked && 'border-border/70 bg-background text-foreground hover:border-primary/40 hover:bg-secondary',
-                  )}
-                >
-                  {time}
-                </button>
-              )
-            })}
-          </div>
-        ) : (
-          <div className="flex h-[152px] items-center justify-center rounded-xl border border-dashed border-border/70 bg-secondary/30 text-[13px] text-muted-foreground">
-            Selecciona un dia para ver horarios disponibles
-          </div>
-        )}
+                return (
+                  <button
+                    key={time}
+                    type="button"
+                    disabled={isBooked}
+                    title={isBooked ? 'Horario no disponible' : undefined}
+                    onClick={() => onSelectedTimeChange(time)}
+                    className={cn(
+                      'h-8 rounded-lg border text-[13px] font-medium transition-all',
+                      isBooked && 'cursor-not-allowed border-border/50 bg-secondary/50 text-muted-foreground/50',
+                      !isBooked && selectedTime === time
+                        ? 'border-primary bg-primary text-primary-foreground shadow-soft'
+                        : !isBooked && 'border-border/70 bg-background text-foreground hover:border-primary/40 hover:bg-secondary',
+                    )}
+                  >
+                    {time}
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-border/70 bg-secondary/30 text-[13px] text-muted-foreground">
+              Selecciona un dia para ver horarios disponibles
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -122,7 +122,7 @@ export default async function AgendaPage({
     {/* Header */}
     <header className="mb-7">
       <h1 className="font-display text-[30px] font-medium leading-tight">Agenda semanal</h1>
-      <p className="mt-1 text-[13.5px] text-muted-foreground">
+      <p className="mt-1 hidden text-[13.5px] text-muted-foreground lg:block">
         Vista de tus visitas — semana del {weekDays[0].label} al {weekDays[6].label}.
       </p>
     </header>
@@ -130,7 +130,7 @@ export default async function AgendaPage({
     <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1.5fr_1fr]">
 
       {/* Tabla calendario */}
-      <div className="h-[528px] self-start overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft">
+      <div className="hidden  self-start overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft lg:block">
         {/* Header días */}
         <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-border/60 bg-secondary/30 text-[11.5px] font-medium uppercase tracking-wider text-muted-foreground">
           <div className="px-3 py-3" />

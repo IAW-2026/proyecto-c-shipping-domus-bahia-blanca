@@ -107,11 +107,15 @@ export default async function TurnoDetailPage(
       })
     : '--'
   const imagenPrincipal = turno.propiedad.multimedia[0]
+  const turnoAceptaAcciones = turno.estado !== 'CANCELADO'
   const puedeCompletarTurno =
+    turnoAceptaAcciones &&
     turno.estado === 'CONFIRMADO' &&
     turno.agenteId === userId &&
     Boolean(turno.fechaHoraSolicitada && turno.fechaHoraSolicitada <= new Date())
-  const puedeCancelarTurno = Boolean(turno.agenteId && turno.estado !== 'COMPLETADO')
+  const puedeCancelarTurno = Boolean(
+    turnoAceptaAcciones && turno.agenteId && turno.estado !== 'COMPLETADO'
+  )
   const destacados = [
     {
       label: 'Cubiertos',
@@ -347,7 +351,7 @@ export default async function TurnoDetailPage(
             {/* Acciones */}
             
               <div className="mt-3 grid gap-2">
-                {!turno.agenteId && (
+                {turnoAceptaAcciones && !turno.agenteId && (
                   <>
                   <DelayButton
                      action={tomarTurno.bind(null, turno.id)}

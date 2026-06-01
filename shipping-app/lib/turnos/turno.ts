@@ -27,6 +27,7 @@ const ESTADOS_COMPRADOR: EstadoTurnoComprador[] = [
   'CANCELADO',
   'COMPLETADO',
 ]
+const ADMIN_TURNOS_PATH = '/admin/entidades/turnos'
 
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key)
@@ -85,6 +86,18 @@ function revalidateTurnosAdmin() {
   revalidatePath('/admin/entidades/turnos')
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/turnos')
+}
+
+function adminTurnosRedirectUrl(formData: FormData, params: Record<string, string>) {
+  const returnTo = stringValue(formData, 'returnTo')
+  const base = returnTo.startsWith(ADMIN_TURNOS_PATH) ? returnTo : ADMIN_TURNOS_PATH
+  const url = new URL(base, 'http://localhost')
+
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value)
+  }
+
+  return `${url.pathname}${url.search}`
 }
 
 async function propiedadHorarioOcupado({
@@ -319,6 +332,7 @@ export async function crearTurno({
     throw new Error('Ese horario ya no esta disponible')
   }
 
+
   const propiedadData = {
     nombrePropiedad,
     descripcion,
@@ -397,6 +411,7 @@ export async function crearTurnoAdmin(formData: FormData) {
 
   const propiedadId = stringValue(formData, 'propiedadId')
   const fechaHoraSolicitada = fechaHoraSolicitadaValue(formData)
+  const estado = estadoTurnoValue(formData)
 
   const horarioOcupado = await propiedadHorarioOcupado({
     propiedadId,
@@ -404,7 +419,7 @@ export async function crearTurnoAdmin(formData: FormData) {
   })
 
   if (horarioOcupado) {
-    redirect('/admin/entidades/turnos?error=turno-duplicado')
+    redirect(adminTurnosRedirectUrl(formData, { error: 'turno-duplicado' }))
   }
 
   await prisma.turno.create({
@@ -415,13 +430,14 @@ export async function crearTurnoAdmin(formData: FormData) {
       nombreComprador: nullableString(formData, 'nombreComprador'),
       agenteId: nullableString(formData, 'agenteId'),
       fechaHoraSolicitada,
-      estado: estadoTurnoValue(formData),
+      estado,
       estadoComprador: estadoCompradorValue(formData),
       observaciones: nullableString(formData, 'observaciones'),
     },
   })
 
   revalidateTurnosAdmin()
+  redirect(adminTurnosRedirectUrl(formData, { success: 'turno-creado' }))
 }
 
 export async function actualizarTurnoAdmin(formData: FormData) {
@@ -430,6 +446,7 @@ export async function actualizarTurnoAdmin(formData: FormData) {
   const id = stringValue(formData, 'id')
   const propiedadId = stringValue(formData, 'propiedadId')
   const fechaHoraSolicitada = fechaHoraSolicitadaValue(formData)
+  const estado = estadoTurnoValue(formData)
 
   const horarioOcupado = await propiedadHorarioOcupado({
     propiedadId,
@@ -438,7 +455,7 @@ export async function actualizarTurnoAdmin(formData: FormData) {
   })
 
   if (horarioOcupado) {
-    redirect('/admin/entidades/turnos?error=turno-duplicado')
+    redirect(adminTurnosRedirectUrl(formData, { error: 'turno-duplicado' }))
   }
 
   await prisma.turno.update({
@@ -450,7 +467,7 @@ export async function actualizarTurnoAdmin(formData: FormData) {
       nombreComprador: nullableString(formData, 'nombreComprador'),
       agenteId: nullableString(formData, 'agenteId'),
       fechaHoraSolicitada,
-      estado: estadoTurnoValue(formData),
+      estado,
       estadoComprador: estadoCompradorValue(formData),
       observaciones: nullableString(formData, 'observaciones'),
     },
@@ -458,6 +475,7 @@ export async function actualizarTurnoAdmin(formData: FormData) {
 
   revalidateTurnosAdmin()
   revalidatePath(`/dashboard/turnos/${id}`)
+  redirect(adminTurnosRedirectUrl(formData, { success: 'turno-actualizado' }))
 }
 
 export async function eliminarTurnoAdmin(formData: FormData) {

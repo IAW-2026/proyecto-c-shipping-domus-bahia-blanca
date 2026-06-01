@@ -18,7 +18,7 @@ export function BookingNotes({
   onSubmit,
 }: Props) {
   return (
-    <div className="order-4 rounded-2xl border border-border/60 bg-card p-6 shadow-soft space-y-4 lg:col-start-2 lg:row-start-1 lg:mt-[calc(120%+1.5rem)] lg:self-start">
+    <div className="order-4 mt-4 rounded-2xl border border-border/60 bg-card p-6 shadow-soft space-y-4 lg:col-start-2 lg:row-start-1 lg:mt-[calc(150%+1.5rem)] lg:self-start">
       <div className="space-y-1.5">
         <p className="text-[12.5px] font-medium">Notas (opcional)</p>
         <textarea

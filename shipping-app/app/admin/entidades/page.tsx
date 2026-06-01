@@ -94,7 +94,7 @@ export default async function AdminEntidadesPage() {
                   </span>
                   <div className="min-w-0">
                     <p className="text-[13.5px] font-medium">{entity.name}</p>
-                    <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+                    <p className="mt-0.5 truncate text-[12px] text-muted-foreground max-[468px]:hidden">
                       {entity.description}
                     </p>
                    

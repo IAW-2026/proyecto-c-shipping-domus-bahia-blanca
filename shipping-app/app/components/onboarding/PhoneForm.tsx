@@ -15,11 +15,13 @@ export function PhoneForm({ onSubmit, loading = false, value, onChange, formId =
   const phone = value ?? internalPhone
 
   const handlePhoneChange = (nextValue: string) => {
+    const digitsOnly = nextValue.replace(/\D/g, '')
+
     if (onChange) {
-      onChange(nextValue)
+      onChange(digitsOnly)
       return
     }
-    setInternalPhone(nextValue)
+    setInternalPhone(digitsOnly)
   }
 
   const handleSubmit = (e: React.SubmitEvent) => {
@@ -39,9 +41,11 @@ export function PhoneForm({ onSubmit, loading = false, value, onChange, formId =
         <input
           id="phone"
           type="tel"
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={phone}
           onChange={(e) => handlePhoneChange(e.target.value)}
-          placeholder="+54 291 1234567"
+          placeholder="5492911234567"
           disabled={loading}
           className="peer w-full bg-white border border-[#c2c8c2] rounded-lg px-6 py-3 text-base
             text-[#1a1a1a] placeholder:text-[#424844] placeholder:opacity-70
