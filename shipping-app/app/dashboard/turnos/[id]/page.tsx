@@ -114,7 +114,7 @@ export default async function TurnoDetailPage(
     turno.agenteId === userId &&
     Boolean(turno.fechaHoraSolicitada && turno.fechaHoraSolicitada <= new Date())
   const puedeCancelarTurno = Boolean(
-    turnoAceptaAcciones && turno.agenteId && turno.estado !== 'COMPLETADO'
+    turnoAceptaAcciones && !puedeCompletarTurno && turno.agenteId && turno.estado !== 'COMPLETADO'
   )
   const destacados = [
     {
