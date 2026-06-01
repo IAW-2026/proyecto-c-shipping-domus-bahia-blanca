@@ -12,6 +12,10 @@ export const metadata: Metadata = {
     template: "%s",
   },
   description: "Gestion de turnos y visitas para agentes inmobiliarios.",
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     type: "website",
     locale: "es_AR",
