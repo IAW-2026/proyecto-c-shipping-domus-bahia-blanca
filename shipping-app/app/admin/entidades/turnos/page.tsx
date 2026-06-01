@@ -257,6 +257,11 @@ export default async function AdminTurnosPage({
             Ya existe un turno para esta propiedad en esa fecha y horario.
           </div>
         )}
+        {error === 'datos-invalidos' && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] font-medium text-red-700">
+            Revisá los datos del turno. Hay campos obligatorios incompletos o inválidos.
+          </div>
+        )}
         {success === 'turno-actualizado' && (
           <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-[13px] font-medium text-green-700">
             Turno actualizado correctamente.

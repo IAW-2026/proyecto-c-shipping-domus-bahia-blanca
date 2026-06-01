@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   const lon = Number(request.nextUrl.searchParams.get('lon'))
   const date = request.nextUrl.searchParams.get('date')
   const time = request.nextUrl.searchParams.get('time')
-  console.log('KEY:', process.env.OPENWEATHER_API_KEY)
+ 
   if (!Number.isFinite(lat) || !Number.isFinite(lon) || !date) {
     return NextResponse.json(
       { error: 'lat, lon y date son requeridos' },

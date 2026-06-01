@@ -1,8 +1,22 @@
 import { z } from 'zod'
 
+export const estadoTurnoSchema = z.enum([
+  'PENDIENTE_AGENTE',
+  'PRE_ACEPTADO',
+  'CONFIRMADO',
+  'CANCELADO',
+  'COMPLETADO',
+])
+
+export const estadoTurnoCompradorSchema = z.enum([
+  'PENDIENTE',
+  'CONFIRMADO',
+  'CANCELADO',
+  'COMPLETADO',
+])
+
 export const turnoCreateSchema = z.object({
   propiedadId: z.string().min(1),
-  compradorId: z.string().min(1),
   vendedorId: z.string().min(1),
   nombrePropiedad: z.string().optional().nullable(),
   descripcion: z.string().optional().nullable(),
@@ -25,12 +39,27 @@ export const turnoCreateSchema = z.object({
   antiguedad: z.string().optional().nullable(),
   condicion: z.string().optional().nullable(),
   nombreInmobiliaria: z.string().optional().nullable(),
+  nombreComprador: z.string().optional().nullable(),
+  fechaHora: z.coerce.date(),
+  observaciones: z.string().optional().nullable(),
   multimedia: z.array(z.object({
     id: z.string().min(1),
     url: z.string().min(1),
     alt: z.string().optional().nullable(),
     order: z.number().int().optional().nullable(),
   })).optional(),
+})
+
+export const turnoAdminSchema = z.object({
+  propiedadId: z.string().min(1),
+  compradorId: z.string().min(1),
+  vendedorId: z.string().min(1),
+  nombreComprador: z.string().optional().nullable(),
+  agenteId: z.string().optional().nullable(),
+  fechaHoraSolicitada: z.date().nullable(),
+  estado: estadoTurnoSchema,
+  estadoComprador: estadoTurnoCompradorSchema,
+  observaciones: z.string().optional().nullable(),
 })
 
 export const turnoTomarSchema = z.object({

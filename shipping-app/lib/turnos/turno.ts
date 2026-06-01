@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import type { EstadoTurno, EstadoTurnoComprador } from '@prisma/client'
+import type { EstadoTurno } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
 import { requireAdmin } from '@/lib/auth/requireAdmin'
@@ -12,21 +12,9 @@ import {
   argentinaTimeFromInstant,
   TURNOS_TIME_SLOTS,
 } from '@/lib/turnos/horarios'
+import { turnoAdminSchema, turnoCreateSchema } from '@/lib/validation/turno'
 
 const ACTIVE_TURNO_STATES: EstadoTurno[] = ['PENDIENTE_AGENTE', 'PRE_ACEPTADO', 'CONFIRMADO']
-const ESTADOS_TURNO: EstadoTurno[] = [
-  'PENDIENTE_AGENTE',
-  'PRE_ACEPTADO',
-  'CONFIRMADO',
-  'CANCELADO',
-  'COMPLETADO',
-]
-const ESTADOS_COMPRADOR: EstadoTurnoComprador[] = [
-  'PENDIENTE',
-  'CONFIRMADO',
-  'CANCELADO',
-  'COMPLETADO',
-]
 const ADMIN_TURNOS_PATH = '/admin/entidades/turnos'
 
 function stringValue(formData: FormData, key: string) {
@@ -61,26 +49,6 @@ function fechaHoraSolicitadaValue(formData: FormData) {
   return argentinaDateTimeFromDateKey(fecha, hora)
 }
 
-function estadoTurnoValue(formData: FormData) {
-  const value = stringValue(formData, 'estado') as EstadoTurno
-
-  if (!ESTADOS_TURNO.includes(value)) {
-    throw new Error('Estado de turno invalido')
-  }
-
-  return value
-}
-
-function estadoCompradorValue(formData: FormData) {
-  const value = stringValue(formData, 'estadoComprador') as EstadoTurnoComprador
-
-  if (!ESTADOS_COMPRADOR.includes(value)) {
-    throw new Error('Estado de comprador invalido')
-  }
-
-  return value
-}
-
 function revalidateTurnosAdmin() {
   revalidatePath('/admin/entidades')
   revalidatePath('/admin/entidades/turnos')
@@ -98,6 +66,26 @@ function adminTurnosRedirectUrl(formData: FormData, params: Record<string, strin
   }
 
   return `${url.pathname}${url.search}`
+}
+
+function turnoAdminData(formData: FormData) {
+  const parsed = turnoAdminSchema.safeParse({
+    propiedadId: stringValue(formData, 'propiedadId'),
+    compradorId: stringValue(formData, 'compradorId'),
+    vendedorId: stringValue(formData, 'vendedorId'),
+    nombreComprador: nullableString(formData, 'nombreComprador'),
+    agenteId: nullableString(formData, 'agenteId'),
+    fechaHoraSolicitada: fechaHoraSolicitadaValue(formData),
+    estado: stringValue(formData, 'estado'),
+    estadoComprador: stringValue(formData, 'estadoComprador'),
+    observaciones: nullableString(formData, 'observaciones'),
+  })
+
+  if (!parsed.success) {
+    redirect(adminTurnosRedirectUrl(formData, { error: 'datos-invalidos' }))
+  }
+
+  return parsed.data
 }
 
 async function propiedadHorarioOcupado({
@@ -219,35 +207,7 @@ export async function completarTurno(turnoId: string) {
   revalidatePath(`/dashboard/turnos/${turnoId}`)
 }
 
-export async function crearTurno({
-  propiedadId,
-  nombrePropiedad,
-  descripcion,
-  direccion,
-  barrio,
-  ciudad,
-  provincia,
-  pais,
-  codigoPostal,
-  latitud,
-  longitud,
-  precio,
-  expensas,
-  moneda,
-  ambientes,
-  dormitorios,
-  banios,
-  metrosTotales,
-  metrosCubiertos,
-  antiguedad,
-  condicion,
-  vendedorId,
-  nombreInmobiliaria,
-  multimedia,
-  nombreComprador,
-  fechaHora,
-  observaciones,
-}: {
+type CrearTurnoInput = {
   propiedadId: string
   nombrePropiedad?: string | null
   descripcion?: string | null
@@ -280,9 +240,41 @@ export async function crearTurno({
   nombreComprador?: string
   fechaHora: Date
   observaciones?: string
-}) {
+}
+
+export async function crearTurno(input: CrearTurnoInput) {
   const { userId } = await auth()
   if (!userId) throw new Error('No autorizado')
+
+  const {
+    propiedadId,
+    nombrePropiedad,
+    descripcion,
+    direccion,
+    barrio,
+    ciudad,
+    provincia,
+    pais,
+    codigoPostal,
+    latitud,
+    longitud,
+    precio,
+    expensas,
+    moneda,
+    ambientes,
+    dormitorios,
+    banios,
+    metrosTotales,
+    metrosCubiertos,
+    antiguedad,
+    condicion,
+    vendedorId,
+    nombreInmobiliaria,
+    multimedia,
+    nombreComprador,
+    fechaHora,
+    observaciones,
+  } = turnoCreateSchema.parse(input)
 
   const horaArgentina = argentinaTimeFromInstant(fechaHora)
 
@@ -409,13 +401,11 @@ export async function crearTurno({
 export async function crearTurnoAdmin(formData: FormData) {
   await requireAdmin()
 
-  const propiedadId = stringValue(formData, 'propiedadId')
-  const fechaHoraSolicitada = fechaHoraSolicitadaValue(formData)
-  const estado = estadoTurnoValue(formData)
+  const data = turnoAdminData(formData)
 
   const horarioOcupado = await propiedadHorarioOcupado({
-    propiedadId,
-    fechaHoraSolicitada,
+    propiedadId: data.propiedadId,
+    fechaHoraSolicitada: data.fechaHoraSolicitada,
   })
 
   if (horarioOcupado) {
@@ -423,17 +413,7 @@ export async function crearTurnoAdmin(formData: FormData) {
   }
 
   await prisma.turno.create({
-    data: {
-      propiedadId,
-      compradorId: stringValue(formData, 'compradorId'),
-      vendedorId: stringValue(formData, 'vendedorId'),
-      nombreComprador: nullableString(formData, 'nombreComprador'),
-      agenteId: nullableString(formData, 'agenteId'),
-      fechaHoraSolicitada,
-      estado,
-      estadoComprador: estadoCompradorValue(formData),
-      observaciones: nullableString(formData, 'observaciones'),
-    },
+    data,
   })
 
   revalidateTurnosAdmin()
@@ -444,13 +424,11 @@ export async function actualizarTurnoAdmin(formData: FormData) {
   await requireAdmin()
 
   const id = stringValue(formData, 'id')
-  const propiedadId = stringValue(formData, 'propiedadId')
-  const fechaHoraSolicitada = fechaHoraSolicitadaValue(formData)
-  const estado = estadoTurnoValue(formData)
+  const data = turnoAdminData(formData)
 
   const horarioOcupado = await propiedadHorarioOcupado({
-    propiedadId,
-    fechaHoraSolicitada,
+    propiedadId: data.propiedadId,
+    fechaHoraSolicitada: data.fechaHoraSolicitada,
     excludeTurnoId: id,
   })
 
@@ -460,17 +438,7 @@ export async function actualizarTurnoAdmin(formData: FormData) {
 
   await prisma.turno.update({
     where: { id },
-    data: {
-      propiedadId,
-      compradorId: stringValue(formData, 'compradorId'),
-      vendedorId: stringValue(formData, 'vendedorId'),
-      nombreComprador: nullableString(formData, 'nombreComprador'),
-      agenteId: nullableString(formData, 'agenteId'),
-      fechaHoraSolicitada,
-      estado,
-      estadoComprador: estadoCompradorValue(formData),
-      observaciones: nullableString(formData, 'observaciones'),
-    },
+    data,
   })
 
   revalidateTurnosAdmin()
