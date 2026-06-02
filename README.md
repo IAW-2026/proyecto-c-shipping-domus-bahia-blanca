@@ -38,7 +38,7 @@ Credenciales de prueba:
 - Administrador: `: mail: admin+clerk_test@iaw.com / contraseña: iawuser#`
 - Agente: `mail: agente+clerk_test@iaw.com / contraseña: iawuser#`
 - Comprador: `mail: buyer+clerk_test@iaw.com / contraseña: iawuser#`
-
+- Codigo de verificacion: 424242
 
 ## Decisiones 
 
