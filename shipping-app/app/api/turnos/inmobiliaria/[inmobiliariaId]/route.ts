@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 
 import { NextResponse } from 'next/server'
 import type { EstadoTurno } from '@prisma/client'
+import { requireShippingApiKey } from '@/lib/api-key'
 
 const ESTADOS_TURNO: EstadoTurno[] = [
   'PENDIENTE_AGENTE',
@@ -21,17 +22,9 @@ export async function GET(
   context: { params: Promise<{ inmobiliariaId: string }> }
 ) {
   try {
-    // Verificar API key
-    /*
-    const apiKey = request.headers.get('x-api-key')
+    const unauthorized = requireShippingApiKey(request)
+    if (unauthorized) return unauthorized
 
-    if (!apiKey || apiKey !== process.env.SELLER_APP_API_KEY) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      )
-    }
-*/
     const { inmobiliariaId } = await context.params
     const { searchParams } = new URL(request.url)
     const estadoParam = searchParams.get('estado')

@@ -1,7 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { requireShippingApiKey } from '@/lib/api-key'
 import { getTurnoWeather } from '@/lib/weather/openweather'
 
 export async function GET(request: NextRequest) {
+  const unauthorized = requireShippingApiKey(request)
+  if (unauthorized) return unauthorized
+
   const lat = Number(request.nextUrl.searchParams.get('lat'))
   const lon = Number(request.nextUrl.searchParams.get('lon'))
   const date = request.nextUrl.searchParams.get('date')

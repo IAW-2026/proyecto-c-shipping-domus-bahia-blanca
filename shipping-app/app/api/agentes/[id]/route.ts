@@ -1,5 +1,6 @@
 import type { EstadoAgente } from '@prisma/client'
 import { NextResponse, type NextRequest } from 'next/server'
+import { requireShippingApiKey } from '@/lib/api-key'
 import { prisma } from '@/lib/prisma'
 
 const ESTADOS_ACTUALIZABLES: EstadoAgente[] = ['ACEPTADO', 'RECHAZADO']
@@ -12,15 +13,8 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  /*
-  const apiKey = process.env.SELLER_CALLBACK_KEY
-  const authHeader = request.headers.get('authorization')
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-
-  if (!apiKey || token !== apiKey) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-  */
+  const unauthorized = requireShippingApiKey(request)
+  if (unauthorized) return unauthorized
 
   const { id } = await context.params
   const body = (await request.json().catch(() => null)) as { estado?: unknown } | null

@@ -1,11 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { requireShippingApiKey } from '@/lib/api-key'
 import { prisma } from '@/lib/prisma'
 
 export async function PATCH(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: Promise<{ compradorId: string; turnoId: string }> }
 ) {
   try {
+    const unauthorized = requireShippingApiKey(request)
+    if (unauthorized) return unauthorized
+
     const { compradorId, turnoId } = await context.params
 
     const turno = await prisma.turno.findUnique({
