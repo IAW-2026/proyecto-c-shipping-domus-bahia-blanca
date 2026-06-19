@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { requireShippingApiKey } from '@/lib/api-key'
 import { prisma } from '@/lib/prisma'
 import type { EstadoTurno } from '@prisma/client'
 
@@ -20,6 +21,9 @@ export async function GET(
   context: { params: Promise<{ compradorId: string }> }
 ) {
   try {
+    const unauthorized = requireShippingApiKey(request)
+    if (unauthorized) return unauthorized
+
     const { compradorId } = await context.params
     const estadoParam = request.nextUrl.searchParams.get('estado')?.toUpperCase()
 

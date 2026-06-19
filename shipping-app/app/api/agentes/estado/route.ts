@@ -1,5 +1,6 @@
 import type { EstadoAgente } from '@prisma/client'
 import { NextResponse, type NextRequest } from 'next/server'
+import { requireShippingApiKey } from '@/lib/api-key'
 import { prisma } from '@/lib/prisma'
 
 const ESTADOS_PERMITIDOS: EstadoAgente[] = ['PENDIENTE', 'ACEPTADO']
@@ -36,15 +37,8 @@ function parseInmobiliariaId(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  /*
-  const apiKey = process.env.SELLER_CALLBACK_KEY
-  const authHeader = request.headers.get('authorization')
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-
-  if (!apiKey || token !== apiKey) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-  */
+  const unauthorized = requireShippingApiKey(request)
+  if (unauthorized) return unauthorized
 
   const estados = parseEstados(request)
   const inmobiliariaId = parseInmobiliariaId(request)
