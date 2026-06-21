@@ -21,8 +21,8 @@ export async function GET(
   context: { params: Promise<{ compradorId: string }> }
 ) {
   try {
-    const unauthorized = requireShippingApiKey(request)
-    if (unauthorized) return unauthorized
+    //const unauthorized = requireShippingApiKey(request)
+    //if (unauthorized) return unauthorized
 
     const { compradorId } = await context.params
     const estadoRaw = request.nextUrl.searchParams.get('estado')
