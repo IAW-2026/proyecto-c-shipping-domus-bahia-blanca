@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { requireShippingApiKey } from '@/lib/api-key'
 import { prisma } from '@/lib/prisma'
-import type { EstadoTurno } from '@prisma/client'
+import  { EstadoTurno } from '@prisma/client'
 
 const ESTADOS_COMPRADOR: EstadoTurno[] = [
   'PENDIENTE_AGENTE',
@@ -25,8 +25,10 @@ export async function GET(
     if (unauthorized) return unauthorized
 
     const { compradorId } = await context.params
-    const estadoParam = request.nextUrl.searchParams.get('estado')?.toUpperCase()
-
+    const estadoRaw = request.nextUrl.searchParams.get('estado')
+    const estadoParam = estadoRaw && Object.values(EstadoTurno).includes(estadoRaw as EstadoTurno)
+      ? (estadoRaw as EstadoTurno)
+      : null
     if (estadoParam && !isEstadoComprador(estadoParam)) {
       return NextResponse.json(
         { error: 'estado invalido' },
@@ -37,21 +39,49 @@ export async function GET(
     const turnos = await prisma.turno.findMany({
       where: {
         compradorId,
-        ...(estadoParam ? { EstadoTurno: estadoParam } : {}),
+        ...(estadoParam ? { estado: estadoParam } : {}),
       },
       orderBy: { creadoEn: 'desc' },
       select: {
         id: true,
         propiedadId: true,
+        fechaHoraSolicitada: true,
         estado: true,
         estadoComprador: true,
+        vendedorId: true,
+        observaciones: true,
         creadoEn: true,
+        propiedad: {
+          select: {
+            nombrePropiedad: true,
+            direccion: true,
+          },
+        },
+        agente: {
+          select: {
+            nombreCompleto: true,
+          },
+        },
       },
     })
 
-    const turnosPorPropiedad = new Map<string, typeof turnos[number]>()
+    const turnosFormateados = turnos.map((turno) => ({
+      id: turno.id,
+      propiedadId: turno.propiedadId,
+      fechaHoraSolicitada: turno.fechaHoraSolicitada,
+      estado: turno.estado,
+      estadoComprador: turno.estadoComprador,
+      creadoEn: turno.creadoEn,
+      tituloPropiedad: turno.propiedad.nombrePropiedad,
+      direccion: turno.propiedad.direccion,
+      vendedorId: turno.vendedorId,
+      agenteNombre: turno.agente?.nombreCompleto ?? null,
+      observaciones: turno.observaciones,
+    }))
 
-    for (const turno of turnos) {
+    const turnosPorPropiedad = new Map<string, typeof turnosFormateados[number]>()
+
+    for (const turno of turnosFormateados) {
       if (!turnosPorPropiedad.has(turno.propiedadId)) {
         turnosPorPropiedad.set(turno.propiedadId, turno)
       }
