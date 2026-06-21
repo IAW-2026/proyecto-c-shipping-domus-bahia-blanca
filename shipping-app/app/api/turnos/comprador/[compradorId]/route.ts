@@ -48,6 +48,7 @@ export async function GET(
         fechaHoraSolicitada: true,
         estado: true,
         estadoComprador: true,
+        compradorId:true,
         vendedorId: true,
         observaciones: true,
         creadoEn: true,
