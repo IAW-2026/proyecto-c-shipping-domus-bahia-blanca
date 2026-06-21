@@ -3,8 +3,10 @@ import { NextResponse } from 'next/server'
 
 const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
-  '/api/agentes/confirmar(.*)',
-  '/api/agentes/estado(.*)',
+  '/api/agentes(.*)',
+  '/api/turnos/comprador(.*)',
+  '/api/turnos/inmobiliaria(.*)',
+  '/api/weather(.*)',
 ])
 
 const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
