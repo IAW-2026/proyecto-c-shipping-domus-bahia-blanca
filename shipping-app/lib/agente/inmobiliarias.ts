@@ -2,21 +2,56 @@ export type InmobiliariaItem = {
   id: string
   nombre: string
 }
-//Descomentar cuando tenga la url y apikey
 
-export async function getInmobiliarias(): Promise<InmobiliariaItem[]> {
-  return [
-    { id: 'inm-1', nombre: 'Domus Centro' },
-    { id: 'inm-2', nombre: 'Bahia Norte' },
-    { id: 'inm-3', nombre: 'Costa Sur' }
-  ]
+type SellerInmobiliaria = {
+  id: string
+  fullName: string | null
+  agencyName: string | null
+  email: string | null
+  contactPhone: string | null
+  bio: string | null
 }
-/*
 
+type SellerInmobiliariasResponse =
+  | {
+      success: boolean
+      data?: SellerInmobiliaria | SellerInmobiliaria[] | null
+    }
+  | {
+      inmobiliarias: InmobiliariaItem[]
+    }
+  | InmobiliariaItem[]
+
+function mapSellerInmobiliaria(item: SellerInmobiliaria): InmobiliariaItem {
+  return {
+    id: item.id,
+    nombre: item.agencyName ?? item.fullName ?? item.email ?? 'Inmobiliaria sin nombre',
+  }
+}
+
+function isSellerInmobiliaria(item: unknown): item is SellerInmobiliaria {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    'id' in item &&
+    'agencyName' in item
+  )
+}
+
+function normalizeInmobiliarias(payload: SellerInmobiliariasResponse): InmobiliariaItem[] {
+  if (Array.isArray(payload)) return payload
+
+  if ('inmobiliarias' in payload) return payload.inmobiliarias
+
+  if (!payload.success || !payload.data) return []
+
+  const data = Array.isArray(payload.data) ? payload.data : [payload.data]
+  return data.filter(isSellerInmobiliaria).map(mapSellerInmobiliaria)
+}
 
 export async function getInmobiliarias() {
   const url = process.env.SELLER_INMOBILIARIAS_URL
-  const apiKey = process.env.SELLER_CALLBACK_KEY
+  const apiKey = process.env.SELLER_APP_API_KEY
 
   if (!url || !apiKey) {
     throw new Error('Missing seller inmobiliarias configuration')
@@ -24,6 +59,7 @@ export async function getInmobiliarias() {
 
   const response = await fetch(url, {
     headers: {
+      'x-api-key': apiKey,
       Authorization: `Bearer ${apiKey}`,
     },
     cache: 'no-store',
@@ -34,12 +70,8 @@ export async function getInmobiliarias() {
     throw new Error(`Seller inmobiliarias error: ${details}`)
   }
 
-  const payload = (await response.json()) as
-    | { inmobiliarias: InmobiliariaItem[] }
-    | InmobiliariaItem[]
+  const payload = (await response.json()) as SellerInmobiliariasResponse
 
-  return Array.isArray(payload)
-    ? payload
-    : payload.inmobiliarias
+  return normalizeInmobiliarias(payload)
 }
-    */
+    
