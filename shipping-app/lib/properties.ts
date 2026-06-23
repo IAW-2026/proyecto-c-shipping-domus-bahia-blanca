@@ -1,7 +1,8 @@
 import type { PropiedadTurno } from '@/app/components/turnos/types'
 import { prisma } from '@/lib/prisma'
 
-const PROPERTIES_API_BASE_URL = 'https://proyecto-c-seller-domus-bahia-blanc.vercel.app/api/properties'
+const SELLER_APP_BASE_URL = 'https://proyecto-c-seller-domus-bahia-blanc.vercel.app'
+const PROPERTIES_API_BASE_URL = `${SELLER_APP_BASE_URL}/api/properties`
 
 type ExternalPropertyResponse = {
   success: boolean
@@ -58,6 +59,10 @@ type ExternalProperty = {
   }[]
 }
 
+function normalizeSellerMediaUrl(fileUrl: string) {
+  return new URL(fileUrl, SELLER_APP_BASE_URL).toString()
+}
+
 function mapExternalProperty(propiedad: ExternalProperty, propiedadId: string): PropiedadTurno | null {
   const vendedorId = propiedad.seller?.id
   if (!vendedorId) return null
@@ -88,7 +93,7 @@ function mapExternalProperty(propiedad: ExternalProperty, propiedadId: string): 
     nombreInmobiliaria: propiedad.seller?.agencyName ?? null,
     multimedia: propiedad.multimedia.map((item) => ({
       id: item.id,
-      url: item.fileUrl,
+      url: normalizeSellerMediaUrl(item.fileUrl),
       alt: propiedad.title,
       order: item.sortOrder,
     })),
