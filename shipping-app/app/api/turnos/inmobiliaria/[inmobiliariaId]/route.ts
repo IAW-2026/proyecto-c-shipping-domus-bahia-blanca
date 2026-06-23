@@ -58,10 +58,20 @@ export async function GET(
       orderBy: { fechaHoraSolicitada: 'asc' },
       include: {
         propiedad: true,
+        agente: {
+          select: {
+            nombreCompleto: true,
+          },
+        },
       },
     })
 
-    return NextResponse.json(turnos)
+    const turnosConAgenteNombre = turnos.map((turno) => ({
+      ...turno,
+      agenteNombre: turno.agente?.nombreCompleto ?? null,
+    }))
+
+    return NextResponse.json(turnosConAgenteNombre)
   } catch (error) {
     console.error(error)
     return NextResponse.json(
