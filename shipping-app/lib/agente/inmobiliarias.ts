@@ -1,3 +1,5 @@
+const SELLER_INMOBILIARIAS_PATH = '/api/sellers'
+
 export type InmobiliariaItem = {
   id: string
   nombre: string
@@ -38,6 +40,10 @@ function isSellerInmobiliaria(item: unknown): item is SellerInmobiliaria {
   )
 }
 
+function buildSellerInmobiliariasUrl(baseUrl: string) {
+  return new URL(SELLER_INMOBILIARIAS_PATH, baseUrl).toString()
+}
+
 function normalizeInmobiliarias(payload: SellerInmobiliariasResponse): InmobiliariaItem[] {
   if (Array.isArray(payload)) return payload
 
@@ -50,12 +56,14 @@ function normalizeInmobiliarias(payload: SellerInmobiliariasResponse): Inmobilia
 }
 
 export async function getInmobiliarias() {
-  const url = process.env.SELLER_INMOBILIARIAS_URL
+  const baseUrl = process.env.SELLER_INMOBILIARIAS_URL
   const apiKey = process.env.SELLER_APP_API_KEY
 
-  if (!url || !apiKey) {
+  if (!baseUrl || !apiKey) {
     throw new Error('Missing seller inmobiliarias configuration')
   }
+
+  const url = buildSellerInmobiliariasUrl(baseUrl)
 
   const response = await fetch(url, {
     headers: {
@@ -65,13 +73,19 @@ export async function getInmobiliarias() {
     cache: 'no-store',
   })
 
+  const text = await response.text()
+
   if (!response.ok) {
-    const details = await response.text().catch(() => '')
-    throw new Error(`Seller inmobiliarias error: ${details}`)
+    throw new Error(`Seller inmobiliarias error ${response.status}: ${text.slice(0, 200)}`)
   }
 
-  const payload = (await response.json()) as SellerInmobiliariasResponse
-
-  return normalizeInmobiliarias(payload)
+  try {
+    const payload = JSON.parse(text) as SellerInmobiliariasResponse
+    return normalizeInmobiliarias(payload)
+  } catch {
+    const contentType = response.headers.get('content-type') ?? 'sin content-type'
+    throw new Error(
+      `Seller inmobiliarias no devolvio JSON. Status: ${response.status}. Content-Type: ${contentType}. Respuesta: ${text.slice(0, 200)}`
+    )
+  }
 }
-    
