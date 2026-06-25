@@ -74,7 +74,8 @@ function formatDate(date: Date) {
 export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
   const router = useRouter()
   const today = useMemo(() => argentinaCalendarDate(), [])
-
+  
+  const [now, setNow] = useState(() => new Date())
   const [cursor, setCursor] = useState(() => startOfMonth(argentinaCalendarDate()))
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
@@ -91,14 +92,34 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
     selectedDateKey && propiedad.latitud !== null && propiedad.longitud !== null
   )
   const selectedDateLabel = selectedDate ? formatDate(selectedDate) : null
-  const bookedTimesForSelectedDate = selectedDateKey ? horariosOcupados[selectedDateKey] ?? [] : []
-  const isSelectedTimeBooked = selectedTime ? bookedTimesForSelectedDate.includes(selectedTime) : false
-  const canSubmit = Boolean(selectedDate && selectedTime && !isSelectedTimeBooked)
+  const bookedTimesForSelectedDate = useMemo(
+  () => (selectedDateKey ? horariosOcupados[selectedDateKey] ?? [] : []),
+  [horariosOcupados, selectedDateKey]
+)
+//Agrego esta funcion para calcular los turnos que ya pasaron y deshabilitarlos
+  const pastTimesForSelectedDate = useMemo(
+    () =>
+      selectedDate
+        ? TURNOS_TIME_SLOTS.filter((time) => argentinaDateTime(selectedDate, time) <= now)
+        : [],
+    [now, selectedDate]
+  )
 
-  function handleSelectedDateChange(date: Date) {
-    setSelectedDate(date)
-    setSelectedTime(null)
-  }
+  const isSelectedTimeBooked = selectedTime ? bookedTimesForSelectedDate.includes(selectedTime) : false
+  const isSelectedTimePast = selectedTime ? pastTimesForSelectedDate.includes(selectedTime) : false
+  const canSubmit = Boolean(selectedDate && selectedTime && !isSelectedTimeBooked && !isSelectedTimePast)
+    function handleSelectedDateChange(date: Date) {
+      setSelectedDate(date)
+      setSelectedTime(null)
+    }
+
+  useEffect(() => {
+  const interval = window.setInterval(() => {
+    setNow(new Date())
+  }, 30_000)
+
+  return () => window.clearInterval(interval)
+}, [])
 
   useEffect(() => {
     if (!selectedDateKey || propiedad.latitud === null || propiedad.longitud === null) return
@@ -142,7 +163,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
   }, [propiedad.latitud, propiedad.longitud, selectedDateKey, selectedTime])
 
   function handleSubmit() {
-    if (!selectedDate || !selectedTime || isSelectedTimeBooked) return
+    if (!selectedDate || !selectedTime || isSelectedTimeBooked || isSelectedTimePast) return
 
     startTransition(async () => {
       setSubmitError(null)
@@ -212,6 +233,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
             selectedDate={selectedDate}
             selectedDateLabel={selectedDateLabel}
             selectedTime={selectedTime}
+            pastTimesForSelectedDate={pastTimesForSelectedDate}
             bookedTimesForSelectedDate={bookedTimesForSelectedDate}
             onCursorChange={setCursor}
             onSelectedDateChange={handleSelectedDateChange}

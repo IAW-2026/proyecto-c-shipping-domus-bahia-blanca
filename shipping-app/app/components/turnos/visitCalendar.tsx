@@ -12,6 +12,7 @@ type Props = {
   selectedDate: Date | null
   selectedDateLabel: string | null
   selectedTime: string | null
+  pastTimesForSelectedDate: string[]
   bookedTimesForSelectedDate: string[]
   onCursorChange: (date: Date) => void
   onSelectedDateChange: (date: Date) => void
@@ -29,6 +30,7 @@ export function VisitCalendar({
   selectedDate,
   selectedDateLabel,
   selectedTime,
+  pastTimesForSelectedDate,
   bookedTimesForSelectedDate,
   onCursorChange,
   onSelectedDateChange,
@@ -113,20 +115,27 @@ export function VisitCalendar({
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {timeSlots.map((time) => {
                 const isBooked = bookedTimesForSelectedDate.includes(time)
-
+                const isPast = pastTimesForSelectedDate.includes(time)
+                const disabled = isBooked || isPast
                 return (
                   <button
                     key={time}
                     type="button"
-                    disabled={isBooked}
-                    title={isBooked ? 'Horario no disponible' : undefined}
+                    disabled={disabled}
+                    title={
+                      isBooked
+                        ? 'Horario no disponible'
+                        : isPast
+                          ? 'Este horario ya paso'
+                          : undefined
+                    }
                     onClick={() => onSelectedTimeChange(time)}
                     className={cn(
                       'h-8 rounded-lg border text-[13px] font-medium transition-all',
-                      isBooked && 'cursor-not-allowed border-border/50 bg-secondary/50 text-muted-foreground/50',
-                      !isBooked && selectedTime === time
+                      disabled && 'cursor-not-allowed border-border/50 bg-secondary/60 text-muted-foreground/50',
+                      !disabled && selectedTime === time
                         ? 'border-primary bg-primary text-primary-foreground shadow-soft'
-                        : !isBooked && 'border-border/70 bg-background text-foreground hover:border-primary/40 hover:bg-secondary',
+                        : !disabled && 'border-border/70 bg-background text-foreground hover:border-primary/40 hover:bg-secondary',
                     )}
                   >
                     {time}
