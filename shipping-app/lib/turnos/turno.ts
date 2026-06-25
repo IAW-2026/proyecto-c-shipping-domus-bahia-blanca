@@ -238,7 +238,9 @@ type CrearTurnoInput = {
     order?: number | null
   }[]
   nombreComprador?: string
-  fechaHora: Date
+  fechaHora?: Date
+  fechaSolicitada?: string
+  horaSolicitada?: string
   observaciones?: string
 }
 
@@ -272,9 +274,18 @@ export async function crearTurno(input: CrearTurnoInput) {
     nombreInmobiliaria,
     multimedia,
     nombreComprador,
-    fechaHora,
+    fechaHora: fechaHoraInput,
+    fechaSolicitada,
+    horaSolicitada,
     observaciones,
   } = turnoCreateSchema.parse(input)
+  const fechaHora = fechaSolicitada && horaSolicitada
+    ? argentinaDateTimeFromDateKey(fechaSolicitada, horaSolicitada)
+    : fechaHoraInput
+
+  if (!fechaHora) {
+    throw new Error('Fecha y horario son requeridos')
+  }
 
   const horaArgentina = argentinaTimeFromInstant(fechaHora)
 

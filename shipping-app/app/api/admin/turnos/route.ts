@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { metadataHasAdminRole, userHasAdminRole, type RoleMetadata } from '@/lib/auth/requireAdmin'
 import { requireShippingApiKey } from '@/lib/api-key'
 import { prisma } from '@/lib/prisma'
+import { argentinaDateTimeFields } from '@/lib/turnos/horarios'
 
 const ESTADOS_TURNO: EstadoTurno[] = [
   'PENDIENTE_AGENTE',
@@ -116,6 +117,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: turnos.map((turno) => ({
         ...turno,
+        ...argentinaDateTimeFields(turno.fechaHoraSolicitada),
         agenteNombre: turno.agente?.nombreCompleto ?? null,
         tituloPropiedad: turno.propiedad.nombrePropiedad,
         direccion: turno.propiedad.direccion,

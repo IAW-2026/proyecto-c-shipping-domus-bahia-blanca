@@ -5,6 +5,7 @@ import { AppTopbar } from '@/app/components/dashboard/topBar'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { Calendar, Check, MapPin, User2 } from 'lucide-react'
 import { tomarTurno } from '@/lib/turnos/turno'
+import { argentinaShortDateFromInstant, argentinaTimeFromInstant } from '@/lib/turnos/horarios'
 
 export const metadata = {
   title: 'Turnos pendientes - Domus',
@@ -109,15 +110,9 @@ export default async function TurnosPage() {
                     </p>
                     <p className="text-[13px] font-medium text-foreground">
                       {turno.fechaHoraSolicitada
-                        ? new Date(turno.fechaHoraSolicitada).toLocaleDateString('es-AR', {
-                            day: 'numeric',
-                            month: 'short',
-                          }) +
+                        ? argentinaShortDateFromInstant(turno.fechaHoraSolicitada) +
                           ' · ' +
-                          new Date(turno.fechaHoraSolicitada).toLocaleTimeString('es-AR', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
+                          argentinaTimeFromInstant(turno.fechaHoraSolicitada)
                         : 'Sin fecha'}
                     </p>
                   </div>

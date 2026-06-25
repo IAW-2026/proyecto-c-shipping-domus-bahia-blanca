@@ -8,6 +8,7 @@ import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { tomarTurno, cancelarTurno, completarTurno } from '@/lib/turnos/turno'
 import { PropertyMap } from '@/app/components/dashboard/propertyMapWrapper'
 import { DelayButton } from '@/app/components/dashboard/delayButton'
+import { argentinaFullDateFromInstant, argentinaTimeFromInstant } from '@/lib/turnos/horarios'
 
 
 import {
@@ -93,18 +94,11 @@ export default async function TurnoDetailPage(
   const currentIdx = timeline.findIndex((t) => t.key === turno.estado)
 
   const fechaFormateada = turno.fechaHoraSolicitada
-    ? new Date(turno.fechaHoraSolicitada).toLocaleDateString('es-AR', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      })
+    ? argentinaFullDateFromInstant(turno.fechaHoraSolicitada)
     : 'Sin fecha'
 
   const horaFormateada = turno.fechaHoraSolicitada
-    ? new Date(turno.fechaHoraSolicitada).toLocaleTimeString('es-AR', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+    ? argentinaTimeFromInstant(turno.fechaHoraSolicitada)
     : '--'
   const imagenPrincipal = turno.propiedad.multimedia[0]
   const turnoAceptaAcciones = turno.estado !== 'CANCELADO'

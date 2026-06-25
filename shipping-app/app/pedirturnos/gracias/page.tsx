@@ -2,6 +2,7 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { CalendarDays, CheckCircle2, Clock, MapPin } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import { argentinaLongDateFromInstant, argentinaTimeFromInstant } from '@/lib/turnos/horarios'
 
 export const metadata = {
   title: 'Turno reservado - Domus',
@@ -9,18 +10,11 @@ export const metadata = {
 }
 
 function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('es-AR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  }).format(date)
+  return argentinaLongDateFromInstant(date)
 }
 
 function formatTime(date: Date) {
-  return new Intl.DateTimeFormat('es-AR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
+  return argentinaTimeFromInstant(date)
 }
 
 export default async function GraciasTurnoPage({

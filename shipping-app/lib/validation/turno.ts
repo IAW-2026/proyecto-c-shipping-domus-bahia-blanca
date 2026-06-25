@@ -40,7 +40,9 @@ export const turnoCreateSchema = z.object({
   condicion: z.string().optional().nullable(),
   nombreInmobiliaria: z.string().optional().nullable(),
   nombreComprador: z.string().optional().nullable(),
-  fechaHora: z.coerce.date(),
+  fechaHora: z.coerce.date().optional(),
+  fechaSolicitada: z.string().optional(),
+  horaSolicitada: z.string().optional(),
   observaciones: z.string().optional().nullable(),
   multimedia: z.array(z.object({
     id: z.string().min(1),

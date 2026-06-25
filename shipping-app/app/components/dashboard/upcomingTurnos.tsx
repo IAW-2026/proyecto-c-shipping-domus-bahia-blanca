@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Prisma } from '@prisma/client'
 import { MapPin, UserRound } from 'lucide-react'
 import { StatusBadge } from '@/app/components/dashboard/statusBadge'
+import { argentinaTimeFromInstant } from '@/lib/turnos/horarios'
 
 type UpcomingTurno = Prisma.TurnoGetPayload<{
   include: {
@@ -34,7 +35,12 @@ export function UpcomingTurnos({ turnos }: UpcomingTurnosProps) {
             No tenes visitas proximas
           </li>
         ) : (
-          turnos.map((turno) => (
+          turnos.map((turno) => {
+            const hora = turno.fechaHoraSolicitada
+              ? argentinaTimeFromInstant(turno.fechaHoraSolicitada)
+              : null
+
+            return (
             <li key={turno.id}>
               <Link
                 href={`/dashboard/turnos/${turno.id}`}
@@ -43,14 +49,10 @@ export function UpcomingTurnos({ turnos }: UpcomingTurnosProps) {
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-secondary text-center leading-tight">
                   <div>
                     <p className="font-display text-[15px] font-medium text-primary">
-                      {turno.fechaHoraSolicitada
-                        ? new Date(turno.fechaHoraSolicitada).getHours().toString().padStart(2, '0')
-                        : '--'}
+                      {hora ? hora.slice(0, 2) : '--'}
                     </p>
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {turno.fechaHoraSolicitada
-                        ? new Date(turno.fechaHoraSolicitada).getMinutes().toString().padStart(2, '0')
-                        : '--'}
+                      {hora ? hora.slice(3, 5) : '--'}
                     </p>
                   </div>
                 </div>
@@ -71,7 +73,8 @@ export function UpcomingTurnos({ turnos }: UpcomingTurnosProps) {
                 </div>
               </Link>
             </li>
-          ))
+            )
+          })
         )}
       </ul>
       <div className="h-5 border-t border-border/60 bg-card" />

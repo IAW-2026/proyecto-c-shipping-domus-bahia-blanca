@@ -197,7 +197,8 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: 
           nombreInmobiliaria: propiedad.nombreInmobiliaria,
           multimedia: propiedad.multimedia,
           nombreComprador: comprador.nombre,
-          fechaHora: argentinaDateTime(selectedDate, selectedTime),
+          fechaSolicitada: argentinaDateKey(selectedDate),
+          horaSolicitada: selectedTime,
           observaciones: observaciones || undefined,
         })
         router.push(`/turnos/gracias?turnoId=${turno.id}`)

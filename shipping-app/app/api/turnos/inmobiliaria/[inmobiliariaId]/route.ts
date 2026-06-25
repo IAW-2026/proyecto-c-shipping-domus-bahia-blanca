@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import type { EstadoTurno } from '@prisma/client'
 import { requireShippingApiKey } from '@/lib/api-key'
+import { argentinaDateTimeFields } from '@/lib/turnos/horarios'
 
 const ESTADOS_TURNO: EstadoTurno[] = [
   'PENDIENTE_AGENTE',
@@ -68,6 +69,7 @@ export async function GET(
 
     const turnosConAgenteNombre = turnos.map((turno) => ({
       ...turno,
+      ...argentinaDateTimeFields(turno.fechaHoraSolicitada),
       agenteNombre: turno.agente?.nombreCompleto ?? null,
     }))
 
@@ -150,7 +152,10 @@ export async function PATCH(
       },
     })
 
-    return NextResponse.json(updated)
+    return NextResponse.json({
+      ...updated,
+      ...argentinaDateTimeFields(updated.fechaHoraSolicitada),
+    })
   } catch (error) {
     console.error(error)
     return NextResponse.json(
