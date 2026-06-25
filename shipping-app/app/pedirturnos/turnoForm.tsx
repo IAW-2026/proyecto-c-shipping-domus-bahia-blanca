@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { BookingNotes } from '@/app/components/turnos/bookingNotes'
 import { BookingSummary } from '@/app/components/turnos/bookingSummary'
+import { BackButton } from '@/app/components/turnos/BackButton'
 import { PropertyHero } from '@/app/components/turnos/propertyHero'
 import { VisitCalendar } from '@/app/components/turnos/visitCalendar'
 import type { CompradorTurno, PropiedadTurno } from '@/app/components/turnos/types'
@@ -20,6 +21,7 @@ type Props = {
   propiedad: PropiedadTurno
   comprador: CompradorTurno
   horariosOcupados: Record<string, string[]>
+  backHref: string
 }
 
 type TurnoWeather = {
@@ -71,7 +73,7 @@ function formatDate(date: Date) {
   return `${DAY_LABELS[(date.getUTCDay() + 6) % 7]} ${date.getUTCDate()} ${MONTH_LABELS[date.getUTCMonth()].slice(0, 3)}`
 }
 
-export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
+export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: Props) {
   const router = useRouter()
   const today = useMemo(() => argentinaCalendarDate(), [])
   
@@ -208,6 +210,9 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados }: Props) {
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
       <header className="mb-8">
+        <div className="mb-5">
+          <BackButton href={backHref} label="Volver a Domus" />
+        </div>
         <p className="text-[12px] uppercase tracking-[0.22em] text-accent-warm">
           Nueva visita
         </p>
