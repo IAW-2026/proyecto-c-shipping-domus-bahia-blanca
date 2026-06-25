@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { requireShippingApiKey } from '@/lib/api-key'
 import { prisma } from '@/lib/prisma'
 import  { EstadoTurno } from '@prisma/client'
+import { argentinaDateTimeFields } from '@/lib/turnos/horarios'
 
 const ESTADOS_COMPRADOR: EstadoTurno[] = [
   'PENDIENTE_AGENTE',
@@ -70,6 +70,7 @@ export async function GET(
       id: turno.id,
       propiedadId: turno.propiedadId,
       fechaHoraSolicitada: turno.fechaHoraSolicitada,
+      ...argentinaDateTimeFields(turno.fechaHoraSolicitada),
       estado: turno.estado,
       estadoComprador: turno.estadoComprador,
       creadoEn: turno.creadoEn,

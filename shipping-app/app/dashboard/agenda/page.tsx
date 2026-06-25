@@ -4,6 +4,16 @@ import { AppTopbar } from '@/app/components/dashboard/topBar'
 import type { EstadoTurno } from '@prisma/client'
 import Link from 'next/link'
 import { ArrowLeft, Calendar } from 'lucide-react'
+import {
+  argentinaCalendarDate,
+  argentinaDateKey,
+  argentinaDateKeyFromInstant,
+  argentinaEndOfDateKey,
+  argentinaMonthDate,
+  argentinaStartOfDateKey,
+  argentinaTimeFromInstant,
+  argentinaWeekdayDateFromInstant,
+} from '@/lib/turnos/horarios'
 
 export const metadata = {
   title: 'Agenda - Domus',
@@ -38,15 +48,18 @@ const hours = Array.from({ length: 17 }, (_, i) => {
 const PAGE_SIZE = 5
 
 function getWeekDays() {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const today = argentinaCalendarDate()
 
   return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today)
-    d.setDate(today.getDate() + i)
+    const d = argentinaMonthDate(
+      today.getUTCFullYear(),
+      today.getUTCMonth(),
+      today.getUTCDate() + i
+    )
     return {
-      label: d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' }),
+      label: argentinaWeekdayDateFromInstant(d),
       date: d,
+      dateKey: argentinaDateKey(d),
     }
   })
 }
@@ -67,9 +80,8 @@ export default async function AgendaPage({
   })
 
   const weekDays = getWeekDays()
-  const start = weekDays[0].date
-  const end = weekDays[6].date
-  end.setHours(23, 59, 59)
+  const start = argentinaStartOfDateKey(weekDays[0].dateKey)
+  const end = argentinaEndOfDateKey(weekDays[6].dateKey)
 
   const turnos = await prisma.turno.findMany({
     where: {
@@ -100,17 +112,11 @@ export default async function AgendaPage({
   const turnoMap = new Map<string, typeof turnos[number]>()
   for (const turno of turnosSemana) {
     if (!turno.fechaHoraSolicitada) continue
-    const d = new Date(turno.fechaHoraSolicitada)
     const dayIndex = weekDays.findIndex(
-      (wd) => wd.date.toDateString() === d.toDateString()
+      (wd) => wd.dateKey === argentinaDateKeyFromInstant(turno.fechaHoraSolicitada!)
     )
     if (dayIndex === -1) continue
-    const horaArgentina = d.toLocaleTimeString('es-AR', {
-      timeZone: 'America/Argentina/Buenos_Aires',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })
+    const horaArgentina = argentinaTimeFromInstant(turno.fechaHoraSolicitada)
     const key = `${dayIndex}-${horaArgentina}`
     turnoMap.set(key, turno)
   }
@@ -163,11 +169,7 @@ export default async function AgendaPage({
                         className={`group relative block rounded-lg p-2 text-left transition-transform hover:-translate-y-0.5 hover:shadow-soft ${statusStyles[turno.estado].chip}`}
                       >
                         <p className="text-[11px] font-medium">
-                          {new Date(turno.fechaHoraSolicitada!).toLocaleTimeString('es-AR', {
-                            timeZone: 'America/Argentina/Buenos_Aires',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {argentinaTimeFromInstant(turno.fechaHoraSolicitada!)}
                         </p>
                         {/* Tooltip */}
                         <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 scale-95 rounded-xl border border-border/60 bg-card p-3 shadow-lg opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100">
@@ -201,16 +203,10 @@ export default async function AgendaPage({
           <div className="space-y-3">
             {turnosPagina.map((turno) => {
               const fecha = turno.fechaHoraSolicitada
-                ? new Date(turno.fechaHoraSolicitada).toLocaleDateString('es-AR', {
-                    timeZone: 'America/Argentina/Buenos_Aires',
-                    weekday: 'short', day: 'numeric', month: 'short',
-                  })
+                ? argentinaWeekdayDateFromInstant(turno.fechaHoraSolicitada)
                 : 'Sin fecha'
               const hora = turno.fechaHoraSolicitada
-                ? new Date(turno.fechaHoraSolicitada).toLocaleTimeString('es-AR', {
-                    timeZone: 'America/Argentina/Buenos_Aires',
-                    hour: '2-digit', minute: '2-digit',
-                  })
+                ? argentinaTimeFromInstant(turno.fechaHoraSolicitada)
                 : '--'
 
               return (

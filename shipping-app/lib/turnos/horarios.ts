@@ -62,10 +62,72 @@ export function argentinaTimeFromInstant(date: Date) {
   }).format(date)
 }
 
+export function argentinaShortDateFromInstant(date: Date) {
+  return new Intl.DateTimeFormat('es-AR', {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: 'numeric',
+    month: 'short',
+  }).format(date)
+}
+
+export function argentinaLongDateFromInstant(date: Date) {
+  return new Intl.DateTimeFormat('es-AR', {
+    timeZone: ARGENTINA_TIME_ZONE,
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(date)
+}
+
+export function argentinaFullDateFromInstant(date: Date) {
+  return new Intl.DateTimeFormat('es-AR', {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}
+
+export function argentinaWeekdayDateFromInstant(date: Date) {
+  return new Intl.DateTimeFormat('es-AR', {
+    timeZone: ARGENTINA_TIME_ZONE,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(date)
+}
+
+export function argentinaDateTimeFields(date: Date | null) {
+  if (!date) {
+    return {
+      fechaSolicitada: null,
+      horaSolicitada: null,
+      fechaHoraArgentina: null,
+    }
+  }
+
+  const fechaSolicitada = argentinaDateKeyFromInstant(date)
+  const horaSolicitada = argentinaTimeFromInstant(date)
+
+  return {
+    fechaSolicitada,
+    horaSolicitada,
+    fechaHoraArgentina: `${fechaSolicitada}T${horaSolicitada}:00-03:00`,
+  }
+}
+
 export function argentinaDayOfWeekFromInstant(date: Date) {
   const key = argentinaDateKeyFromInstant(date)
 
   return new Date(`${key}T12:00:00Z`).getUTCDay()
+}
+
+export function argentinaStartOfDateKey(dateKey: string) {
+  return new Date(`${dateKey}T00:00:00-03:00`)
+}
+
+export function argentinaEndOfDateKey(dateKey: string) {
+  return new Date(`${dateKey}T23:59:59.999-03:00`)
 }
 
 export function argentinaDateTime(date: Date, time: string) {
