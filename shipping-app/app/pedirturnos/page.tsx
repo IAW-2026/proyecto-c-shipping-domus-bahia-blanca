@@ -5,55 +5,14 @@ import type { EstadoTurno } from '@prisma/client'
 import { TurnoForm } from '@/app/pedirturnos/turnoForm'
 import { prisma } from '@/lib/prisma'
 import { fetchPropiedad } from '@/lib/properties'
+import { domusBackHref, requestOriginFromHeaders } from '@/lib/turnos/domusBackHref'
 import { argentinaDateKeyFromInstant, argentinaTimeFromInstant } from '@/lib/turnos/horarios'
 
 const ACTIVE_TURNO_STATES: EstadoTurno[] = ['PENDIENTE_AGENTE', 'PRE_ACEPTADO', 'CONFIRMADO']
-const DEFAULT_DOMUS_BACK_URL = 'https://domus-buyer-app.vercel.app/'
 
 export const metadata = {
   title: 'Reservar turno - Domus',
   description: 'Formulario para reservar una visita a una propiedad publicada en Domus.',
-}
-
-function normalizeOrigin(value: string | undefined) {
-  if (!value) return null
-
-  try {
-    return new URL(value).origin
-  } catch {
-    return null
-  }
-}
-
-function isAllowedDomusReturnUrl(value: string, requestOrigin: string | null) {
-  try {
-    const url = requestOrigin ? new URL(value, requestOrigin) : new URL(value)
-    const sellerOrigin = normalizeOrigin(process.env.SELLER_INMOBILIARIAS_URL) ?? DEFAULT_DOMUS_BACK_URL.slice(0, -1)
-    const allowedOrigins = new Set([sellerOrigin])
-
-    if (requestOrigin) allowedOrigins.add(requestOrigin)
-
-    return allowedOrigins.has(url.origin)
-  } catch {
-    return false
-  }
-}
-
-function domusBackHref({
-  returnTo,
-  referer,
-  requestOrigin,
-}: {
-  returnTo?: string
-  referer?: string | null
-  requestOrigin: string | null
-}) {
-  if (returnTo && isAllowedDomusReturnUrl(returnTo, requestOrigin)) {
-    return requestOrigin ? new URL(returnTo, requestOrigin).toString() : returnTo
-  }
-  if (referer && isAllowedDomusReturnUrl(referer, requestOrigin)) return referer
-
-  return process.env.SELLER_INMOBILIARIAS_URL ?? DEFAULT_DOMUS_BACK_URL
 }
 
 export default async function NuevoTurnoPage({
@@ -64,11 +23,7 @@ export default async function NuevoTurnoPage({
   const { propiedadId, source, returnTo } = await searchParams
   const { userId } = await auth()
   const requestHeaders = await headers()
-  const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host')
-  const protocol = requestHeaders.get('x-forwarded-proto') ?? 'https'
-  const requestOrigin = normalizeOrigin(
-    requestHeaders.get('origin') ?? (host ? `${protocol}://${host}` : undefined)
-  )
+  const requestOrigin = requestOriginFromHeaders(requestHeaders)
   const backHref = domusBackHref({
     returnTo,
     referer: requestHeaders.get('referer'),

@@ -201,7 +201,11 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: 
           horaSolicitada: selectedTime,
           observaciones: observaciones || undefined,
         })
-        router.push(`/turnos/gracias?turnoId=${turno.id}`)
+        const params = new URLSearchParams({
+          turnoId: turno.id,
+          returnTo: backHref,
+        })
+        router.push(`/turnos/gracias?${params.toString()}`)
       } catch (error) {
         setSubmitError(error instanceof Error ? error.message : 'No se pudo crear el turno')
       }
@@ -212,7 +216,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: 
     <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
       <header className="mb-8">
         <div className="mb-5">
-          <BackButton href={backHref} label="Volver a Domus" />
+          <BackButton href={backHref} label="Volver" />
         </div>
         <p className="text-[12px] uppercase tracking-[0.22em] text-accent-warm">
           Nueva visita

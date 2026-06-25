@@ -1,7 +1,10 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { CalendarDays, CheckCircle2, Clock, MapPin } from 'lucide-react'
+import { BackButton } from '@/app/components/turnos/BackButton'
 import { prisma } from '@/lib/prisma'
+import { domusBackHref, requestOriginFromHeaders } from '@/lib/turnos/domusBackHref'
 import { argentinaLongDateFromInstant, argentinaTimeFromInstant } from '@/lib/turnos/horarios'
 
 export const metadata = {
@@ -20,15 +23,22 @@ function formatTime(date: Date) {
 export default async function GraciasTurnoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ turnoId?: string }>
+  searchParams: Promise<{ turnoId?: string; returnTo?: string }>
 }) {
-  const { turnoId } = await searchParams
+  const { turnoId, returnTo } = await searchParams
   const { userId } = await auth()
+  const requestHeaders = await headers()
+  const backHref = domusBackHref({
+    returnTo,
+    referer: requestHeaders.get('referer'),
+    requestOrigin: requestOriginFromHeaders(requestHeaders),
+  })
 
   if (!userId) {
-    const redirectUrl = turnoId
-      ? `/turnos/gracias?turnoId=${encodeURIComponent(turnoId)}`
-      : '/turnos/gracias'
+    const params = new URLSearchParams()
+    if (turnoId) params.set('turnoId', turnoId)
+    if (returnTo) params.set('returnTo', returnTo)
+    const redirectUrl = params.size ? `/turnos/gracias?${params.toString()}` : '/turnos/gracias'
 
     redirect(`/sign-in?redirect_url=${encodeURIComponent(redirectUrl)}`)
   }
@@ -96,6 +106,9 @@ export default async function GraciasTurnoPage({
             )}
           </div>
         )}
+        <div className="mt-7 flex justify-center">
+          <BackButton href={backHref} label="Volver" />
+        </div>
       </section>
     </main>
   )
