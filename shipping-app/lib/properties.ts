@@ -1,8 +1,7 @@
-import type { PropiedadTurno } from '@/app/components/turnos/types'
+﻿import type { PropiedadTurno } from '@/app/components/turnos/types'
 import { prisma } from '@/lib/prisma'
 
-const SELLER_APP_BASE_URL = 'https://proyecto-c-seller-domus-bahia-blanc.vercel.app'
-const PROPERTIES_API_BASE_URL = `${SELLER_APP_BASE_URL}/api/properties`
+const DEFAULT_SELLER_APP_BASE_URL = 'https://proyecto-c-seller-domus-bahia-blanc.vercel.app'
 
 type ExternalPropertyResponse = {
   success: boolean
@@ -49,18 +48,70 @@ type ExternalProperty = {
     contactPhone: string | null
     bio: string | null
   } | null
-  multimedia: {
-    id: string
-    propertyId: string
-    fileUrl: string
-    fileType: string
-    sortOrder: number | null
-    createdAt: string
-  }[]
+  multimedia?: {
+    id?: string | null
+    propertyId?: string | null
+    fileUrl?: string | null
+    secureUrl?: string | null
+    secure_url?: string | null
+    url?: string | null
+    fileType?: string | null
+    sortOrder?: number | null
+    createdAt?: string | null
+  }[] | null
 }
 
-function normalizeSellerMediaUrl(fileUrl: string) {
-  return new URL(fileUrl, SELLER_APP_BASE_URL).toString()
+function sellerAppBaseUrl() {
+  return (
+    process.env.SELLER_APP_API_URL ??
+    process.env.SELLERAPP_API_URL ??
+    DEFAULT_SELLER_APP_BASE_URL
+  ).replace(/\/+$/, '')
+}
+
+function propertiesApiBaseUrl() {
+  return `${sellerAppBaseUrl()}/api/properties`
+}
+
+function normalizeSellerMediaUrl(fileUrl?: string | null) {
+  const cleanUrl = fileUrl?.trim()
+  if (!cleanUrl) return null
+
+  try {
+    return new URL(cleanUrl, `${sellerAppBaseUrl()}/`).toString()
+  } catch {
+    return null
+  }
+}
+
+function normalizeMediaId(propiedadId: string, mediaId: string | null | undefined, index: number) {
+  const cleanMediaId = mediaId?.trim()
+  return cleanMediaId
+    ? `${propiedadId}-${cleanMediaId}`
+    : `${propiedadId}-media-${index}`
+}
+
+function mapExternalMultimedia(propiedad: ExternalProperty, propiedadId: string): PropiedadTurno['multimedia'] {
+  const usedIds = new Set<string>()
+
+  return (propiedad.multimedia ?? []).flatMap((item, index) => {
+    const fileType = item.fileType?.toUpperCase()
+    if (fileType && fileType !== 'IMAGE') return []
+
+    const url = normalizeSellerMediaUrl(item.fileUrl ?? item.secureUrl ?? item.secure_url ?? item.url)
+    if (!url) return []
+
+    const id = normalizeMediaId(propiedadId, item.id, index)
+    if (usedIds.has(id)) return []
+    usedIds.add(id)
+
+    return [{
+      id,
+      url,
+      alt: propiedad.title ?? propiedad.address ?? 'Propiedad',
+      order: item.sortOrder ?? index,
+    }]
+  })
 }
 
 function mapExternalProperty(propiedad: ExternalProperty, propiedadId: string): PropiedadTurno | null {
@@ -91,12 +142,7 @@ function mapExternalProperty(propiedad: ExternalProperty, propiedadId: string): 
     condicion: propiedad.condition,
     vendedorId,
     nombreInmobiliaria: propiedad.seller?.agencyName ?? null,
-    multimedia: propiedad.multimedia.map((item) => ({
-      id: item.id,
-      url: normalizeSellerMediaUrl(item.fileUrl),
-      alt: propiedad.title,
-      order: item.sortOrder,
-    })),
+    multimedia: mapExternalMultimedia(propiedad, propiedadId),
   }
 }
 
@@ -107,7 +153,7 @@ async function fetchExternalProperty(propiedadId: string): Promise<PropiedadTurn
     return null
   }
 
-  const response = await fetch(`${PROPERTIES_API_BASE_URL}/${encodeURIComponent(propiedadId)}`, {
+  const response = await fetch(`${propertiesApiBaseUrl()}/${encodeURIComponent(propiedadId)}`, {
     cache: 'no-store',
     headers: {
       'x-api-key': apiKey,
@@ -149,6 +195,27 @@ async function saveExternalProperty(propiedad: PropiedadTurno): Promise<Propieda
       vendedorId: propiedad.vendedorId,
       nombreInmobiliaria: propiedad.nombreInmobiliaria,
       multimedia: {
+        create: propiedad.multimedia.map((item) => ({
+          id: item.id,
+          url: item.url,
+          alt: item.alt,
+          orden: item.order,
+        })),
+      },
+    },
+  })
+
+  return fetchLocalProperty(propiedad.id)
+}
+
+async function replacePropertyMultimedia(propiedad: PropiedadTurno): Promise<PropiedadTurno | null> {
+  if (propiedad.multimedia.length === 0) return fetchLocalProperty(propiedad.id)
+
+  await prisma.propiedad.update({
+    where: { id: propiedad.id },
+    data: {
+      multimedia: {
+        deleteMany: {},
         create: propiedad.multimedia.map((item) => ({
           id: item.id,
           url: item.url,
@@ -209,14 +276,21 @@ async function fetchLocalProperty(propiedadId: string): Promise<PropiedadTurno |
 
 export async function fetchPropiedad(propiedadId: string): Promise<PropiedadTurno | null> {
   const localProperty = await fetchLocalProperty(propiedadId)
-  if (localProperty) return localProperty
+  if (localProperty?.multimedia.length) return localProperty
 
   try {
     const externalProperty = await fetchExternalProperty(propiedadId)
-    if (externalProperty) return saveExternalProperty(externalProperty)
+    if (!externalProperty) return localProperty
+
+    if (localProperty) {
+      return replacePropertyMultimedia(externalProperty)
+    }
+
+    return saveExternalProperty(externalProperty)
   } catch (error) {
     console.error('No se pudo obtener la propiedad externa', error)
   }
 
-  return null
+  return localProperty
 }
+
