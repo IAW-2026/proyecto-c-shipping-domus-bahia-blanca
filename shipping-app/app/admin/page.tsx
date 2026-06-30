@@ -26,22 +26,6 @@ export default function AdminPage() {
 
         <section className="grid gap-4 md:grid-cols-2">
           <Link
-            href="/admin/apis"
-            className="group rounded-2xl border border-border/60 bg-card p-6 shadow-soft transition-colors hover:bg-secondary"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <span className="grid h-12 w-12 place-items-center rounded-xl bg-secondary text-primary group-hover:bg-card">
-                <FlaskConical className="h-6 w-6" />
-              </span>
-              <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary" />
-            </div>
-            <h2 className="mt-6 font-display text-2xl font-medium">Probar APIs</h2>
-            <p className="mt-2 text-[13.5px] leading-6 text-muted-foreground">
-              Revisar endpoints, metodos y credenciales necesarias para integraciones.
-            </p>
-          </Link>
-
-          <Link
             href="/admin/entidades"
             className="group rounded-2xl border border-border/60 bg-card p-6 shadow-soft transition-colors hover:bg-secondary"
           >
