@@ -4,21 +4,14 @@ import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 type BackButtonProps = {
-  href?: string
-  useBrowserBack?: boolean
   label?: string
 }
 
-export function BackButton({ href, useBrowserBack = false, label = 'Volver' }: BackButtonProps) {
+export function BackButton({ label = 'Volver' }: BackButtonProps) {
   const router = useRouter()
 
   function handleClick() {
-    if (useBrowserBack) {
-      router.back()
-      return
-    }
-
-    if (href) router.push(href)
+    router.back()
   }
 
   return (

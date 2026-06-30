@@ -219,7 +219,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backDestinat
     <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
       <header className="mb-8">
         <div className="mb-5">
-          <BackButton href={backDestination.href} useBrowserBack={backDestination.useBrowserBack} label="Volver" />
+          <BackButton label="Volver" />
         </div>
         <p className="text-[12px] uppercase tracking-[0.22em] text-accent-warm">
           Nueva visita
