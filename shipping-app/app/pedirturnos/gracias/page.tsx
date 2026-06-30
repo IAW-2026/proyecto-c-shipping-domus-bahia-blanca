@@ -28,11 +28,6 @@ export default async function GraciasTurnoPage({
   const { turnoId, returnTo } = await searchParams
   const { userId } = await auth()
   const requestHeaders = await headers()
-  const backHref = domusBackHref({
-    returnTo,
-    referer: requestHeaders.get('referer'),
-    requestOrigin: requestOriginFromHeaders(requestHeaders),
-  })
 
   if (!userId) {
     const params = new URLSearchParams()
@@ -52,6 +47,7 @@ export default async function GraciasTurnoPage({
           },
           select: {
             fechaHoraSolicitada: true,
+            propiedadId: true,
             propiedad: {
               select: {
                 nombrePropiedad: true,
@@ -63,6 +59,13 @@ export default async function GraciasTurnoPage({
       : null,
     currentUser(),
   ])
+
+  const backHref = domusBackHref({
+    returnTo,
+    referer: requestHeaders.get('referer'),
+    requestOrigin: requestOriginFromHeaders(requestHeaders),
+    propertyId: turno?.propiedadId,
+  })
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl items-center px-6 py-12">

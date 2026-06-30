@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
@@ -43,7 +44,13 @@ export default async function TurnosPage() {
     },
     orderBy: { fechaHoraSolicitada: 'asc' },
     include: {
-      propiedad: true,
+      propiedad: {
+        include: {
+          multimedia: {
+            orderBy: { orden: 'asc' },
+          },
+        },
+      },
     },
   })
 
@@ -66,55 +73,73 @@ export default async function TurnosPage() {
           {turnos.map((turno) => (
             <li
               key={turno.id}
-              className="group relative rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elev"
+              className="group relative cursor-pointer overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elev"
             >
               <Link
                 href={`/dashboard/turnos/${turno.id}`}
-                className="absolute inset-0 z-0"
+                className="absolute inset-0 z-20"
                 aria-label={`Ver turno de ${turno.propiedad.nombrePropiedad ?? 'propiedad'}`}
               />
 
-              <div className="flex items-start justify-between gap-4">
+              <div className="relative z-0 aspect-[16/9] max-h-[220px] w-full overflow-hidden bg-secondary/40">
+                {turno.propiedad.multimedia[0] ? (
+                  <Image
+                    src={turno.propiedad.multimedia[0].url}
+                    alt={turno.propiedad.multimedia[0].alt ?? turno.propiedad.nombrePropiedad ?? 'Propiedad'}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    quality={72}
+                    unoptimized
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                    Imagen no disponible
+                  </div>
+                )}
+               
+              </div>
+
+              <div className="relative z-0 p-4">
                 <div className="min-w-0">
-                  <p className="mt-1 block font-display text-[19px] font-medium leading-snug text-foreground">
+                  <p className="block font-display text-[17px] font-medium leading-snug text-foreground">
                     {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
                   </p>
-                  <p className="mt-1 flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
+                  <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
                     <MapPin className="h-3.5 w-3.5" /> {turno.propiedad.direccion ?? turno.propiedad.vendedorId}
                   </p>
                 </div>
-                <StatusBadge status={turno.estado} />
-              </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-secondary/60 p-3.5">
-                <div className="flex items-center gap-2.5">
-                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-card text-primary">
-                    <User2 className="h-4 w-4" />
-                  </span>
-                  <div className="leading-tight">
-                    <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground">
-                      Comprador
-                    </p>
-                    <p className="text-[13px] font-medium text-foreground">
-                      {turno.nombreComprador}
-                    </p>
+                <div className="mt-4 grid grid-cols-2 gap-2.5 rounded-xl bg-secondary/60 p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-card text-primary">
+                      <User2 className="h-3.5 w-3.5" />
+                    </span>
+                    <div className="leading-tight">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Comprador
+                      </p>
+                      <p className="text-[12.5px] font-medium text-foreground">
+                        {turno.nombreComprador}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-card text-primary">
-                    <Calendar className="h-4 w-4" />
-                  </span>
-                  <div className="leading-tight">
-                    <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground">
-                      Fecha y hora
-                    </p>
-                    <p className="text-[13px] font-medium text-foreground">
-                      {turno.fechaHoraSolicitada
-                        ? argentinaShortDateFromInstant(turno.fechaHoraSolicitada) +
-                          ' · ' +
-                          argentinaTimeFromInstant(turno.fechaHoraSolicitada)
-                        : 'Sin fecha'}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-card text-primary">
+                      <Calendar className="h-3.5 w-3.5" />
+                    </span>
+                    <div className="leading-tight">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Fecha y hora
+                      </p>
+                      <p className="text-[12.5px] font-medium text-foreground">
+                        {turno.fechaHoraSolicitada
+                          ? argentinaShortDateFromInstant(turno.fechaHoraSolicitada) +
+                            ' · ' +
+                            argentinaTimeFromInstant(turno.fechaHoraSolicitada)
+                          : 'Sin fecha'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

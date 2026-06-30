@@ -1,5 +1,6 @@
 ﻿import type { PropiedadTurno } from '@/app/components/turnos/types'
 import { prisma } from '@/lib/prisma'
+import { formatAntiguedad, formatCondicion } from '@/lib/turnos/antiguedad'
 
 const DEFAULT_SELLER_APP_BASE_URL = 'https://proyecto-c-seller-domus-bahia-blanc.vercel.app'
 
@@ -138,8 +139,8 @@ function mapExternalProperty(propiedad: ExternalProperty, propiedadId: string): 
     banios: propiedad.bathrooms,
     metrosTotales: propiedad.totalSqMeters,
     metrosCubiertos: propiedad.coveredSqMeters,
-    antiguedad: propiedad.antiquity,
-    condicion: propiedad.condition,
+    antiguedad: formatAntiguedad(propiedad.antiquity),
+    condicion: formatCondicion(propiedad.condition),
     vendedorId,
     nombreInmobiliaria: propiedad.seller?.agencyName ?? null,
     multimedia: mapExternalMultimedia(propiedad, propiedadId),
@@ -261,8 +262,8 @@ async function fetchLocalProperty(propiedadId: string): Promise<PropiedadTurno |
     banios: propiedadLocal.banios,
     metrosTotales: propiedadLocal.metrosTotales,
     metrosCubiertos: propiedadLocal.metrosCubiertos,
-    antiguedad: propiedadLocal.antiguedad,
-    condicion: propiedadLocal.condicion,
+    antiguedad: formatAntiguedad(propiedadLocal.antiguedad),
+    condicion: formatCondicion(propiedadLocal.condicion),
     vendedorId: propiedadLocal.vendedorId,
     nombreInmobiliaria: propiedadLocal.nombreInmobiliaria,
     multimedia: propiedadLocal.multimedia.map((item) => ({

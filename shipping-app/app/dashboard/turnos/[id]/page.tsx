@@ -8,6 +8,7 @@ import { StatusBadge } from '@/app/components/dashboard/statusBadge'
 import { tomarTurno, cancelarTurno, completarTurno } from '@/lib/turnos/turno'
 import { PropertyMap } from '@/app/components/dashboard/propertyMapWrapper'
 import { DelayButton } from '@/app/components/dashboard/delayButton'
+import { formatAntiguedad, formatCondicion } from '@/lib/turnos/antiguedad'
 import { argentinaFullDateFromInstant, argentinaTimeFromInstant } from '@/lib/turnos/horarios'
 
 
@@ -141,8 +142,8 @@ export default async function TurnoDetailPage(
     { label: 'Precio', value: formatMoney(turno.propiedad.precio, turno.propiedad.moneda) },
     { label: 'Expensas', value: formatMoney(turno.propiedad.expensas, turno.propiedad.moneda) },
     { label: 'Metros totales', value: formatValue(turno.propiedad.metrosTotales, ' m²') },
-    { label: 'Antigüedad', value: formatValue(turno.propiedad.antiguedad) },
-    { label: 'Condición', value: formatValue(turno.propiedad.condicion) },
+    { label: 'Antigüedad', value: formatAntiguedad(turno.propiedad.antiguedad) },
+    { label: 'Condición', value: formatCondicion(turno.propiedad.condicion) },
   ]
 
   return (
