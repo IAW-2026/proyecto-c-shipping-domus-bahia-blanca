@@ -52,10 +52,12 @@ export function domusBackHref({
   returnTo,
   referer,
   requestOrigin,
+  propertyId,
 }: {
   returnTo?: string
   referer?: string | null
   requestOrigin: string | null
+  propertyId?: string
 }) {
   if (returnTo && isAllowedDomusReturnUrl(returnTo, requestOrigin)) {
     return requestOrigin ? new URL(returnTo, requestOrigin).toString() : returnTo
@@ -66,6 +68,10 @@ export function domusBackHref({
     !isSchedulingInternalUrl(referer, requestOrigin)
   ) {
     return referer
+  }
+
+  if (propertyId) {
+    return new URL(`/property/${propertyId}`, getBuyerBaseUrl()).toString()
   }
 
   return getBuyerBaseUrl()
