@@ -69,14 +69,17 @@ export function domusBackHref({
   requestOrigin: string | null
   propertyId?: string
 }): { href: string; useBrowserBack: boolean } {
+  
+  // 1 — Si viene con returnTo válido de la buyer app
   if (returnTo && isAllowedDomusReturnUrl(returnTo, requestOrigin)) {
     const href = requestOrigin ? new URL(returnTo, requestOrigin).toString() : returnTo
-
     return {
       href,
       useBrowserBack: isPropertyPageUrl(href, requestOrigin),
     }
   }
+
+  // 2 — Si el referer es de la buyer app y no es una URL interna del scheduling
   if (
     referer &&
     isAllowedDomusReturnUrl(referer, requestOrigin) &&
@@ -88,6 +91,7 @@ export function domusBackHref({
     }
   }
 
+  // 3 — Si tenemos propertyId (viene de una property page pero el referer no pasó validación)
   if (propertyId) {
     return {
       href: new URL(`/property/${propertyId}`, getBuyerBaseUrl()).toString(),
@@ -95,6 +99,7 @@ export function domusBackHref({
     }
   }
 
+  // 4 — Fallback: cualquier origen externo (YouTube, Google, etc.) va al inicio
   return {
     href: getBuyerBaseUrl(),
     useBrowserBack: false,
