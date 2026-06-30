@@ -10,16 +10,15 @@ function normalizeOrigin(value: string | undefined) {
   }
 }
 
+function getBuyerBaseUrl() {
+  return process.env.BUYER_APP_URL ?? DEFAULT_DOMUS_BACK_URL
+}
+
 function isAllowedDomusReturnUrl(value: string, requestOrigin: string | null) {
   try {
     const url = requestOrigin ? new URL(value, requestOrigin) : new URL(value)
-    const buyerOrigin = normalizeOrigin(process.env.BUYER_APP_URL) ?? normalizeOrigin(DEFAULT_DOMUS_BACK_URL)
-    const sellerOrigin = normalizeOrigin(process.env.SELLER_INMOBILIARIAS_URL)
-    const allowedOrigins = new Set([buyerOrigin, sellerOrigin].filter(Boolean))
 
-    if (requestOrigin) allowedOrigins.add(requestOrigin)
-
-    return allowedOrigins.has(url.origin)
+    return url.href.startsWith(getBuyerBaseUrl())
   } catch {
     return false
   }
@@ -53,12 +52,10 @@ export function domusBackHref({
   returnTo,
   referer,
   requestOrigin,
-  propertyId,
 }: {
   returnTo?: string
   referer?: string | null
   requestOrigin: string | null
-  propertyId?: string
 }) {
   if (returnTo && isAllowedDomusReturnUrl(returnTo, requestOrigin)) {
     return requestOrigin ? new URL(returnTo, requestOrigin).toString() : returnTo
@@ -71,10 +68,5 @@ export function domusBackHref({
     return referer
   }
 
-  if (propertyId) {
-    const buyerBase = process.env.BUYER_APP_URL ?? DEFAULT_DOMUS_BACK_URL
-    return new URL(`/property/${propertyId}`, buyerBase).toString()
-  }
-
-  return process.env.BUYER_APP_URL ?? DEFAULT_DOMUS_BACK_URL
+  return getBuyerBaseUrl()
 }

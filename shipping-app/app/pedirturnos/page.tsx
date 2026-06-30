@@ -28,7 +28,6 @@ export default async function NuevoTurnoPage({
     returnTo,
     referer: requestHeaders.get('referer'),
     requestOrigin,
-    propertyId: propiedadId,
   })
 
   if (!userId) {

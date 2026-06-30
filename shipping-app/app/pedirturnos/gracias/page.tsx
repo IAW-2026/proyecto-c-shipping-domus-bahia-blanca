@@ -64,7 +64,6 @@ export default async function GraciasTurnoPage({
     returnTo,
     referer: requestHeaders.get('referer'),
     requestOrigin: requestOriginFromHeaders(requestHeaders),
-    propertyId: turno?.propiedadId,
   })
 
   return (
