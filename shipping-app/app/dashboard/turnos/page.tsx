@@ -66,19 +66,19 @@ export default async function TurnosPage() {
           {turnos.map((turno) => (
             <li
               key={turno.id}
-              className="group rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elev"
+              className="group relative rounded-2xl border border-border/60 bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elev"
             >
+              <Link
+                href={`/dashboard/turnos/${turno.id}`}
+                className="absolute inset-0 z-0"
+                aria-label={`Ver turno de ${turno.propiedad.nombrePropiedad ?? 'propiedad'}`}
+              />
+
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                    {turno.id.slice(0, 8).toUpperCase()}
-                  </p>
-                  <Link
-                    href={`/dashboard/turnos/${turno.id}`}
-                    className="mt-1 block font-display text-[19px] font-medium leading-snug text-foreground hover:text-primary transition-colors"
-                  >
+                  <p className="mt-1 block font-display text-[19px] font-medium leading-snug text-foreground">
                     {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
-                  </Link>
+                  </p>
                   <p className="mt-1 flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
                     <MapPin className="h-3.5 w-3.5" /> {turno.propiedad.direccion ?? turno.propiedad.vendedorId}
                   </p>
@@ -117,17 +117,6 @@ export default async function TurnosPage() {
                     </p>
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-5 flex items-center justify-end gap-2">
-                <form action={tomarTurno.bind(null, turno.id)}>
-                <button
-                  type="submit"
-                  className="h-9 rounded-lg bg-primary px-3.5 text-[12.5px] font-medium text-primary-foreground shadow-soft hover:bg-[oklch(0.36_0.03_150)] inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <Check className="h-4 w-4" /> Aceptar
-                </button>
-              </form>
               </div>
             </li>
           ))}

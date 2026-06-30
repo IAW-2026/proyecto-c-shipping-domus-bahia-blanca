@@ -159,9 +159,7 @@ export default async function TurnoDetailPage(
 
         <header className="mt-4 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-              {turno.id.slice(0, 8).toUpperCase()}
-            </p>
+            
             <h1 className="mt-2 font-display text-[32px] font-medium leading-tight text-primary">
               {turno.propiedad.nombrePropiedad ?? `Propiedad ${turno.propiedadId}`}
             </h1>
