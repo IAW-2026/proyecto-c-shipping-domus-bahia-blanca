@@ -60,7 +60,7 @@ export default async function GraciasTurnoPage({
     currentUser(),
   ])
 
-  const backHref = domusBackHref({
+  const backDestination = domusBackHref({
     returnTo,
     referer: requestHeaders.get('referer'),
     requestOrigin: requestOriginFromHeaders(requestHeaders),
@@ -110,7 +110,7 @@ export default async function GraciasTurnoPage({
           </div>
         )}
         <div className="mt-7 flex justify-center">
-          <BackButton href={backHref} label="Volver" />
+          <BackButton href={backDestination.href} useBrowserBack={backDestination.useBrowserBack} label="Volver" />
         </div>
       </section>
     </main>

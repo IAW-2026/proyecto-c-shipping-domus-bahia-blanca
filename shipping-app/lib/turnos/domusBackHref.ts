@@ -41,6 +41,16 @@ function isSchedulingInternalUrl(value: string, requestOrigin: string | null) {
   }
 }
 
+function isPropertyPageUrl(value: string, requestOrigin: string | null) {
+  try {
+    const url = requestOrigin ? new URL(value, requestOrigin) : new URL(value)
+
+    return url.pathname.startsWith('/property/')
+  } catch {
+    return false
+  }
+}
+
 export function requestOriginFromHeaders(headers: Headers) {
   const host = headers.get('x-forwarded-host') ?? headers.get('host')
   const protocol = headers.get('x-forwarded-proto') ?? 'https'
@@ -58,21 +68,35 @@ export function domusBackHref({
   referer?: string | null
   requestOrigin: string | null
   propertyId?: string
-}) {
+}): { href: string; useBrowserBack: boolean } {
   if (returnTo && isAllowedDomusReturnUrl(returnTo, requestOrigin)) {
-    return requestOrigin ? new URL(returnTo, requestOrigin).toString() : returnTo
+    const href = requestOrigin ? new URL(returnTo, requestOrigin).toString() : returnTo
+
+    return {
+      href,
+      useBrowserBack: isPropertyPageUrl(href, requestOrigin),
+    }
   }
   if (
     referer &&
     isAllowedDomusReturnUrl(referer, requestOrigin) &&
     !isSchedulingInternalUrl(referer, requestOrigin)
   ) {
-    return referer
+    return {
+      href: referer,
+      useBrowserBack: isPropertyPageUrl(referer, requestOrigin),
+    }
   }
 
   if (propertyId) {
-    return new URL(`/property/${propertyId}`, getBuyerBaseUrl()).toString()
+    return {
+      href: new URL(`/property/${propertyId}`, getBuyerBaseUrl()).toString(),
+      useBrowserBack: false,
+    }
   }
 
-  return getBuyerBaseUrl()
+  return {
+    href: getBuyerBaseUrl(),
+    useBrowserBack: false,
+  }
 }

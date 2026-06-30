@@ -24,7 +24,7 @@ export default async function NuevoTurnoPage({
   const { userId } = await auth()
   const requestHeaders = await headers()
   const requestOrigin = requestOriginFromHeaders(requestHeaders)
-  const backHref = domusBackHref({
+  const backDestination = domusBackHref({
     returnTo,
     referer: requestHeaders.get('referer'),
     requestOrigin,
@@ -104,7 +104,7 @@ export default async function NuevoTurnoPage({
           email: user?.emailAddresses[0].emailAddress ?? '',
         }}
         horariosOcupados={horariosOcupados}
-        backHref={backHref}
+        backDestination={backDestination}
       />
     </main>
   )

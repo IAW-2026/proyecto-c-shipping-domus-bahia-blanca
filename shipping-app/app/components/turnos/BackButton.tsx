@@ -5,33 +5,20 @@ import { useRouter } from 'next/navigation'
 
 type BackButtonProps = {
   href?: string
+  useBrowserBack?: boolean
   label?: string
 }
 
-export function BackButton({ href, label = 'Volver' }: BackButtonProps) {
+export function BackButton({ href, useBrowserBack = false, label = 'Volver' }: BackButtonProps) {
   const router = useRouter()
 
   function handleClick() {
-    if (!href) {
+    if (useBrowserBack) {
       router.back()
       return
     }
 
-    try {
-      const url = new URL(href)
-
-      if (url.pathname.startsWith('/property/')) {
-        router.back()
-        return
-      }
-    } catch {
-      if (href.startsWith('/property/')) {
-        router.back()
-        return
-      }
-    }
-
-    router.push(href)
+    if (href) router.push(href)
   }
 
   return (

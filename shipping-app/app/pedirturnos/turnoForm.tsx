@@ -21,7 +21,10 @@ type Props = {
   propiedad: PropiedadTurno
   comprador: CompradorTurno
   horariosOcupados: Record<string, string[]>
-  backHref: string
+  backDestination: {
+    href: string
+    useBrowserBack: boolean
+  }
 }
 
 type TurnoWeather = {
@@ -73,7 +76,7 @@ function formatDate(date: Date) {
   return `${DAY_LABELS[(date.getUTCDay() + 6) % 7]} ${date.getUTCDate()} ${MONTH_LABELS[date.getUTCMonth()].slice(0, 3)}`
 }
 
-export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: Props) {
+export function TurnoForm({ propiedad, comprador, horariosOcupados, backDestination }: Props) {
   const router = useRouter()
   const today = useMemo(() => argentinaCalendarDate(), [])
   
@@ -203,7 +206,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: 
         })
         const params = new URLSearchParams({
           turnoId: turno.id,
-          returnTo: backHref,
+          returnTo: backDestination.href,
         })
         router.push(`/turnos/gracias?${params.toString()}`)
       } catch (error) {
@@ -216,7 +219,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: 
     <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
       <header className="mb-8">
         <div className="mb-5">
-          <BackButton href={backHref} label="Volver" />
+          <BackButton href={backDestination.href} useBrowserBack={backDestination.useBrowserBack} label="Volver" />
         </div>
         <p className="text-[12px] uppercase tracking-[0.22em] text-accent-warm">
           Nueva visita
