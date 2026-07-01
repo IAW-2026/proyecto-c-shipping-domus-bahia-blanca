@@ -17,11 +17,13 @@ function getTrustedOrigins() {
 type BackButtonProps = {
   label?: string
   fallbackUrl?: string
+  preferBrowserBack?: boolean
 }
 
 export function BackButton({
   label = 'Volver',
   fallbackUrl = process.env.BUYER_APP_URL ?? DEFAULT_FALLBACK_URL,
+  preferBrowserBack = true,
 }: BackButtonProps) {
   const router = useRouter()
 
@@ -36,6 +38,11 @@ export function BackButton({
 
   function handleClick() {
     if (typeof window === 'undefined') return
+
+    if (!preferBrowserBack) {
+      router.push(fallbackUrl)
+      return
+    }
 
     const referrer = document.referrer
     const historyStart = Number(sessionStorage.getItem(HISTORY_START_KEY) ?? window.history.length)
