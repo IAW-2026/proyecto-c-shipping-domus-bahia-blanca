@@ -38,7 +38,7 @@ export default async function NuevoTurnoPage({
     if (returnTo) params.set('returnTo', returnTo)
 
     const query = params.toString()
-    const turnoUrl = query ? `/turnos?${query}` : '/turnos'
+    const turnoUrl = query ? `/pedirturnos?${query}` : '/pedirturnos'
 
     redirect(`/sign-in?redirect_url=${encodeURIComponent(turnoUrl)}`)
   }
