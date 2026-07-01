@@ -10,7 +10,7 @@ const HISTORY_START_KEY = 'domus_history_start'
 
 function getTrustedOrigins() {
   return [
-    process.env.BUYER_APP_URL,
+    process.env.NEXT_PUBLIC_BUYER_APP_BASE_URL,
   ].filter(Boolean) as string[]
 }
 
@@ -22,7 +22,7 @@ type BackButtonProps = {
 
 export function BackButton({
   label = 'Volver',
-  fallbackUrl = process.env.BUYER_APP_URL ?? DEFAULT_FALLBACK_URL,
+  fallbackUrl = process.env.NEXT_PUBLIC_BUYER_APP_BASE_URL ?? DEFAULT_FALLBACK_URL,
   preferBrowserBack = true,
 }: BackButtonProps) {
   const router = useRouter()
