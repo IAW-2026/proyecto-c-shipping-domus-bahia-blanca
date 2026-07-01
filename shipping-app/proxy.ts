@@ -13,6 +13,7 @@ const isPublicRoute = createRouteMatcher([
 const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
 const isCuentaEnRevisionRoute = createRouteMatcher(['/cuenta-en-revision(.*)'])
 const isPedirTurnosRoute = createRouteMatcher(['/pedirturnos(.*)'])
+const isgracias = createRouteMatcher(['/gracias(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
 
@@ -30,7 +31,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Autenticado pero sin rol agente → onboarding
   if (!roles.includes('agente')) {
-    if (isPedirTurnosRoute(req) || isCuentaEnRevisionRoute(req)) {
+    if (isPedirTurnosRoute(req) || isCuentaEnRevisionRoute(req)|| isgracias(req)) {
       return NextResponse.next()
     }
 
