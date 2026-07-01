@@ -13,7 +13,7 @@ const isPublicRoute = createRouteMatcher([
 const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)'])
 const isCuentaEnRevisionRoute = createRouteMatcher(['/cuenta-en-revision(.*)'])
 const isPedirTurnosRoute = createRouteMatcher(['/pedirturnos(.*)'])
-const isgracias = createRouteMatcher(['/gracias(.*)'])
+const isgracias = createRouteMatcher(['/pedirturnos/gracias(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
 
@@ -45,5 +45,7 @@ export default clerkMiddleware(async (auth, req) => {
 })
 
 export const config = {
-  matcher: ['/((?!_next|.*\\..*).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
