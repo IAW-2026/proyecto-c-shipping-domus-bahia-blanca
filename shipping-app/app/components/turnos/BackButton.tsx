@@ -52,7 +52,12 @@ export function BackButton({
       referrer && trustedOrigins.some((origin) => referrer.includes(origin))
     )
 
-    if (hasInternalHistory || isTrustedReferrer) {
+    if (isTrustedReferrer) {
+      router.push(fallbackUrl)
+      return
+    }
+
+    if (hasInternalHistory && preferBrowserBack) {
       router.back()
       return
     }
