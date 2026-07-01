@@ -21,10 +21,7 @@ type Props = {
   propiedad: PropiedadTurno
   comprador: CompradorTurno
   horariosOcupados: Record<string, string[]>
-  backDestination: {
-    href: string
-    useBrowserBack: boolean
-  }
+  backHref: string
 }
 
 type TurnoWeather = {
@@ -76,7 +73,7 @@ function formatDate(date: Date) {
   return `${DAY_LABELS[(date.getUTCDay() + 6) % 7]} ${date.getUTCDate()} ${MONTH_LABELS[date.getUTCMonth()].slice(0, 3)}`
 }
 
-export function TurnoForm({ propiedad, comprador, horariosOcupados, backDestination }: Props) {
+export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: Props) {
   const router = useRouter()
   const today = useMemo(() => argentinaCalendarDate(), [])
   
@@ -206,7 +203,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backDestinat
         })
         const params = new URLSearchParams({
           turnoId: turno.id,
-          returnTo: backDestination.href,
+          returnTo: backHref,
         })
         router.push(`/turnos/gracias?${params.toString()}`)
       } catch (error) {
@@ -219,7 +216,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backDestinat
     <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-10">
       <header className="mb-8">
         <div className="mb-5">
-          <BackButton label="Volver" />
+          <BackButton label="Volver" fallbackUrl={backHref} />
         </div>
         <p className="text-[12px] uppercase tracking-[0.22em] text-accent-warm">
           Nueva visita
@@ -277,3 +274,4 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backDestinat
     </div>
   )
 }
+

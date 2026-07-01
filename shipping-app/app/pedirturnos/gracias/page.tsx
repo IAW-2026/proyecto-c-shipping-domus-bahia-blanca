@@ -110,7 +110,7 @@ export default async function GraciasTurnoPage({
           </div>
         )}
         <div className="mt-7 flex justify-center">
-          <BackButton label="Volver" />
+          <BackButton label="Volver" fallbackUrl={backDestination.href} />
         </div>
       </section>
     </main>

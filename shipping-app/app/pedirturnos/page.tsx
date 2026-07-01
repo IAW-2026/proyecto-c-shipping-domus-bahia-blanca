@@ -109,7 +109,7 @@ export default async function NuevoTurnoPage({
           email: user?.emailAddresses[0].emailAddress ?? '',
         }}
         horariosOcupados={horariosOcupados}
-        backDestination={backDestination}
+        backHref={backDestination.href}
       />
     </main>
   )
