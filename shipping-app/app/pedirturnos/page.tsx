@@ -82,7 +82,7 @@ export default async function NuevoTurnoPage({
       returnTo: backDestination.href,
     })
 
-    redirect(`/turnos/gracias?${params.toString()}`)
+    redirect(`/pedirturnos/gracias?${params.toString()}`)
   }
 
   const horariosOcupados = turnosOcupados.reduce<Record<string, string[]>>((acc, turno) => {
