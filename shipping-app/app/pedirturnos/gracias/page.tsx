@@ -33,7 +33,7 @@ export default async function GraciasTurnoPage({
     const params = new URLSearchParams()
     if (turnoId) params.set('turnoId', turnoId)
     if (returnTo) params.set('returnTo', returnTo)
-    const redirectUrl = params.size ? `/turnos/gracias?${params.toString()}` : '/turnos/gracias'
+    const redirectUrl = params.size ? `/pedirturnos/gracias?${params.toString()}` : '/pedirturnos/gracias'
 
     redirect(`/sign-in?redirect_url=${encodeURIComponent(redirectUrl)}`)
   }
