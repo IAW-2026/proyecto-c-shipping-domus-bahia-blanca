@@ -58,12 +58,12 @@ export function BackButton({
 
     // Si navegaste dentro de la app O venís de un origen confiable (Buyer App), volvé atrás naturalmente
     if (hasInternalHistory || isTrustedReferrer) {
-      router.back()
+       window.history.back()
       return
     }
 
     // Si entraste copiando y pegando la URL (sin referrer), usa el fallback
-    router.push(fallbackUrl)
+     window.location.href = fallbackUrl
   }
 
   return (

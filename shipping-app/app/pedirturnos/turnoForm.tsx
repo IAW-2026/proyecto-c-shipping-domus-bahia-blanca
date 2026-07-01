@@ -205,7 +205,7 @@ export function TurnoForm({ propiedad, comprador, horariosOcupados, backHref }: 
           turnoId: turno.id,
           returnTo: backHref,
         })
-        router.push(`/pedirturnos/gracias?${params.toString()}`)
+        router.push(`/pedirturnos/gracias?${params.toString()}`) //no tocar
       } catch (error) {
         setSubmitError(error instanceof Error ? error.message : 'No se pudo crear el turno')
       }
