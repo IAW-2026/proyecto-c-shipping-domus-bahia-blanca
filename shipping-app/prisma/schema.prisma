@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Turno {
+  id                       String   @id @default(uuid())
+  
+  propiedadId              String
+  
+  compradorId              String
+
+  vendedorId               String
+
+  nombreComprador          String? //No me dejaba migrarlo si no lo ponia con ?
+
+  agenteId                 String?
+
+  fechaHoraSolicitada      DateTime? //para que hora esta solicitado el turno
+
+  estado                   EstadoTurno
+
+  observaciones            String?
+
+  estadoComprador EstadoTurnoComprador @default(PENDIENTE)
+
+  creadoEn                 DateTime @default(now()) //cuando se crea el turno en el sistema
+
+  propiedad Propiedad @relation(fields: [propiedadId], references: [id])
+
+  agente AgenteInmobiliario? @relation(fields: [agenteId], references: [id])
+
+  @@index([vendedorId])
+}
+
+model Propiedad {
+  id                  String @id
+  nombrePropiedad     String?
+  descripcion         String?
+  direccion           String?
+  barrio              String?
+  ciudad              String?
+  provincia           String?
+  pais                String?
+  codigoPostal        String?
+  latitud             Float?
+  longitud            Float?
+  precio              Decimal? @db.Decimal(14, 2)
+  expensas            Decimal? @db.Decimal(14, 2)
+  moneda              String @default("ARS")
+  ambientes           Int?
+  dormitorios         Int?
+  banios              Int?
+  metrosTotales       Int?
+  metrosCubiertos     Int?
+  antiguedad          String?
+  condicion           String?
+  vendedorId          String
+  nombreInmobiliaria  String?
+
+  turnos              Turno[]
+  multimedia          PropertyMultimedia[]
+
+  @@index([vendedorId])
+}
+
+model PropertyMultimedia {
+  id           String @id
+  propiedadId  String
+  url          String
+  alt          String?
+  orden        Int?
+
+  propiedad    Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+
+  @@index([propiedadId])
+}
+
+model AgenteInmobiliario {
+  id               String   @id
+  
+  nombreCompleto   String
+
+  nombreInmobiliaria String?
+  
+  email            String   @unique
+  
+  telefono         String?
+
+  vendedorId       String? //inmobiliariaID
+
+  estado           EstadoAgente @default(PENDIENTE)
+
+  turnos           Turno[]
+  
+  
+}
+
+enum EstadoTurnoComprador {
+  PENDIENTE
+  CONFIRMADO
+  CANCELADO
+  COMPLETADO
+}
+
+enum EstadoTurno {
+  PENDIENTE_AGENTE
+  PRE_ACEPTADO
+  CONFIRMADO
+  CANCELADO
+  COMPLETADO
+}
+
+enum EstadoAgente {
+  PENDIENTE
+  ACEPTADO
+  RECHAZADO
+}

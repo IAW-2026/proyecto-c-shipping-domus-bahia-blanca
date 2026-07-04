@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* ─── Fuentes ─────────────────────────────────────────── */
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
+
+  /* ─── Paleta principal ──────────────────────────────── */
+  --color-background:          #fbf9f8;
+  --color-foreground:          #1b1c1c;
+
+  --color-primary:             #284335;
+  --color-primary-foreground:  #ffffff;
+  --color-primary-soft:        #afceba;
+
+  --color-secondary:           #f0eded;
+  --color-secondary-foreground:#1b1c1c;
+
+  --color-card:                #ffffff;
+  --color-card-foreground:     #1b1c1c;
+
+  --color-muted:               #f0eded;
+  --color-muted-foreground:    #424844;
+
+  --color-accent:              #672c1a;
+  --color-accent-foreground:   #ffffff;
+  --color-accent-warm:         #723522;
+
+  --color-border:              #c2c8c2;
+  --color-input:               #c2c8c2;
+  --color-ring:                #284335;
+
+  --color-sidebar:             #f5f2ee;
+  --color-sidebar-foreground:  #2c2c2c;
+  --color-sidebar-accent:      #e8e4df;
+  --color-sidebar-accent-foreground: #2c2c2c;
+  --color-sidebar-border:      #c2c8c2;
+  --color-sidebar-ring:        #284335;
+
+  /* ─── Sombras ───────────────────────────────────────── */
+  --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-elev: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+
+  /* ─── Border radius ─────────────────────────────────── */
+  --radius: 0.5rem;
+}
+
+/* ─── Base ────────────────────────────────────────────── */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Animaciones ─────────────────────────────────────── */
+@keyframes text-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  :where(h1):not([data-unstyled-heading]) {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--color-primary);
+  }
+}
