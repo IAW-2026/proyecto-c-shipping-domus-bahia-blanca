@@ -67,7 +67,7 @@ export function BackButton({
       // y no existen 2 páginas atrás en el historial, el .go(-2) no hará nada. 
       // Ponemos un pequeño timeout para redirigir por URL si el historial falla.
       const timeout = setTimeout(() => {
-        window.location.href = fallbackUrl
+        window.location.href = DEFAULT_FALLBACK_URL
       }, 150)
 
       // Limpiamos el timeout si la página logra desmontarse (navegación exitosa)
